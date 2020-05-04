@@ -2,9 +2,13 @@
 
 Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
-    systemLed(LED1)
+    systemLed(LED1),
+    usbJoystick(USB_VID, USB_PID, USB_VER)
 {
     printf("Yoke object created\r\n");
+
+    // connect USB joystick
+    usbJoystick.connect();
 
     //Yoke handler is executed every 10 ms
     eventQueue.call_every(10, callback(this, &Yoke::handler));
