@@ -181,7 +181,7 @@ bool USBJoystick::sendReport(JoystickData& joystickData)
     report.data[index++] = MSB(joystickData.Ry);
     report.data[index++] = LSB(joystickData.Rz);
     report.data[index++] = MSB(joystickData.Rz);
-    report.data[index++] = MSB(joystickData.hat);
+    report.data[index++] = joystickData.hat;
     report.data[index++] = LSB(joystickData.buttons);
     report.data[index++] = MSB(joystickData.buttons);
 
