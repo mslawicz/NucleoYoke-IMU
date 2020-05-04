@@ -13,11 +13,13 @@ USBJoystick::USBJoystick(uint16_t vendorId, uint16_t productId, uint16_t product
 {
     if (blocking)
     {
+        printf("Connecting USB HID joystick device (VID=0x%04X, PID=0x%04X, VER=%u) in blocking mode\r\n", vendorId, productId, productRelease);
         USBDevice::connect();
         wait_ready();
     }
     else
     {
+        printf("Initializing USB HID joystick device (VID=0x%04X, PID=0x%04X, VER=%u) in non-blocking mode\r\n", vendorId, productId, productRelease);
         init();
     }
 }
@@ -143,6 +145,21 @@ const uint8_t* USBJoystick::configuration_desc(uint8_t index)
     MBED_ASSERT(sizeof(configurationDescriptorTemp) == sizeof(configurationDescriptor));
     memcpy(configurationDescriptor, configurationDescriptorTemp, sizeof(configurationDescriptor));
     return configurationDescriptor;
+}
+
+/*
+* Get string product descriptor
+*
+* @returns pointer to the string product descriptor
+*/
+const uint8_t* USBJoystick::string_iproduct_desc()
+{
+    static const uint8_t OverriddenStringIproductDescriptor[] = {
+        0x18,                                                       //bLength
+        STRING_DESCRIPTOR,                                          //bDescriptorType 0x03
+        'N', 0, 'u', 0, 'c', 0, 'l', 0, 'e', 0, 'o', 0, ' ', 0, 'Y', 0, 'o', 0, 'k', 0, 'e', 0 //bString iProduct - HID device
+    };
+    return OverriddenStringIproductDescriptor;
 }
 
 /*

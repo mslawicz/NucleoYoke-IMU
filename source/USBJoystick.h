@@ -9,6 +9,7 @@
 #define USBJOYSTICK_H_
 
 #include "USBHID.h"
+#include <mbed.h>
 
 struct JoystickData
 {
@@ -27,10 +28,11 @@ class USBJoystick : public USBHID
 public:
     USBJoystick(uint16_t vendorId, uint16_t productId, uint16_t productRelease, bool blocking = false);
     virtual ~USBJoystick();
-    virtual const uint8_t* report_desc(); // returns pointer to the report descriptor; Warning: this method must store the length of the report descriptor in reportLength
+    const uint8_t* report_desc() override; // returns pointer to the report descriptor; Warning: this method must store the length of the report descriptor in reportLength
     bool sendReport(JoystickData& joystickData);
 protected:
-    virtual const uint8_t* configuration_desc(uint8_t index);   // Get configuration descriptor; returns pointer to the configuration descriptor
+    const uint8_t* configuration_desc(uint8_t index) override;   // Get configuration descriptor; returns pointer to the configuration descriptor
+    const uint8_t* string_iproduct_desc() override;      // Get string product descriptor
 private:
     uint8_t configurationDescriptor[41];
 };
