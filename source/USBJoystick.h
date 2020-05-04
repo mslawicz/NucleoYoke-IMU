@@ -19,6 +19,9 @@ struct JoystickData
     int16_t Rx;
     int16_t Ry;
     int16_t Rz;
+    int16_t slider;
+    int16_t dial;
+    int16_t wheel;
     uint8_t hat;
     uint16_t buttons;
 };

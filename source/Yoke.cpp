@@ -32,6 +32,9 @@ void Yoke::handler(void)
     testData.Rx = i16;
     testData.Ry= i16;
     testData.Rz = i16;
+    testData.slider = i16;
+    testData.dial = i16;
+    testData.wheel = i16;
 
     uint8_t phase = (counter / 100) % 9;
     testData.hat = phase;
