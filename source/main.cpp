@@ -15,12 +15,24 @@
  */
 
 #include "Yoke.h"
+#include "Console.h"
 #include <mbed.h>
 
 
 int main()
 {
     printf("Nucleo Yoke IMU v1\r\n");
+
+    // create and start console
+    Console console;
+    Thread consoleThread(osPriority_t::osPriorityLow4, OS_STACK_SIZE, nullptr, "console");
+    // register console commands
+    console.registerCommand("h", "help (display command list)", callback(&console, &Console::displayHelp));
+    //console.registerCommand("lt", "list threads", callback(listThreads));
+    //console.registerCommand("da", "display alarms", callback(&alarm, &Alarm::display));
+    //console.registerCommand("ca", "clear alarms", callback(&alarm, &Alarm::clear));
+    // start Console thread
+    consoleThread.start(callback(&console, &Console::handler));
 
     // main event queue
     events::EventQueue eventQueue;

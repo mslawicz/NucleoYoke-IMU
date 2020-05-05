@@ -6,7 +6,7 @@
  */
 
 #include "I2CDevice.h"
-//#include "Alarm.h"
+#include "Alarm.h"
 
 //extern Alarm alarm;
 
