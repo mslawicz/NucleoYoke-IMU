@@ -54,7 +54,7 @@ void Console::handler(void)
                 }
                 break;
             }
-        } while(ch != (int)KeyCode::LF);
+        } while((ch != (int)KeyCode::LF) && (ch != (int)KeyCode::CR));
 
         commandElements.clear();
         size_t currentPosition = 0;
