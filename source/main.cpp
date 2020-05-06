@@ -17,6 +17,7 @@
 #include "Yoke.h"
 #include "Console.h"
 #include "Alarm.h"
+#include "Statistics.h"
 #include <mbed.h>
 
 
@@ -30,7 +31,7 @@ int main()
 
     // register console commands
     Console::getInstance().registerCommand("h", "help (display command list)", callback(&Console::getInstance(), &Console::displayHelp));
-    //console.registerCommand("lt", "list threads", callback(listThreads));
+    Console::getInstance().registerCommand("lt", "list threads", callback(listThreads));
     Console::getInstance().registerCommand("da", "display alarms", callback(&Alarm::getInstance(), &Alarm::display));
     Console::getInstance().registerCommand("ca", "clear alarms", callback(&Alarm::getInstance(), &Alarm::clear));
 

@@ -25,7 +25,7 @@ void I2CDevice::write(uint8_t registerAddress, std::vector<uint8_t> data)
     data.insert(data.begin(), registerAddress);
     if(bus.write(static_cast<int>(address), (const char*)&data[0], data.size()))
     {
-        //alarm.set(AlarmID::I2CWrite);
+        Alarm::getInstance().set(AlarmID::I2CWrite);
     }
 }
 
@@ -37,11 +37,11 @@ std::vector<uint8_t> I2CDevice::read(uint8_t registerAddress, uint8_t length)
     std::vector<uint8_t> data(length);
     if(bus.write(static_cast<int>(address), (const char*)&registerAddress, 1, true))
     {
-        //alarm.set(AlarmID::I2CWriteBeforeRead);
+        Alarm::getInstance().set(AlarmID::I2CWriteBeforeRead);
     }
     if(bus.read(static_cast<int>(address), (char*)&data[0], length))
     {
-        //alarm.set(AlarmID::I2CReadAfterWrite);
+        Alarm::getInstance().set(AlarmID::I2CReadAfterWrite);
     }
     return data;
 }
