@@ -8,10 +8,10 @@
 #include "Console.h"
 #include "mbed.h"
 
-Console::Console()
+Console& Console::getInstance(void)
 {
-    // TODO Auto-generated constructor stub
-
+    static Console instance;    // Guaranteed to be destroyed, instantiated on first use
+    return instance;
 }
 
 /*

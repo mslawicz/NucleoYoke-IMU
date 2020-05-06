@@ -29,11 +29,14 @@ using CommandContainer = std::pair<std::string, Callback<void(CommandVector)>>;
 class Console
 {
 public:
-    Console();
+    static Console& getInstance(void);
+    Console(Console const&) = delete;   // copy constructor removed for singleton
+    void operator=(Console const&) = delete;
     void handler(void);
     void registerCommand(std::string command, std::string helpText, Callback<void(CommandVector)> commandCallback);
     void displayHelp(CommandVector cv);
 private:
+    Console() {} // private constructor definition
     void executeCommand(void);
     CommandVector commandElements;
     std::map<std::string, CommandContainer> commands;
