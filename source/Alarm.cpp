@@ -13,6 +13,12 @@ Alarm::Alarm() :
 
 }
 
+Alarm& Alarm::getInstance()
+{
+    static Alarm instance;  // Guaranteed to be destroyed, instantiated on first use
+    return instance;
+}
+
 /*
  * sets a particular alarm
  */

@@ -21,11 +21,14 @@ enum class AlarmID
 class Alarm
 {
 public:
-    Alarm();
+    Alarm(Alarm const&) = delete;       // do not allow copy constructor of a singleton
+    void operator=(Alarm const&) = delete;
+    static Alarm& getInstance();
     void set(AlarmID alarmId);
     void display(CommandVector cv);
     void clear(CommandVector cv);
 private:
+    Alarm();
     uint32_t alarmRegister{0};
     DigitalOut alarmLed;
 };

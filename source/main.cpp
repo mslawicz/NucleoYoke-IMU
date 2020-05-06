@@ -16,6 +16,7 @@
 
 #include "Yoke.h"
 #include "Console.h"
+#include "Alarm.h"
 #include <mbed.h>
 
 
@@ -26,13 +27,12 @@ int main()
     // create and start console thread
     Thread consoleThread(osPriority_t::osPriorityLow4, OS_STACK_SIZE, nullptr, "console");
     consoleThread.start(callback(&Console::getInstance(), &Console::handler));
-    Console::getInstance().registerCommand("h", "help (display command list)", callback(&Console::getInstance(), &Console::displayHelp));
 
     // register console commands
+    Console::getInstance().registerCommand("h", "help (display command list)", callback(&Console::getInstance(), &Console::displayHelp));
     //console.registerCommand("lt", "list threads", callback(listThreads));
-    //console.registerCommand("da", "display alarms", callback(&alarm, &Alarm::display));
-    //console.registerCommand("ca", "clear alarms", callback(&alarm, &Alarm::clear));
-    // start Console thread
+    Console::getInstance().registerCommand("da", "display alarms", callback(&Alarm::getInstance(), &Alarm::display));
+    Console::getInstance().registerCommand("ca", "clear alarms", callback(&Alarm::getInstance(), &Alarm::clear));
 
     // main event queue
     events::EventQueue eventQueue;
