@@ -58,7 +58,7 @@ private:
     float sensorPitchVariability{0.0f}, sensorRollVariability{0.0f};
     float sensorPitchReference{0.0f}, sensorRollReference{0.0f};
     DigitalOut calibrationLed;
-    JoystickData joystickData;
+    JoystickData joystickData{0};
 };
 
 #endif /* YOKE_H_ */
