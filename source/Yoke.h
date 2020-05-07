@@ -15,6 +15,13 @@
 #define LSM6DS3_AG_ADD  0xD6
 #define LSM6DS3_INT1    PC_8
 
+template<typename T> struct Vector3D
+{
+    T X;
+    T Y;
+    T Z;
+};
+
 enum struct LSM6DS3reg : uint8_t
 {
     INT1_CTRL = 0x0D,
@@ -39,6 +46,16 @@ private:
     I2CDevice sensorGA;                 // IMU gyroscope and accelerometer sensor
     Timeout imuIntTimeout;              // timeout of the IMU sensor interrupts
     Timer handlerTimer;                 // measures handler call period
+    Vector3D<int16_t> gyroscopeData;    // raw data from gyroscope
+    Vector3D<int16_t> accelerometerData;    // raw data from accelerometer
+    Vector3D<float> angularRate;        // measured IMU sensor angular rate in rad/s
+    Vector3D<float>  acceleration;      // measured IMU sensor acceleration in g
+    const float AngularRateResolution = 500.0f * 3.14159265f / 180.0f / 32768.0f;   // 1-bit resolution of angular rate in rad/s
+    const float AccelerationResolution = 2.0f / 32768.0f;   // 1-bit resolution of acceleration in g
+    float sensorPitch{0.0f}, sensorRoll{0.0f}, sensorYaw{0.0f};             // orientation of the IMU sensor
+    float sensorPitchVariability{0.0f}, sensorRollVariability{0.0f};
+    float sensorPitchReference{0.0f}, sensorRollReference{0.0f};
+    DigitalOut calibrationLed;
 };
 
 #endif /* YOKE_H_ */
