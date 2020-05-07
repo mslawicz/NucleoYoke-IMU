@@ -8,9 +8,10 @@
 #include "Alarm.h"
 
 Alarm::Alarm() :
-    alarmLed(LED3)
+    alarmLed(LED3, 0)
 {
-
+    Console::getInstance().registerCommand("da", "display alarms", callback(this, &Alarm::display));
+    Console::getInstance().registerCommand("ca", "clear alarms", callback(this, &Alarm::clear));
 }
 
 Alarm& Alarm::getInstance()

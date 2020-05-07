@@ -3,12 +3,12 @@
 
 Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
-    systemLed(LED1),
+    systemLed(LED2),
     usbJoystick(USB_VID, USB_PID, USB_VER),
     imuInterruptSignal(LSM6DS3_INT1),
     i2cBus(I2C1_SDA, I2C1_SCL),
     sensorGA(i2cBus, LSM6DS3_AG_ADD),
-    calibrationLed(LED2, 0)
+    calibrationLed(LED1, 0)
 {
     printf("Yoke object created\r\n");
 

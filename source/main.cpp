@@ -29,11 +29,9 @@ int main()
     Thread consoleThread(osPriority_t::osPriorityLow4, OS_STACK_SIZE, nullptr, "console");
     consoleThread.start(callback(&Console::getInstance(), &Console::handler));
 
-    // register console commands
+    // register some console commands
     Console::getInstance().registerCommand("h", "help (display command list)", callback(&Console::getInstance(), &Console::displayHelp));
     Console::getInstance().registerCommand("lt", "list threads", callback(listThreads));
-    Console::getInstance().registerCommand("da", "display alarms", callback(&Alarm::getInstance(), &Alarm::display));
-    Console::getInstance().registerCommand("ca", "clear alarms", callback(&Alarm::getInstance(), &Alarm::clear));
 
     // main event queue
     events::EventQueue eventQueue;
