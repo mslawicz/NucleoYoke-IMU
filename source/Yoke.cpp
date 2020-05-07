@@ -34,6 +34,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
 
     // start handler timer
     handlerTimer.start();
+
+    Console::getInstance().registerCommand("ys", "display yoke status", callback(this, &Yoke::displayStatus));
 }
 
 
@@ -133,8 +135,6 @@ void Yoke::handler(void)
     float joystickPitch = calibratedSensorPitch * cos2yaw + calibratedSensorRoll * sin2yaw;
     float joystickRoll = calibratedSensorRoll * cos2yaw - calibratedSensorPitch * sin2yaw;
 
-    JoystickData joystickData;
-
     // scale joystick axes to USB joystick report range
     joystickData.X = scale<float, int16_t>(-1.5f, 1.5f, joystickRoll, -32767, 32767);
     joystickData.Y = scale<float, int16_t>(-1.0f, 1.0f, joystickPitch, -32767, 32767);
@@ -144,4 +144,22 @@ void Yoke::handler(void)
 
     // LED heartbeat
     systemLed = ((counter & 0x68) == 0x68);
+}
+
+/*
+ * display status of FlightControl
+ */
+void Yoke::displayStatus(CommandVector cv)
+{
+    printf("IMU sensor pitch = %f\r\n", sensorPitch);
+    printf("IMU sensor roll = %f\r\n", sensorRoll);
+    printf("IMU sensor yaw = %f\r\n", sensorYaw);
+    printf("joystick X = %d\r\n", joystickData.X);
+    printf("joystick Y = %d\r\n", joystickData.Y);
+    printf("joystick Z = %d\r\n", joystickData.Z);
+    printf("joystick Rx = %d\r\n", joystickData.Rx);
+    printf("joystick Ry = %d\r\n", joystickData.Ry);
+    printf("joystick Rz = %d\r\n", joystickData.Rz);
+    printf("joystick hat = 0x%02X\r\n", joystickData.hat);
+    printf("joystick buttons = 0x%04X\r\n", joystickData.buttons);
 }

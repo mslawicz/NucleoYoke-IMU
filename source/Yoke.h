@@ -3,6 +3,7 @@
 
 #include "USBJoystick.h"
 #include "I2CDevice.h"
+#include "Console.h"
 #include <mbed.h>
 
 #define USB_VID     0x0483 //STElectronics
@@ -34,6 +35,7 @@ class Yoke
 {
 public:
     Yoke(events::EventQueue& eventQueue);
+    void displayStatus(CommandVector cv);
 private:
     void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
     void handler(void);
@@ -56,6 +58,7 @@ private:
     float sensorPitchVariability{0.0f}, sensorRollVariability{0.0f};
     float sensorPitchReference{0.0f}, sensorRollReference{0.0f};
     DigitalOut calibrationLed;
+    JoystickData joystickData;
 };
 
 #endif /* YOKE_H_ */
