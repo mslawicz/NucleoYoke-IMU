@@ -18,6 +18,7 @@
 #include "Console.h"
 #include "Alarm.h"
 #include "Statistics.h"
+#include "Display.h"
 #include <mbed.h>
 
 
@@ -32,6 +33,9 @@ int main()
     // register some console commands
     Console::getInstance().registerCommand("h", "help (display command list)", callback(&Console::getInstance(), &Console::displayHelp));
     Console::getInstance().registerCommand("lt", "list threads", callback(listThreads));
+
+    // init display
+    Display::getInstance().init();
 
     // main event queue
     events::EventQueue eventQueue;

@@ -9,12 +9,12 @@
 #include <cmath>
 
 SH1106::SH1106(PinName dataPin, PinName clkPin, PinName resetPin, PinName cdPin, PinName csPin) :
-    interface(dataPin, NC, clkPin),
-    resetSignal(PE_15),
+    interface(dataPin, PE_5, clkPin),
+    resetSignal(resetPin),
     cdSignal(cdPin),
-    csSignal(csPin)
+    csSignal(csPin, 1)
 {
-    csSignal = 1;
+
 }
 
 /*
@@ -134,7 +134,7 @@ void SH1106::test(uint32_t argument)
     for(uint8_t x=0; x<argument; x++)
     {
         //x^2 + y^2 = r^2
-        uint8_t y = (uint8_t)sqrt(argument * argument - x * x);
+        uint8_t y = (uint8_t)sqrtf(argument * argument - x * x);
         setPoint(64+x, 32 - y);
         setPoint(64-x, 32 - y);
         setPoint(64+x, 32 + y);
