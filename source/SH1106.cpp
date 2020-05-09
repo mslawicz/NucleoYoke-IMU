@@ -8,9 +8,13 @@
 #include "SH1106.h"
 #include <cmath>
 
-SH1106::SH1106(PinName dataPin, PinName clkPin, PinName resetPin, PinName cdPin, PinName csPin) :
-    interface(dataPin, PE_5, clkPin),
-    resetSignal(resetPin),
+/*
+constructor of the display controller SH1106
+readDataPin is not used, but since mbed-os 5.15 it cannot be defined as NC
+*/
+SH1106::SH1106(PinName writeDataPin, PinName readDataPin, PinName clkPin, PinName resetPin, PinName cdPin, PinName csPin) :
+    interface(writeDataPin, readDataPin, clkPin),
+    resetSignal(resetPin, 0),
     cdSignal(cdPin),
     csSignal(csPin, 1)
 {
@@ -22,7 +26,6 @@ SH1106::SH1106(PinName dataPin, PinName clkPin, PinName resetPin, PinName cdPin,
  */
 void SH1106::init(void)
 {
-    resetSignal = 0;
     // send a dummy byte to set proper signal levels
     interface.write(0);
     resetSignal = 1;

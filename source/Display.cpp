@@ -8,7 +8,7 @@
 #include "Display.h"
 
 Display::Display() :
-    controller(PE_14, PE_12, PE_15, PE_13, PF_13),
+    controller(PE_14, PE_13, PE_12, PE_15, PF_13, PF_12),
     displayQueueDispatchThread(osPriority_t::osPriorityBelowNormal, OS_STACK_SIZE, nullptr, "display")
 {
     // Start the display queue's dispatch thread

@@ -16,7 +16,7 @@
 class SH1106
 {
 public:
-    SH1106(PinName dataPin, PinName clkPin, PinName resetPin, PinName cdPin, PinName csPin);
+    SH1106(PinName writeDataPin, PinName readDataPin, PinName clkPin, PinName resetPin, PinName cdPin, PinName csPin);
     void init(void);
     void update(void);
     void test(uint32_t argument);
