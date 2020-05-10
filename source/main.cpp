@@ -19,8 +19,13 @@
 #include "Alarm.h"
 #include "Statistics.h"
 #include "Display.h"
+#include "Encoder.h" //XXX test
 #include <mbed.h>
 
+void testCb(uint8_t direction)
+{
+    printf("encoder rotation=%u\r\n", direction);
+}
 
 int main()
 {
@@ -45,6 +50,10 @@ int main()
 
     // create Yoke object
     Yoke yoke(eventQueue);
+
+    //XXX test of encoder callback
+    Encoder testEncoder(PG_2, PG_3, eventQueue);
+    testEncoder.setCallback(testCb);
 
     // process the event queue
     eventQueue.dispatch_forever();

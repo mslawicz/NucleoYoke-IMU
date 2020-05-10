@@ -1,11 +1,9 @@
 #include "Encoder.h"
 
-// XXX object test
-Encoder testEncoder(PG_2, PG_3);
-
-Encoder::Encoder(PinName dataPin, PinName clkPin) :
+Encoder::Encoder(PinName dataPin, PinName clkPin, EventQueue& eventQueue) :
     data(dataPin, PullUp),
-    clk(clkPin, PullUp)
+    clk(clkPin, PullUp),
+    eventQueue(eventQueue)
 {
     clk.fall(callback(this, &Encoder::onClockFallInterrupt));
     clk.rise(callback(this, &Encoder::onClockRiseInterrupt));
@@ -15,7 +13,11 @@ void Encoder::onClockFallInterrupt(void)
 {
     if(stableHigh)
     {
-        // execute client callback here
+        // execute user callback
+        if(userCb)
+        {
+            eventQueue.call(userCb, data.read());
+        }
         stableHigh = false;
     }
     clockDebounceTimeout.attach(callback(this, &Encoder::onDebounceTimeoutCb), DebounceTimeout);
