@@ -8,11 +8,14 @@ class Encoder
 public:
     Encoder(PinName dataPin, PinName clkPin);
 private:
-    void enableInterrupts(void);
-    void onClockChangeCb(void);    // on clock change callback
+    void onClockFallInterrupt(void);
+    void onClockRiseInterrupt(void);
+    void onDebounceTimeoutCb(void);
     DigitalIn data;
     InterruptIn clk;
-    Timeout interruptEnableTimeout;
+    Timeout clockDebounceTimeout;
+    const float DebounceTimeout = 0.01f;
+    bool stableHigh{true};
 };
 
 #endif /* ENCODER_H_ */

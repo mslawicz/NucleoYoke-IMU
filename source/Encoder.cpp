@@ -3,35 +3,39 @@
 // XXX object test
 Encoder testEncoder(PG_2, PG_3);
 static DigitalOut testLED(LED3);
+static DigitalOut testSignal(PE_1, 0);
 
 Encoder::Encoder(PinName dataPin, PinName clkPin) :
     data(dataPin, PullUp),
     clk(clkPin, PullUp)
 {
-    enableInterrupts();
+    clk.fall(callback(this, &Encoder::onClockFallInterrupt));
+    clk.rise(callback(this, &Encoder::onClockRiseInterrupt));
 }
 
-/*
-callback called on falling clock signal
-*/
-void Encoder::onClockChangeCb(void)
+void Encoder::onClockFallInterrupt(void)
 {
-    // disable next interrupts until it's intentionally enabled again
-    clk.fall(nullptr);
-    clk.rise(nullptr);
-    // enable this interrupt after timeout
-    interruptEnableTimeout.attach(callback(this, &Encoder::enableInterrupts), 0.1f);
-
-    // execute user on data read callback on falling edge only
-    if(clk == 0)
+    if(stableHigh)
     {
         // XXX LED test
         testLED = !testLED;
+        testSignal = !testSignal;
+
+        stableHigh = false;
     }
+    clockDebounceTimeout.attach(callback(this, &Encoder::onDebounceTimeoutCb), DebounceTimeout);
 }
 
-void Encoder::enableInterrupts(void)
+void Encoder::onClockRiseInterrupt(void)
 {
-    clk.fall(callback(this, &Encoder::onClockChangeCb));
-    clk.rise(callback(this, &Encoder::onClockChangeCb));
+    clockDebounceTimeout.attach(callback(this, &Encoder::onDebounceTimeoutCb), DebounceTimeout);
+}
+
+void Encoder::onDebounceTimeoutCb(void)
+{
+    if(clk.read() == 1)
+    {
+        stableHigh = true;
+        testSignal = !testSignal;
+    }
 }
