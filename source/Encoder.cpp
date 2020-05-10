@@ -8,33 +8,30 @@ Encoder::Encoder(PinName dataPin, PinName clkPin) :
     data(dataPin, PullUp),
     clk(clkPin, PullUp)
 {
-    clk.fall(callback(this, &Encoder::onFallingClockCb));
+    enableInterrupts();
 }
 
 /*
 callback called on falling clock signal
 */
-void Encoder::onFallingClockCb(void)
+void Encoder::onClockChangeCb(void)
 {
     // disable next interrupts until it's intentionally enabled again
     clk.fall(nullptr);
-    // enable on data change callback
-    data.rise(callback(this, &Encoder::onDataChangeCb));
-    data.fall(callback(this, &Encoder::onDataChangeCb));
+    clk.rise(nullptr);
+    // enable this interrupt after timeout
+    interruptEnableTimeout.attach(callback(this, &Encoder::enableInterrupts), 0.1f);
 
-    // execute user on data read callback
-    // XXX LED test
-    testLED = !testLED;
+    // execute user on data read callback on falling edge only
+    if(clk == 0)
+    {
+        // XXX LED test
+        testLED = !testLED;
+    }
 }
 
-/*
-callback called on data input change
-*/
-void Encoder::onDataChangeCb(void)
+void Encoder::enableInterrupts(void)
 {
-    // disable next interrupts until it's intentionally enabled again
-    data.rise(nullptr);
-    data.fall(nullptr);
-    // enable on falling clock interrupts
-    clk.fall(callback(this, &Encoder::onFallingClockCb));
+    clk.fall(callback(this, &Encoder::onClockChangeCb));
+    clk.rise(callback(this, &Encoder::onClockChangeCb));
 }

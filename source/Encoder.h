@@ -8,10 +8,11 @@ class Encoder
 public:
     Encoder(PinName dataPin, PinName clkPin);
 private:
-    void onFallingClockCb(void);    // on falling clock callback
-    void onDataChangeCb(void);      // on data input change callback 
-    InterruptIn data;
+    void enableInterrupts(void);
+    void onClockChangeCb(void);    // on clock change callback
+    DigitalIn data;
     InterruptIn clk;
+    Timeout interruptEnableTimeout;
 };
 
 #endif /* ENCODER_H_ */
