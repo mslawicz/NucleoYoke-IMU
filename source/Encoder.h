@@ -8,8 +8,10 @@ class Encoder
 public:
     Encoder(PinName dataPin, PinName clkPin);
 private:
-    PinName dataPin;
-    PinName clkPin;
+    void onFallingClockCb(void);    // on falling clock callback
+    void onDataChangeCb(void);      // on data input change callback 
+    InterruptIn data;
+    InterruptIn clk;
 };
 
 #endif /* ENCODER_H_ */
