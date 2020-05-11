@@ -15,10 +15,21 @@ void Switch::onLevelFallInterrupt(void)
 {
     if(stableHigh)
     {
-        // execute user callback
+        // execute user callback on falling edge
         if(userCb)
         {
-            eventQueue.call(userCb, direction.read());
+            switch(switchType)
+            {
+                case SwitchType::BinaryEncoder:
+                    eventQueue.call(userCb, direction.read());
+                    break;
+                case SwitchType::Pushbutton:
+                case SwitchType::ToggleSwitch:
+                    eventQueue.call(userCb, 0);
+                    break;
+                default:
+                    break;
+            }
         }
         stableHigh = false;
     }
@@ -27,6 +38,24 @@ void Switch::onLevelFallInterrupt(void)
 
 void Switch::onLevelRiseInterrupt(void)
 {
+    if(stableLow)
+    {
+        // execute user callback on rising edge
+        if(userCb)
+        {
+            switch(switchType)
+            {
+                case SwitchType::ToggleSwitch:
+                    eventQueue.call(userCb, 1);
+                    break;
+                case SwitchType::Pushbutton:
+                case SwitchType::BinaryEncoder:
+                default:
+                    break;
+            }
+        }
+        stableLow = false;
+    }
     levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), debounceTimeout);
 }
 
