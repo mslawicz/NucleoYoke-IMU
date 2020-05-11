@@ -1,6 +1,7 @@
 #include "Switch.h"
 
-Switch::Switch(PinName levelPin, EventQueue& eventQueue, float debounceTimeout, PinName directionPin) :
+Switch::Switch(SwitchType switchType, PinName levelPin, EventQueue& eventQueue, float debounceTimeout, PinName directionPin) :
+    switchType(switchType),
     level(levelPin, PullUp),
     eventQueue(eventQueue),
     debounceTimeout(debounceTimeout),
@@ -34,5 +35,9 @@ void Switch::onDebounceTimeoutCb(void)
     if(level.read() == 1)
     {
         stableHigh = true;
+    }
+    else
+    {
+        stableLow = true;
     }
 }
