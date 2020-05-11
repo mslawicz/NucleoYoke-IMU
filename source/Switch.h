@@ -6,17 +6,17 @@
 class Switch
 {
 public:
-    Switch(PinName dataPin, PinName clkPin, EventQueue& eventQueue);
+    Switch(PinName statePin, EventQueue& eventQueue, float debounceTimeout = 0.01f, PinName directionPin = NC);
     void setCallback(Callback<void(uint8_t)> cb) { userCb = cb; }
 private:
     void onClockFallInterrupt(void);
     void onClockRiseInterrupt(void);
     void onDebounceTimeoutCb(void);
-    DigitalIn data;
-    InterruptIn clk;
+    InterruptIn state;
     EventQueue& eventQueue;
+    float debounceTimeout;
+    DigitalIn direction;
     Timeout clockDebounceTimeout;
-    const float DebounceTimeout = 0.01f;
     bool stableHigh{true};
     Callback<void(uint8_t)> userCb{nullptr};    // callback function called with argument=0 (left turn) or 1 (right turn)
 };

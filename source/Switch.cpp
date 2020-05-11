@@ -1,12 +1,13 @@
 #include "Switch.h"
 
-Switch::Switch(PinName dataPin, PinName clkPin, EventQueue& eventQueue) :
-    data(dataPin, PullUp),
-    clk(clkPin, PullUp),
-    eventQueue(eventQueue)
+Switch::Switch(PinName statePin, EventQueue& eventQueue, float debounceTimeout, PinName directionPin) :
+    state(statePin, PullUp),
+    eventQueue(eventQueue),
+    debounceTimeout(debounceTimeout),
+    direction(directionPin, PullUp)
 {
-    clk.fall(callback(this, &Switch::onClockFallInterrupt));
-    clk.rise(callback(this, &Switch::onClockRiseInterrupt));
+    state.fall(callback(this, &Switch::onClockFallInterrupt));
+    state.rise(callback(this, &Switch::onClockRiseInterrupt));
 }
 
 void Switch::onClockFallInterrupt(void)
@@ -16,21 +17,21 @@ void Switch::onClockFallInterrupt(void)
         // execute user callback
         if(userCb)
         {
-            eventQueue.call(userCb, data.read());
+            eventQueue.call(userCb, direction.read());
         }
         stableHigh = false;
     }
-    clockDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), DebounceTimeout);
+    clockDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), debounceTimeout);
 }
 
 void Switch::onClockRiseInterrupt(void)
 {
-    clockDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), DebounceTimeout);
+    clockDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), debounceTimeout);
 }
 
 void Switch::onDebounceTimeoutCb(void)
 {
-    if(clk.read() == 1)
+    if(state.read() == 1)
     {
         stableHigh = true;
     }

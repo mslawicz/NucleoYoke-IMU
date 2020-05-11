@@ -52,7 +52,7 @@ int main()
     Yoke yoke(eventQueue);
 
     //XXX test of encoder callback
-    Switch testEncoder(PG_2, PG_3, eventQueue);
+    Switch testEncoder(PG_3, eventQueue, 0.01f, PG_2);
     testEncoder.setCallback(testCb);
 
     // process the event queue
