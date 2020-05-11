@@ -22,9 +22,14 @@
 #include "Switch.h" //XXX test
 #include <mbed.h>
 
-void testCb(uint8_t direction)
+void encoderTestCb(uint8_t direction)
 {
     printf("encoder rotation=%u\r\n", direction);
+}
+
+void toggleTestCb(uint8_t position)
+{
+    printf("toggle switch position=%u\r\n", position);
 }
 
 int main()
@@ -52,8 +57,10 @@ int main()
     Yoke yoke(eventQueue);
 
     //XXX test of encoder callback
-    Switch testEncoder(SwitchType::BinaryEncoder, PG_3, eventQueue, 0.01f, PG_2);
-    testEncoder.setCallback(testCb);
+    Switch testEncoder(SwitchType::RotaryEncoder, PG_3, eventQueue, 0.01f, PG_2);
+    testEncoder.setCallback(encoderTestCb);
+    Switch testToggle(SwitchType::ToggleSwitch, PG_1, eventQueue);
+    testToggle.setCallback(toggleTestCb);
 
     // process the event queue
     eventQueue.dispatch_forever();

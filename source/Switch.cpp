@@ -20,7 +20,7 @@ void Switch::onLevelFallInterrupt(void)
         {
             switch(switchType)
             {
-                case SwitchType::BinaryEncoder:
+                case SwitchType::RotaryEncoder:
                     eventQueue.call(userCb, direction.read());
                     break;
                 case SwitchType::Pushbutton:
@@ -49,7 +49,7 @@ void Switch::onLevelRiseInterrupt(void)
                     eventQueue.call(userCb, 1);
                     break;
                 case SwitchType::Pushbutton:
-                case SwitchType::BinaryEncoder:
+                case SwitchType::RotaryEncoder:
                 default:
                     break;
             }

@@ -7,9 +7,13 @@ enum class SwitchType
 {
     Pushbutton,
     ToggleSwitch,
-    BinaryEncoder
+    RotaryEncoder
 };
 
+/*
+Class of various types of switches (pushbutton, toggle switch, rotary encoder)
+Caution! Do not use the same levelPin number for several objects
+*/
 class Switch
 {
 public:
