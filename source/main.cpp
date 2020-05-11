@@ -19,7 +19,7 @@
 #include "Alarm.h"
 #include "Statistics.h"
 #include "Display.h"
-#include "Encoder.h" //XXX test
+#include "Switch.h" //XXX test
 #include <mbed.h>
 
 void testCb(uint8_t direction)
@@ -52,7 +52,7 @@ int main()
     Yoke yoke(eventQueue);
 
     //XXX test of encoder callback
-    Encoder testEncoder(PG_2, PG_3, eventQueue);
+    Switch testEncoder(PG_2, PG_3, eventQueue);
     testEncoder.setCallback(testCb);
 
     // process the event queue

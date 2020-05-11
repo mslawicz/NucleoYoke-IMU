@@ -1,12 +1,12 @@
-#ifndef ENCODER_H_
-#define ENCODER_H_
+#ifndef SWITCH_H_
+#define SWITCH_H_
 
 #include <mbed.h>
 
-class Encoder
+class Switch
 {
 public:
-    Encoder(PinName dataPin, PinName clkPin, EventQueue& eventQueue);
+    Switch(PinName dataPin, PinName clkPin, EventQueue& eventQueue);
     void setCallback(Callback<void(uint8_t)> cb) { userCb = cb; }
 private:
     void onClockFallInterrupt(void);
@@ -21,4 +21,4 @@ private:
     Callback<void(uint8_t)> userCb{nullptr};    // callback function called with argument=0 (left turn) or 1 (right turn)
 };
 
-#endif /* ENCODER_H_ */
+#endif /* ENCSWITCH_H_ODER_H_ */
