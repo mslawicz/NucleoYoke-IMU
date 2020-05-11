@@ -1,16 +1,16 @@
 #include "Switch.h"
 
-Switch::Switch(PinName statePin, EventQueue& eventQueue, float debounceTimeout, PinName directionPin) :
-    state(statePin, PullUp),
+Switch::Switch(PinName levelPin, EventQueue& eventQueue, float debounceTimeout, PinName directionPin) :
+    level(levelPin, PullUp),
     eventQueue(eventQueue),
     debounceTimeout(debounceTimeout),
     direction(directionPin, PullUp)
 {
-    state.fall(callback(this, &Switch::onClockFallInterrupt));
-    state.rise(callback(this, &Switch::onClockRiseInterrupt));
+    level.fall(callback(this, &Switch::onLevelFallInterrupt));
+    level.rise(callback(this, &Switch::onLevelRiseInterrupt));
 }
 
-void Switch::onClockFallInterrupt(void)
+void Switch::onLevelFallInterrupt(void)
 {
     if(stableHigh)
     {
@@ -21,17 +21,17 @@ void Switch::onClockFallInterrupt(void)
         }
         stableHigh = false;
     }
-    clockDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), debounceTimeout);
+    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), debounceTimeout);
 }
 
-void Switch::onClockRiseInterrupt(void)
+void Switch::onLevelRiseInterrupt(void)
 {
-    clockDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), debounceTimeout);
+    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), debounceTimeout);
 }
 
 void Switch::onDebounceTimeoutCb(void)
 {
-    if(state.read() == 1)
+    if(level.read() == 1)
     {
         stableHigh = true;
     }
