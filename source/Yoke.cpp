@@ -8,7 +8,16 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     imuInterruptSignal(LSM6DS3_INT1),
     i2cBus(I2C1_SDA, I2C1_SCL),
     sensorGA(i2cBus, LSM6DS3_AG_ADD),
-    calibrationLed(LED1, 0)
+    calibrationLed(LED1, 0),
+    flapsUpSwitch(PB_15, PullUp),
+    flapsDownSwitch(PB_13, PullUp),
+    gearUpSwitch(PF_4, PullUp),
+    gearDownSwitch(PF_5, PullUp),
+    redPushbutton(PB_11, PullUp),
+    greenPushbutton(PB_2, PullUp),
+    throttlePotentiometer(PC_5),
+    propellerPotentiometer(PC_4),
+    mixturePotentiometer(PB_1)
 {
     printf("Yoke object created\r\n");
 
@@ -140,6 +149,13 @@ void Yoke::handler(void)
     joystickData.Y = scale<float, int16_t>(-1.0f, 1.0f, joystickPitch, -32767, 32767);
     joystickData.Z = scale<float, int16_t>(-0.75f, 0.75f, sensorYaw, -32767, 32767);
 
+    joystickData.slider = scale<float, int16_t>(0.0f, 1.0f, throttlePotentiometer.read(), -32767, 32767);
+    joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
+    joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixturePotentiometer.read(), -32767, 32767);
+
+    // set joystick buttons
+    setJoystickButtons();
+
     usbJoystick.sendReport(joystickData);
 
     // LED heartbeat
@@ -165,4 +181,29 @@ void Yoke::displayStatus(CommandVector cv)
     printf("joystick wheel = %d\r\n", joystickData.wheel);
     printf("joystick hat = 0x%02X\r\n", joystickData.hat);
     printf("joystick buttons = 0x%04X\r\n", joystickData.buttons);
+}
+
+/*
+set joystick buttons
+*/
+void Yoke::setJoystickButtons(void)
+{
+    auto setButton = [&](DigitalIn& input, uint8_t position)
+    {
+        if(input.read())
+        {
+            joystickData.buttons &= ~(1 << position);
+        }
+        else
+        {
+            joystickData.buttons |= 1 << position;
+        }
+    };
+
+    setButton(flapsUpSwitch, 0);
+    setButton(flapsDownSwitch, 1);
+    setButton(gearUpSwitch, 2);
+    setButton(gearDownSwitch, 3);
+    setButton(redPushbutton, 4);
+    setButton(greenPushbutton, 5);
 }

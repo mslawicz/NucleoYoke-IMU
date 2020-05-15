@@ -39,6 +39,7 @@ public:
 private:
     void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
     void handler(void);
+    void setJoystickButtons(void);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution
@@ -59,6 +60,15 @@ private:
     float sensorPitchReference{0.0f}, sensorRollReference{0.0f};
     DigitalOut calibrationLed;
     JoystickData joystickData{0};
+    DigitalIn flapsUpSwitch;
+    DigitalIn flapsDownSwitch;
+    DigitalIn gearUpSwitch;
+    DigitalIn gearDownSwitch;
+    DigitalIn redPushbutton;
+    DigitalIn greenPushbutton;
+    AnalogIn throttlePotentiometer;
+    AnalogIn propellerPotentiometer;
+    AnalogIn mixturePotentiometer;
 };
 
 #endif /* YOKE_H_ */
