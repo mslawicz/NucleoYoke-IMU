@@ -155,13 +155,10 @@ void Yoke::handler(void)
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
     joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixturePotentiometer.read(), -32767, 32767);
 
-    // XXX tiny joystick test
-    if(counter % 50 == 0)
-    {
-        float leftBrake = tinyJoystickX.read() - tinyJoystickY.read();
-        float rightBrake = 1.0f - tinyJoystickX.read() - tinyJoystickY.read();
-        printf("L=%f  R=%f\r\n", leftBrake, rightBrake);
-    }
+    float leftBrake = tinyJoystickX.read() - tinyJoystickY.read();
+    float rightBrake = 1.0f - tinyJoystickX.read() - tinyJoystickY.read();
+    joystickData.Rx = scale<float, int16_t>(0.1f, 0.5f, leftBrake, -32767, 32767);
+    joystickData.Ry = scale<float, int16_t>(0.1f, 0.5f, rightBrake, -32767, 32767);
 
     // set joystick buttons
     setJoystickButtons();
