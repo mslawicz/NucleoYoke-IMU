@@ -69,6 +69,8 @@ private:
     AnalogIn throttlePotentiometer;
     AnalogIn propellerPotentiometer;
     AnalogIn mixturePotentiometer;
+    AnalogIn tinyJoystickX;
+    AnalogIn tinyJoystickY;
 };
 
 #endif /* YOKE_H_ */

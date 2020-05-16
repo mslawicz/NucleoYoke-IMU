@@ -17,7 +17,9 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     greenPushbutton(PB_2, PullUp),
     throttlePotentiometer(PC_5),
     propellerPotentiometer(PC_4),
-    mixturePotentiometer(PB_1)
+    mixturePotentiometer(PB_1),
+    tinyJoystickX(PC_3),
+    tinyJoystickY(PC_2)
 {
     printf("Yoke object created\r\n");
 
@@ -152,6 +154,14 @@ void Yoke::handler(void)
     joystickData.slider = scale<float, int16_t>(0.0f, 1.0f, throttlePotentiometer.read(), -32767, 32767);
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
     joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixturePotentiometer.read(), -32767, 32767);
+
+    // XXX tiny joystick test
+    if(counter % 50 == 0)
+    {
+        float leftBrake = tinyJoystickX.read() - tinyJoystickY.read();
+        float rightBrake = 1.0f - tinyJoystickX.read() - tinyJoystickY.read();
+        printf("L=%f  R=%f\r\n", leftBrake, rightBrake);
+    }
 
     // set joystick buttons
     setJoystickButtons();
