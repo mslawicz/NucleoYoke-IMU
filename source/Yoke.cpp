@@ -6,7 +6,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     systemLed(LED2),
     usbJoystick(USB_VID, USB_PID, USB_VER),
     i2cBus(I2C1_SDA, I2C1_SCL),
-    stepperMotorController(i2cBus, PCA9685_ADD),
+    //stepperMotorController(i2cBus, PCA9685_ADD),
+    stepperMotorController(i2cBus, LSM6DS3_ADD),
     calibrationLed(LED1, 0),
     flapsUpSwitch(PB_15, PullUp),
     flapsDownSwitch(PB_13, PullUp),
@@ -27,14 +28,10 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     // connect USB joystick
     usbJoystick.connect();
 
-    // configure IMU sensor
-    // INT1<-DRDY_G
-    //sensorGA.write((uint8_t)LSM6DS3reg::INT1_CTRL, std::vector<uint8_t>{0x02});
-    // accelerometer ODR=104 Hz, full scale 2g, antialiasing 400 Hz
-    // gyroscope ODR=104 Hz, full scale 500 dps,
-    //sensorGA.write((uint8_t)LSM6DS3reg::CTRL1_XL, std::vector<uint8_t>{0x40, 0x44});
-    // gyroscope HPF enable, HPF=0.0081 Hz
-    //sensorGA.write((uint8_t)LSM6DS3reg::CTRL7_G, std::vector<uint8_t>{0x40});
+    // configure PCA9685
+    stepperMotorController.write(0x01, std::vector<uint8_t>{0x0C});
+    auto registers = stepperMotorController.read(0x01, 1);
+    printf("PCA9685[0x01]=%u\r\n", registers[0]);
 
     // this timeout calls handler for the first time
     // next calls will be executed upon IMU INT1 interrupt signal
@@ -61,6 +58,10 @@ void Yoke::handler(void)
     float deltaT = handlerTimer.read();
     handlerTimer.reset();
     counter++;
+
+    //XXX test
+    //stepperMotorController.write(0x06, std::vector<uint8_t>{0x00, 0x00, 0x00, 0x10});
+    stepperMotorController.read(0x0F, 1);
 
     // read IMU sensor data
     auto sensorData = std::vector<uint8_t>(12, 0); //sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);

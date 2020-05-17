@@ -14,6 +14,7 @@
 #define I2C1_SDA    PB_9
 
 #define PCA9685_ADD  0xC0
+#define LSM6DS3_ADD  0xD6
 
 template<typename T> struct Vector3D
 {
