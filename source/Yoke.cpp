@@ -5,9 +5,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
     systemLed(LED2),
     usbJoystick(USB_VID, USB_PID, USB_VER),
-    imuInterruptSignal(LSM6DS3_INT1),
     i2cBus(I2C1_SDA, I2C1_SCL),
-    //sensorGA(i2cBus, LSM6DS3_AG_ADD),
+    stepperMotorController(i2cBus, PCA9685_ADD),
     calibrationLed(LED1, 0),
     flapsUpSwitch(PB_15, PullUp),
     flapsDownSwitch(PB_13, PullUp),
@@ -37,8 +36,6 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     // gyroscope HPF enable, HPF=0.0081 Hz
     //sensorGA.write((uint8_t)LSM6DS3reg::CTRL7_G, std::vector<uint8_t>{0x40});
 
-    // call handler on IMU interrupt rise signal
-    imuInterruptSignal.rise(callback(this, &Yoke::imuInterruptHandler));
     // this timeout calls handler for the first time
     // next calls will be executed upon IMU INT1 interrupt signal
     imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 0.1f);

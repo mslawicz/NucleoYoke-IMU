@@ -13,8 +13,7 @@
 #define I2C1_SCL    PB_8
 #define I2C1_SDA    PB_9
 
-#define LSM6DS3_AG_ADD  0xD6
-#define LSM6DS3_INT1    PD_2
+#define PCA9685_ADD  0xC0
 
 template<typename T> struct Vector3D
 {
@@ -44,9 +43,8 @@ private:
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution
     USBJoystick usbJoystick;            // USB HID joystick device
-    InterruptIn imuInterruptSignal;     //IMU sensor interrupt signal
     I2C i2cBus;                         // I2C bus for IMU sensor
-    //I2CDevice sensorGA;                 // IMU gyroscope and accelerometer sensor
+    I2CDevice stepperMotorController;   // stepper motor controller
     Timeout imuIntTimeout;              // timeout of the IMU sensor interrupts
     Timer handlerTimer;                 // measures handler call period
     Vector3D<int16_t> gyroscopeData;    // raw data from gyroscope
