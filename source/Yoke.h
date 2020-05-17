@@ -46,7 +46,7 @@ private:
     USBJoystick usbJoystick;            // USB HID joystick device
     InterruptIn imuInterruptSignal;     //IMU sensor interrupt signal
     I2C i2cBus;                         // I2C bus for IMU sensor
-    I2CDevice sensorGA;                 // IMU gyroscope and accelerometer sensor
+    //I2CDevice sensorGA;                 // IMU gyroscope and accelerometer sensor
     Timeout imuIntTimeout;              // timeout of the IMU sensor interrupts
     Timer handlerTimer;                 // measures handler call period
     Vector3D<int16_t> gyroscopeData;    // raw data from gyroscope

@@ -7,7 +7,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     usbJoystick(USB_VID, USB_PID, USB_VER),
     imuInterruptSignal(LSM6DS3_INT1),
     i2cBus(I2C1_SDA, I2C1_SCL),
-    sensorGA(i2cBus, LSM6DS3_AG_ADD),
+    //sensorGA(i2cBus, LSM6DS3_AG_ADD),
     calibrationLed(LED1, 0),
     flapsUpSwitch(PB_15, PullUp),
     flapsDownSwitch(PB_13, PullUp),
@@ -15,8 +15,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     gearDownSwitch(PF_5, PullUp),
     redPushbutton(PB_11, PullUp),
     greenPushbutton(PB_2, PullUp),
-    throttlePotentiometer(PC_5),
-    propellerPotentiometer(PC_4),
+    throttlePotentiometer(PC_0),//XXX PC_5),
+    propellerPotentiometer(PC_1),//XXX PC_4),
     mixturePotentiometer(PB_1),
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2)
@@ -30,12 +30,12 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
 
     // configure IMU sensor
     // INT1<-DRDY_G
-    sensorGA.write((uint8_t)LSM6DS3reg::INT1_CTRL, std::vector<uint8_t>{0x02});
+    //sensorGA.write((uint8_t)LSM6DS3reg::INT1_CTRL, std::vector<uint8_t>{0x02});
     // accelerometer ODR=104 Hz, full scale 2g, antialiasing 400 Hz
     // gyroscope ODR=104 Hz, full scale 500 dps,
-    sensorGA.write((uint8_t)LSM6DS3reg::CTRL1_XL, std::vector<uint8_t>{0x40, 0x44});
+    //sensorGA.write((uint8_t)LSM6DS3reg::CTRL1_XL, std::vector<uint8_t>{0x40, 0x44});
     // gyroscope HPF enable, HPF=0.0081 Hz
-    sensorGA.write((uint8_t)LSM6DS3reg::CTRL7_G, std::vector<uint8_t>{0x40});
+    //sensorGA.write((uint8_t)LSM6DS3reg::CTRL7_G, std::vector<uint8_t>{0x40});
 
     // call handler on IMU interrupt rise signal
     imuInterruptSignal.rise(callback(this, &Yoke::imuInterruptHandler));
@@ -58,7 +58,7 @@ void Yoke::handler(void)
 {
     // this timeout is set only for the case of lost IMU interrupt signal
     // the timeout should never happen, as the next interrupt should be called earlier
-    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 0.02f);
+    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 0.008f);
 
     // measure time elapsed since the previous call
     float deltaT = handlerTimer.read();
@@ -66,7 +66,7 @@ void Yoke::handler(void)
     counter++;
 
     // read IMU sensor data
-    auto sensorData = sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);
+    auto sensorData = std::vector<uint8_t>(12, 0); //sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);
     gyroscopeData.X = *reinterpret_cast<int16_t*>(&sensorData[0]);
     gyroscopeData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
     gyroscopeData.Z = *reinterpret_cast<int16_t*>(&sensorData[4]);
