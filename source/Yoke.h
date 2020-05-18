@@ -13,7 +13,7 @@
 #define I2C1_SCL    PB_8
 #define I2C1_SDA    PB_9
 
-#define PCA9685_ADD  0xC2
+#define PCA9685_ADD  0xC0
 #define LSM6DS3_ADD  0xD6
 
 template<typename T> struct Vector3D
@@ -40,6 +40,7 @@ private:
     void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
     void handler(void);
     void setJoystickButtons(void);
+    void setChannel(uint8_t chNo, uint8_t value);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution

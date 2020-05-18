@@ -29,9 +29,15 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     usbJoystick.connect();
 
     // configure PCA9685
-    stepperMotorController.write(0x01, std::vector<uint8_t>{0x0C});
+    stepperMotorController.write(0x00, std::vector<uint8_t>{0x30}); //sleep mode
+    stepperMotorController.write(0xFE, std::vector<uint8_t>{0x03}); //prescale value for high frequency
+    stepperMotorController.write(0x00, std::vector<uint8_t>{0x20, 0x0C}); // normal mode , totem pole, register increment
     auto registers = stepperMotorController.read(0x01, 1);
     printf("PCA9685[0x01]=%u\r\n", registers[0]);
+
+    // switch motor voltage on
+    setChannel(2, 1);
+    setChannel(7, 1);
 
     // this timeout calls handler for the first time
     // next calls will be executed upon IMU INT1 interrupt signal
@@ -60,8 +66,44 @@ void Yoke::handler(void)
     counter++;
 
     //XXX test
-    stepperMotorController.write(0x06, std::vector<uint8_t>{0x00, 0x00, 0x00, 0x10});
-    //stepperMotorController.read(0x0F, 1);
+    uint8_t phase;
+    phase = (counter / 16) % 4;
+
+    switch(phase)
+    {
+    case 0:
+        setChannel(3, 1);
+        setChannel(4, 0);
+        setChannel(5, 0);
+        setChannel(6, 1);
+        break;
+    case 1:
+        setChannel(3, 1);
+        setChannel(4, 0);
+        setChannel(5, 1);
+        setChannel(6, 0);
+        break;
+    case 2:
+        setChannel(3, 0);
+        setChannel(4, 1);
+        setChannel(5, 1);
+        setChannel(6, 0);
+        break;
+    case 3:
+        setChannel(3, 0);
+        setChannel(4, 1);
+        setChannel(5, 0);
+        setChannel(6, 1);
+        break;
+    default:
+        setChannel(3, 0);
+        setChannel(4, 0);
+        setChannel(5, 0);
+        setChannel(6, 0);
+        break;
+    }
+
+    setChannel(0, phase == 0);
 
     // read IMU sensor data
     auto sensorData = std::vector<uint8_t>(12, 0); //sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);
@@ -211,4 +253,11 @@ void Yoke::setJoystickButtons(void)
     setButton(gearDownSwitch, 3);
     setButton(redPushbutton, 4);
     setButton(greenPushbutton, 5);
+}
+
+void Yoke::setChannel(uint8_t chNo, uint8_t value)
+{
+    static const std::vector<uint8_t> ChannelHigh{0x00, 0x10, 0x00, 0x00};
+    static const std::vector<uint8_t> ChannelLow{0x00, 0x00, 0x00, 0x10};
+    stepperMotorController.write(6 + chNo * 4, value != 0 ? ChannelHigh : ChannelLow);
 }
