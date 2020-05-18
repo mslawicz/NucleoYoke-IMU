@@ -6,8 +6,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     systemLed(LED2),
     usbJoystick(USB_VID, USB_PID, USB_VER),
     i2cBus(I2C1_SDA, I2C1_SCL),
-    //stepperMotorController(i2cBus, PCA9685_ADD),
-    stepperMotorController(i2cBus, LSM6DS3_ADD),
+    stepperMotorController(i2cBus, PCA9685_ADD),
+    //stepperMotorController(i2cBus, LSM6DS3_ADD),
     calibrationLed(LED1, 0),
     flapsUpSwitch(PB_15, PullUp),
     flapsDownSwitch(PB_13, PullUp),
@@ -60,8 +60,8 @@ void Yoke::handler(void)
     counter++;
 
     //XXX test
-    //stepperMotorController.write(0x06, std::vector<uint8_t>{0x00, 0x00, 0x00, 0x10});
-    stepperMotorController.read(0x0F, 1);
+    stepperMotorController.write(0x06, std::vector<uint8_t>{0x00, 0x00, 0x00, 0x10});
+    //stepperMotorController.read(0x0F, 1);
 
     // read IMU sensor data
     auto sensorData = std::vector<uint8_t>(12, 0); //sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);
