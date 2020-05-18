@@ -67,7 +67,7 @@ void Yoke::handler(void)
 
     //XXX test
     uint8_t phase;
-    phase = (counter / 16) % 4;
+    phase = (counter) % 8;
 
     switch(phase)
     {
@@ -75,7 +75,7 @@ void Yoke::handler(void)
         setChannel(3, 1);
         setChannel(4, 0);
         setChannel(5, 0);
-        setChannel(6, 1);
+        setChannel(6, 0);
         break;
     case 1:
         setChannel(3, 1);
@@ -85,15 +85,39 @@ void Yoke::handler(void)
         break;
     case 2:
         setChannel(3, 0);
-        setChannel(4, 1);
+        setChannel(4, 0);
         setChannel(5, 1);
         setChannel(6, 0);
         break;
     case 3:
         setChannel(3, 0);
+        setChannel(4, 0);
+        setChannel(5, 0);
+        setChannel(6, 0);
+        break;
+    case 4:
+        setChannel(3, 0);
+        setChannel(4, 1);
+        setChannel(5, 0);
+        setChannel(6, 0);
+        break;
+    case 5:
+        setChannel(3, 0);
         setChannel(4, 1);
         setChannel(5, 0);
         setChannel(6, 1);
+        break;
+    case 6:
+        setChannel(3, 0);
+        setChannel(4, 0);
+        setChannel(5, 0);
+        setChannel(6, 1);
+        break;
+    case 7:
+        setChannel(3, 0);
+        setChannel(4, 0);
+        setChannel(5, 0);
+        setChannel(6, 0);
         break;
     default:
         setChannel(3, 0);
