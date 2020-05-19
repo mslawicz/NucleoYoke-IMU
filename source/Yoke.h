@@ -40,7 +40,7 @@ private:
     void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
     void handler(void);
     void setJoystickButtons(void);
-    void setChannel(uint8_t chNo, uint8_t value);
+    void setStep(float phase, float torqueFactor);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution

@@ -15,8 +15,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     gearDownSwitch(PF_5, PullUp),
     redPushbutton(PB_11, PullUp),
     greenPushbutton(PB_2, PullUp),
-    throttlePotentiometer(PC_0),//XXX PC_5),
-    propellerPotentiometer(PC_1),//XXX PC_4),
+    throttlePotentiometer(PC_5),
+    propellerPotentiometer(PC_4),
     mixturePotentiometer(PB_1),
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2)
@@ -34,10 +34,6 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     stepperMotorController.write(0x00, std::vector<uint8_t>{0x20, 0x0C}); // normal mode , totem pole, register increment
     auto registers = stepperMotorController.read(0x01, 1);
     printf("PCA9685[0x01]=%u\r\n", registers[0]);
-
-    // switch motor voltage on
-    setChannel(2, 1);
-    setChannel(7, 1);
 
     // this timeout calls handler for the first time
     // next calls will be executed upon IMU INT1 interrupt signal
@@ -66,68 +62,20 @@ void Yoke::handler(void)
     counter++;
 
     //XXX test
-    uint8_t phase;
-    phase = (counter) % 8;
-
-    switch(phase)
+    static float phase = 0.0f;
+    // mixturePotentiometer -> motor speed
+    phase += scale<float, float>(0.0f, 1.0f, mixturePotentiometer.read(), -1.57f, 1.57f);
+    // trottlePotentiometer -> motor torque (resistance to external force)
+    float torqueFactor = throttlePotentiometer.read(); 
+    if(phase > 6.28f)
     {
-    case 0:
-        setChannel(3, 1);
-        setChannel(4, 0);
-        setChannel(5, 0);
-        setChannel(6, 0);
-        break;
-    case 1:
-        setChannel(3, 1);
-        setChannel(4, 0);
-        setChannel(5, 1);
-        setChannel(6, 0);
-        break;
-    case 2:
-        setChannel(3, 0);
-        setChannel(4, 0);
-        setChannel(5, 1);
-        setChannel(6, 0);
-        break;
-    case 3:
-        setChannel(3, 0);
-        setChannel(4, 1);
-        setChannel(5, 1);
-        setChannel(6, 0);
-        break;
-    case 4:
-        setChannel(3, 0);
-        setChannel(4, 1);
-        setChannel(5, 0);
-        setChannel(6, 0);
-        break;
-    case 5:
-        setChannel(3, 0);
-        setChannel(4, 1);
-        setChannel(5, 0);
-        setChannel(6, 1);
-        break;
-    case 6:
-        setChannel(3, 0);
-        setChannel(4, 0);
-        setChannel(5, 0);
-        setChannel(6, 1);
-        break;
-    case 7:
-        setChannel(3, 0);
-        setChannel(4, 0);
-        setChannel(5, 0);
-        setChannel(6, 1);
-        break;
-    default:
-        setChannel(3, 0);
-        setChannel(4, 0);
-        setChannel(5, 0);
-        setChannel(6, 0);
-        break;
+        phase -= 6.28f;
     }
-
-    setChannel(0, phase == 0);
+    if(phase < 0.0f)
+    {
+        phase += 6.28f;
+    }
+    setStep(phase, torqueFactor);
 
     // read IMU sensor data
     auto sensorData = std::vector<uint8_t>(12, 0); //sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);
@@ -279,9 +227,41 @@ void Yoke::setJoystickButtons(void)
     setButton(greenPushbutton, 5);
 }
 
-void Yoke::setChannel(uint8_t chNo, uint8_t value)
+void Yoke::setStep(float phase, float torqueFactor)
 {
     static const std::vector<uint8_t> ChannelHigh{0x00, 0x10, 0x00, 0x00};
     static const std::vector<uint8_t> ChannelLow{0x00, 0x00, 0x00, 0x10};
-    stepperMotorController.write(6 + chNo * 4, value != 0 ? ChannelHigh : ChannelLow);
+    float sinPhace = sin(phase);
+    float cosPhace = cos(phase);
+    std::vector<uint8_t> data;
+    // PWMA
+    uint16_t pwm = scale<float, uint16_t>(0.0f, 1.0f, fabs(torqueFactor * sinPhace), 1, 0xFFF);
+    data.insert(data.end(), {0, 0, (uint8_t)(pwm & 0xFF), (uint8_t)((pwm >> 8) & 0xFF)});
+    // AIN2 + AIN1
+    if(sinPhace > 0.0f)
+    {
+        data.insert(data.end(), ChannelHigh.begin(), ChannelHigh.end());
+        data.insert(data.end(), ChannelLow.begin(), ChannelLow.end());
+    }
+    else
+    {
+        data.insert(data.end(), ChannelLow.begin(), ChannelLow.end());
+        data.insert(data.end(), ChannelHigh.begin(), ChannelHigh.end());
+    }
+    // BIN1 + BIN2
+    if(cosPhace > 0.0f)
+    {
+        data.insert(data.end(), ChannelHigh.begin(), ChannelHigh.end());
+        data.insert(data.end(), ChannelLow.begin(), ChannelLow.end());
+    }
+    else
+    {
+        data.insert(data.end(), ChannelLow.begin(), ChannelLow.end());
+        data.insert(data.end(), ChannelHigh.begin(), ChannelHigh.end());
+    }
+    // PWMB
+    pwm = scale<float, uint16_t>(0.0f, 1.0f, fabs(torqueFactor * cosPhace), 1, 0xFFF);
+    data.insert(data.end(), {0, 0, (uint8_t)(pwm & 0xFF), (uint8_t)((pwm >> 8) & 0xFF)});
+
+    stepperMotorController.write(14, data);
 }
