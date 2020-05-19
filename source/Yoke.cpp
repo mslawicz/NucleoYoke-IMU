@@ -91,8 +91,8 @@ void Yoke::handler(void)
         break;
     case 3:
         setChannel(3, 0);
-        setChannel(4, 0);
-        setChannel(5, 0);
+        setChannel(4, 1);
+        setChannel(5, 1);
         setChannel(6, 0);
         break;
     case 4:
@@ -117,7 +117,7 @@ void Yoke::handler(void)
         setChannel(3, 0);
         setChannel(4, 0);
         setChannel(5, 0);
-        setChannel(6, 0);
+        setChannel(6, 1);
         break;
     default:
         setChannel(3, 0);
