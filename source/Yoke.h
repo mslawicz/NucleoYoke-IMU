@@ -4,6 +4,7 @@
 #include "USBJoystick.h"
 #include "I2CDevice.h"
 #include "Console.h"
+#include "Servo.h"
 #include <mbed.h>
 
 #define USB_VID     0x0483 //STElectronics
@@ -71,6 +72,7 @@ private:
     AnalogIn mixturePotentiometer;
     AnalogIn tinyJoystickX;
     AnalogIn tinyJoystickY;
+    Servo servo35;
 };
 
 #endif /* YOKE_H_ */

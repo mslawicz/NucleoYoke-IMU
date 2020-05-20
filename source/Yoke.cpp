@@ -19,7 +19,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     propellerPotentiometer(PC_4),
     mixturePotentiometer(PB_1),
     tinyJoystickX(PC_3),
-    tinyJoystickY(PC_2)
+    tinyJoystickY(PC_2),
+    servo35(PC_9, 0.57e-3, 2.45e-3, 0.5f)
 {
     printf("Yoke object created\r\n");
 
@@ -64,6 +65,9 @@ void Yoke::handler(void)
     float deltaT = handlerTimer.read();
     handlerTimer.reset();
     counter++;
+
+    //XXX servo test
+    servo35.setValue(mixturePotentiometer.read());
 
     // read IMU sensor data
     auto sensorData = sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);
