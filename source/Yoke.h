@@ -5,6 +5,7 @@
 #include "I2CDevice.h"
 #include "Console.h"
 #include "Servo.h"
+#include "HX711.h"
 #include <mbed.h>
 
 #define USB_VID     0x0483 //STElectronics
@@ -45,9 +46,6 @@ private:
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution
     USBJoystick usbJoystick;            // USB HID joystick device
-    InterruptIn imuInterruptSignal;     //IMU sensor interrupt signal
-    I2C i2cBus;                         // I2C bus for IMU sensor
-    I2CDevice sensorGA;                 // IMU gyroscope and accelerometer sensor
     Timeout imuIntTimeout;              // timeout of the IMU sensor interrupts
     Timer handlerTimer;                 // measures handler call period
     Vector3D<int16_t> gyroscopeData;    // raw data from gyroscope
@@ -73,6 +71,7 @@ private:
     AnalogIn tinyJoystickX;
     AnalogIn tinyJoystickY;
     Servo servo35;
+    HX711 forceSensor;
 };
 
 #endif /* YOKE_H_ */
