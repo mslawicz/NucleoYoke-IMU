@@ -1,6 +1,10 @@
 #include "Yoke.h"
 #include "Scale.h"
 
+float g_first;
+float g_force;
+float g_avForce;
+
 Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
     systemLed(LED2),
@@ -50,11 +54,16 @@ void Yoke::handler(void)
     counter++;
 
     //XXX servo test
-    servo35.setValue(mixturePotentiometer.read());
+    float alpha = 0.1f * propellerPotentiometer.read();
+    float g_force = forceSensor.getValue();
+    g_avForce = (1.0f - alpha) * g_avForce + alpha * g_force;
+    float servoForce = 5.0f * mixturePotentiometer.read() * g_avForce;
+    servo35.setValue(0.5f - servoForce);
+    g_first = g_force;
 
     if(counter % 50 == 0)
     {
-        printf("f=%f\r\n", forceSensor.getValue());
+        printf("a=%4f f=%f av=%f sf=%f\r\n", alpha, g_force, g_avForce, servoForce);
     }
 
     // read IMU sensor data
