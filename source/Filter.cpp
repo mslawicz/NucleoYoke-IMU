@@ -29,3 +29,8 @@ void FilterAEMA::calculate(float input)
     }
     filterValue += delta * alpha;
 }
+
+void FilterEMA::calculate(float input)
+{
+    filterValue += filterFactor * (input - filterValue);
+}

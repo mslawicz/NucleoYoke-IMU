@@ -36,4 +36,18 @@ private:
     float filteredDeviation{0.0f};  // current filtered deviation value 
 };
 
+/*
+Regular Exponential Moving Average filter
+*/
+class FilterEMA
+{
+public:
+    FilterEMA(float filterFactor) : filterFactor(filterFactor) {}
+    void calculate(float input);
+    float getValue(void) const { return filterValue; }
+private:
+    float filterFactor;
+    float filterValue{0.0f};      // current filtered value
+};
+
 #endif /* FILTER_H_ */
