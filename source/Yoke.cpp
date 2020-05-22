@@ -1,9 +1,9 @@
 #include "Yoke.h"
 #include "Scale.h"
 
-float g_first;
 float g_force;
-float g_avForce;
+float g_filteredForce;
+float g_filteredServo;
 
 Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
@@ -21,8 +21,10 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     mixturePotentiometer(PB_1),
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2),
-    servo35(PC_9, 0.57e-3, 2.45e-3, 0.5f),
-    forceSensor(PD_2, PC_12, eventQueue)
+    pitchServo(PC_9, 0.57e-3, 2.45e-3, 0.5f),
+    pitchForceSensor(PD_2, PC_12, eventQueue),
+    pitchForceFilter(0.05f),
+    pitchServoFilter(0.1f)
 {
     printf("Yoke object created\r\n");
 
@@ -54,16 +56,19 @@ void Yoke::handler(void)
     counter++;
 
     //XXX servo test
-    float alpha = 0.1f * propellerPotentiometer.read();
-    float g_force = forceSensor.getValue();
-    g_avForce = (1.0f - alpha) * g_avForce + alpha * g_force;
-    float servoForce = 5.0f * mixturePotentiometer.read() * g_avForce;
-    servo35.setValue(0.5f - servoForce);
-    g_first = g_force;
+    g_force = pitchForceSensor.getValue();
+    pitchForceFilter.setFactor(0.2f * propellerPotentiometer.read());
+    pitchForceFilter.calculate(g_force);
+    g_filteredForce = pitchForceFilter.getValue();
+    pitchServoFilter.setFactor(0.2f * mixturePotentiometer.read());
+    pitchServoFilter.calculate(g_filteredForce);
+    g_filteredServo = pitchServoFilter.getValue();
+    float servoForce = 5.0f * (1.0f - throttlePotentiometer.read()) * g_filteredServo;
+    pitchServo.setValue(0.5f - servoForce);
 
     if(counter % 50 == 0)
     {
-        printf("a=%4f f=%f av=%f sf=%f\r\n", alpha, g_force, g_avForce, servoForce);
+        printf("F=%f ff=%f fs=%f se=%f\r\n", g_force, g_filteredForce, g_filteredServo, servoForce);
     }
 
     // read IMU sensor data

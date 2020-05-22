@@ -6,6 +6,7 @@
 #include "Console.h"
 #include "Servo.h"
 #include "HX711.h"
+#include "Filter.h"
 #include <mbed.h>
 
 #define USB_VID     0x0483 //STElectronics
@@ -70,8 +71,10 @@ private:
     AnalogIn mixturePotentiometer;
     AnalogIn tinyJoystickX;
     AnalogIn tinyJoystickY;
-    Servo servo35;
-    HX711 forceSensor;
+    Servo pitchServo;
+    HX711 pitchForceSensor;
+    FilterEMA pitchForceFilter;
+    FilterEMA pitchServoFilter;
 };
 
 #endif /* YOKE_H_ */

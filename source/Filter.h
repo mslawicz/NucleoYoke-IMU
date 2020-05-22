@@ -45,6 +45,7 @@ public:
     FilterEMA(float filterFactor) : filterFactor(filterFactor) {}
     void calculate(float input);
     float getValue(void) const { return filterValue; }
+    void setFactor(float factor) { filterFactor = factor; }
 private:
     float filterFactor;
     float filterValue{0.0f};      // current filtered value
