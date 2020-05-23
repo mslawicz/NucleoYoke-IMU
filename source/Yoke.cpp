@@ -24,7 +24,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     pitchServo(PC_9, 0.57e-3, 2.45e-3, 0.5f),
     pitchForceSensor(PD_2, PC_12, eventQueue),
     pitchForceFilter(21),
-    pitchServoFilter(0.1f)
+    pitchServoFilter(0.05f)
 {
     printf("Yoke object created\r\n");
 

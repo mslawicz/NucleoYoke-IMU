@@ -16,6 +16,7 @@ Servo::Servo(PinName pwmPin, float minPulseWidth, float maxPulseWidth, float sta
     startValue(startValue),
     reverse(reverse)
 {
+    pwmOut.period(0.01f);
     setValue(startValue);
 }
 
