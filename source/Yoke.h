@@ -73,7 +73,7 @@ private:
     AnalogIn tinyJoystickY;
     Servo pitchServo;
     HX711 pitchForceSensor;
-    FilterEMA pitchForceFilter;
+    FilterMM pitchForceFilter;
     FilterEMA pitchServoFilter;
 };
 

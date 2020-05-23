@@ -51,4 +51,18 @@ private:
     float filterValue{0.0f};      // current filtered value
 };
 
+class FilterMM
+{
+public:
+    FilterMM(size_t size);
+    void displayBuffer(void);
+    float getValue(void) { return sortedBuffer[size / 2]; }
+    void calculate(float newInputValue);
+private:
+    size_t size;
+    size_t headIndex{ 0 };
+    std::vector<float> unsortedBuffer;
+    std::vector<float> sortedBuffer;
+};
+
 #endif /* FILTER_H_ */

@@ -23,7 +23,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     tinyJoystickY(PC_2),
     pitchServo(PC_9, 0.57e-3, 2.45e-3, 0.5f),
     pitchForceSensor(PD_2, PC_12, eventQueue),
-    pitchForceFilter(0.05f),
+    pitchForceFilter(21),
     pitchServoFilter(0.1f)
 {
     printf("Yoke object created\r\n");
@@ -57,7 +57,7 @@ void Yoke::handler(void)
 
     //XXX servo test
     g_force = pitchForceSensor.getValue();
-    pitchForceFilter.setFactor(0.2f * propellerPotentiometer.read());
+    //pitchForceFilter.setFactor(0.2f * propellerPotentiometer.read());
     pitchForceFilter.calculate(g_force);
     g_filteredForce = pitchForceFilter.getValue();
     pitchServoFilter.setFactor(0.2f * mixturePotentiometer.read());
