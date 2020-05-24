@@ -19,7 +19,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     propellerPotentiometer(PC_4),
     mixturePotentiometer(PB_1),
     tinyJoystickX(PC_3),
-    tinyJoystickY(PC_2)
+    tinyJoystickY(PC_2),
+    hatSwitch(PD_5, PD_6, PD_7, PE_3)   //XXX edit ports!
 {
     printf("Yoke object created\r\n");
 
@@ -163,6 +164,9 @@ void Yoke::handler(void)
     // set joystick buttons
     setJoystickButtons();
 
+    // set joystick hat
+    setJoystickHat();
+
     usbJoystick.sendReport(joystickData);
 
     // LED heartbeat
@@ -195,9 +199,9 @@ set joystick buttons
 */
 void Yoke::setJoystickButtons(void)
 {
-    auto setButton = [&](DigitalIn& input, uint8_t position)
+    auto setButton = [&](uint8_t input, uint8_t position)
     {
-        if(input.read())
+        if(input)
         {
             joystickData.buttons &= ~(1 << position);
         }
@@ -207,10 +211,40 @@ void Yoke::setJoystickButtons(void)
         }
     };
 
-    setButton(flapsUpSwitch, 0);
-    setButton(flapsDownSwitch, 1);
-    setButton(gearUpSwitch, 2);
-    setButton(gearDownSwitch, 3);
-    setButton(redPushbutton, 4);
-    setButton(greenPushbutton, 5);
+    setButton(flapsUpSwitch.read(), 0);
+    setButton(flapsDownSwitch.read(), 1);
+    setButton(gearUpSwitch.read(), 2);
+    setButton(gearDownSwitch.read(), 3);
+    setButton(redPushbutton.read(), 4);
+    setButton(greenPushbutton.read(), 5);
+
+    if(hatMode == HatSwitchMode::TrimMode)
+    {
+        uint8_t hatPosition = hatSwitch.getPosition();
+        setButton(hatPosition == 1, 6); // elevator trim up
+        setButton(hatPosition == 5, 7); // elevator trim down
+        setButton(hatPosition == 3, 8); // yaw trim right
+        setButton(hatPosition == 7, 9); // yaw trim left
+    }
+    else
+    {
+        // in hat mode trim buttons always off
+        joystickData.buttons &= ~(0x000F << 6);
+    }
+}
+
+/*
+set joystick HAT
+*/
+void Yoke::setJoystickHat(void)
+{
+    if(hatMode == HatSwitchMode::HatMode)
+    {
+        joystickData.hat = hatSwitch.getPosition();
+    }
+    else
+    {
+        // in trim mode hat position is neutral
+        joystickData.hat = 0;
+    }
 }

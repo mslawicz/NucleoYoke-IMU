@@ -4,6 +4,7 @@
 #include "USBJoystick.h"
 #include "I2CDevice.h"
 #include "Console.h"
+#include "Switch.h"
 #include <mbed.h>
 
 #define USB_VID     0x0483 //STElectronics
@@ -31,6 +32,12 @@ enum struct LSM6DS3reg : uint8_t
     OUT_X_L_G = 0x22,
 };
 
+enum struct HatSwitchMode
+{
+    HatMode,
+    TrimMode
+};
+
 class Yoke
 {
 public:
@@ -40,6 +47,7 @@ private:
     void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
     void handler(void);
     void setJoystickButtons(void);
+    void setJoystickHat(void);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution
@@ -71,6 +79,8 @@ private:
     AnalogIn mixturePotentiometer;
     AnalogIn tinyJoystickX;
     AnalogIn tinyJoystickY;
+    Hat hatSwitch;
+    HatSwitchMode hatMode{HatSwitchMode::HatMode};
 };
 
 #endif /* YOKE_H_ */

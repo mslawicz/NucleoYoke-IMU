@@ -34,4 +34,16 @@ private:
     Callback<void(uint8_t)> userCb{nullptr};    // callback function called with argument=0 (left turn) or 1 (right turn)
 };
 
+/*
+class of the HAT switch
+*/
+class Hat
+{
+public:
+    Hat(PinName northPin, PinName eastPin, PinName southPin, PinName westPin);
+    uint8_t getPosition(void);
+private:
+    BusIn switchBus;
+};
+
 #endif /* ENCSWITCH_H_ODER_H_ */
