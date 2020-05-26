@@ -1,6 +1,11 @@
 #include "Yoke.h"
 #include "Scale.h"
 
+//XXX global variables for test
+float g_gyroX, g_gyroY, g_gyroZ;
+float g_accX, g_accY, g_accZ;
+float g_sensorPitch, g_sensorRoll, g_sensorYaw;
+
 Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
     systemLed(LED2),
@@ -68,23 +73,23 @@ void Yoke::handler(void)
 
     // read IMU sensor data
     auto sensorData = sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);
-    gyroscopeData.X = *reinterpret_cast<int16_t*>(&sensorData[0]);
+    gyroscopeData.X = *reinterpret_cast<int16_t*>(&sensorData[4]);
     gyroscopeData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
-    gyroscopeData.Z = *reinterpret_cast<int16_t*>(&sensorData[4]);
-    accelerometerData.X = *reinterpret_cast<int16_t*>(&sensorData[6]);
+    gyroscopeData.Z = *reinterpret_cast<int16_t*>(&sensorData[0]);
+    accelerometerData.X = *reinterpret_cast<int16_t*>(&sensorData[10]);
     accelerometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[8]);
-    accelerometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[10]);
+    accelerometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[6]);
 
     // calculate IMU sensor physical values; using right hand rule
     // X = roll axis = pointing North
     // Y = pitch axis = pointing East
     // Z = yaw axis = pointing down
     // angular rate in rad/s
-    angularRate.X = -AngularRateResolution * gyroscopeData.X;
+    angularRate.X = AngularRateResolution * gyroscopeData.X;
     angularRate.Y = AngularRateResolution * gyroscopeData.Y;
     angularRate.Z = -AngularRateResolution * gyroscopeData.Z;
     // acceleration in g
-    acceleration.X = -AccelerationResolution * accelerometerData.X;
+    acceleration.X = AccelerationResolution * accelerometerData.X;
     acceleration.Y = -AccelerationResolution * accelerometerData.Y;
     acceleration.Z = -AccelerationResolution * accelerometerData.Z;
 
@@ -130,6 +135,13 @@ void Yoke::handler(void)
 
     // calculate sensor relative yaw
     sensorYaw += angularRate.Z * deltaT;
+
+    //XXX test
+    g_gyroX = angularRate.X; g_gyroY = angularRate.Y; g_gyroZ = angularRate.Z;
+    g_accX = acceleration.X; g_accY = acceleration.Y; g_accZ = acceleration.Z;
+    g_sensorPitch = sensorPitch;
+    g_sensorRoll = sensorRoll;
+    g_sensorYaw = sensorYaw;
 
     // autocalibration of yaw
     const float YawAutocalibrationThreshold = 0.15f;    // joystick deflection threshold for disabling yaw autocalibration function
