@@ -6,7 +6,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     systemLed(LED2),
     usbJoystick(USB_VID, USB_PID, USB_VER),
     imuInterruptSignal(LSM6DS3_INT1),
-    i2cBus(I2C1_SDA, I2C1_SCL),
+    i2cBus(I2C2_SDA, I2C2_SCL),
     sensorGA(i2cBus, LSM6DS3_AG_ADD),
     calibrationLed(LED1, 0),
     flapsUpSwitch(PB_15, PullUp),
@@ -160,11 +160,6 @@ void Yoke::handler(void)
     float rightBrake = tinyJoystickY.read() - tinyJoystickX.read();
     joystickData.Rx = scale<float, int16_t>(0.1f, 0.5f, leftBrake, -32767, 32767);
     joystickData.Ry = scale<float, int16_t>(0.1f, 0.5f, rightBrake, -32767, 32767);
-
-    if(counter % 50 == 0)
-    {
-        printf("X=%f  Y=%f  lb=%f  rb=%f\r\n", tinyJoystickX.read(), tinyJoystickY.read(), leftBrake, rightBrake);
-    }
 
     // set joystick buttons
     setJoystickButtons();

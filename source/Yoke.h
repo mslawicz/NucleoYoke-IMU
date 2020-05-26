@@ -11,11 +11,11 @@
 #define USB_PID     0x5711 //joystick in FS mode + 1
 #define USB_VER     0x0001 //Nucleo Yoke IMU ver. 1
 
-#define I2C1_SCL    PB_8
-#define I2C1_SDA    PB_9
+#define I2C2_SCL    PF_1
+#define I2C2_SDA    PF_0
 
 #define LSM6DS3_AG_ADD  0xD6
-#define LSM6DS3_INT1    PD_2
+#define LSM6DS3_INT1    PD_1
 
 template<typename T> struct Vector3D
 {
