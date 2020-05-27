@@ -95,28 +95,28 @@ uint8_t Hat::getPosition(void)
     uint8_t hatPosition;
     switch(busValue)
     {
-    case 1:
+    case 0x0E:
         hatPosition = 1;
         break;
-    case 3:
+    case 0x0C:
         hatPosition = 2;
         break;
-    case 2:
+    case 0x0D:
         hatPosition = 3;
         break;
-    case 6:
+    case 0x09:
         hatPosition = 4;
         break;
-    case 4:
+    case 0x0B:
         hatPosition = 5;
         break;
-    case 12:
+    case 0x03:
         hatPosition = 6;
         break;
-    case 8:
+    case 0x07:
         hatPosition = 7;
         break;
-    case 9:
+    case 0x06:
         hatPosition = 8;
         break;
     default:

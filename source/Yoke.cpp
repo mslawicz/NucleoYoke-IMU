@@ -25,7 +25,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     mixturePotentiometer(PB_1),
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2),
-    hatSwitch(PD_5, PD_6, PD_7, PE_3)   //XXX edit ports!
+    hatSwitch(PG_13, PG_9, PG_12, PG_10)
 {
     printf("Yoke object created\r\n");
 
