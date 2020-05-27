@@ -48,6 +48,7 @@ private:
     void handler(void);
     void setJoystickButtons(void);
     void setJoystickHat(void);
+    void switchMode(uint8_t dummy);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution
@@ -80,7 +81,8 @@ private:
     AnalogIn tinyJoystickX;
     AnalogIn tinyJoystickY;
     Hat hatSwitch;
-    HatSwitchMode hatMode{HatSwitchMode::HatMode};
+    HatSwitchMode hatMode{HatSwitchMode::TrimMode};
+    Switch modeSwitch;
 };
 
 #endif /* YOKE_H_ */

@@ -25,7 +25,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     mixturePotentiometer(PB_1),
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2),
-    hatSwitch(PG_13, PG_9, PG_12, PG_10)
+    hatSwitch(PG_13, PG_9, PG_12, PG_10),
+    modeSwitch(SwitchType::Pushbutton, PE_12, eventQueue)
 {
     printf("Yoke object created\r\n");
 
@@ -48,6 +49,9 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     // this timeout calls handler for the first time
     // next calls will be executed upon IMU INT1 interrupt signal
     imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 0.1f);
+
+    // set hat mode switch callback
+    modeSwitch.setCallback(callback(this, &Yoke::switchMode));
 
     // start handler timer
     handlerTimer.start();
@@ -160,8 +164,8 @@ void Yoke::handler(void)
     float joystickRoll = calibratedSensorRoll * cos2yaw - calibratedSensorPitch * sin2yaw;
 
     // scale joystick axes to USB joystick report range
-    joystickData.X = scale<float, int16_t>(-1.5f, 1.5f, joystickRoll, -32767, 32767);
-    joystickData.Y = scale<float, int16_t>(-1.0f, 1.0f, joystickPitch, -32767, 32767);
+    joystickData.X = scale<float, int16_t>(-1.4f, 1.4f, joystickRoll, -32767, 32767);
+    joystickData.Y = scale<float, int16_t>(-0.9f, 0.9f, joystickPitch, -32767, 32767);
     joystickData.Z = scale<float, int16_t>(-0.75f, 0.75f, sensorYaw, -32767, 32767);
 
     joystickData.slider = scale<float, int16_t>(0.0f, 1.0f, throttlePotentiometer.read(), -32767, 32767);
@@ -233,10 +237,10 @@ void Yoke::setJoystickButtons(void)
     if(hatMode == HatSwitchMode::TrimMode)
     {
         uint8_t hatPosition = hatSwitch.getPosition();
-        setButton(hatPosition == 1, 6); // elevator trim up
-        setButton(hatPosition == 5, 7); // elevator trim down
-        setButton(hatPosition == 3, 8); // yaw trim right
-        setButton(hatPosition == 7, 9); // yaw trim left
+        setButton(hatPosition != 1, 6); // elevator trim down
+        setButton(hatPosition != 5, 7); // elevator trim up
+        setButton(hatPosition != 3, 8); // yaw trim right
+        setButton(hatPosition != 7, 9); // yaw trim left
     }
     else
     {
@@ -259,4 +263,10 @@ void Yoke::setJoystickHat(void)
         // in trim mode hat position is neutral
         joystickData.hat = 0;
     }
+}
+
+void Yoke::switchMode(uint8_t dummy)
+{
+    //hatMode = (hatMode == HatSwitchMode::HatMode) ? HatSwitchMode::TrimMode : HatSwitchMode::HatMode;
+    printf("mode=%d\r\n", (int)hatMode);
 }
