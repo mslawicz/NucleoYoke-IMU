@@ -20,13 +20,14 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     gearDownSwitch(PF_5, PullUp),
     redPushbutton(PB_11, PullUp),
     greenPushbutton(PB_2, PullUp),
+    leftToggle(PG_5, PullUp),
+    rightToggle(PG_8, PullUp),
     throttlePotentiometer(PC_5),
     propellerPotentiometer(PC_4),
     mixturePotentiometer(PB_1),
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2),
-    hatSwitch(PG_13, PG_9, PG_12, PG_10),
-    modeSwitch(SwitchType::Pushbutton, PE_1, eventQueue)
+    hatSwitch(PG_13, PG_9, PG_12, PG_10)
 {
     printf("Yoke object created\r\n");
 
@@ -50,9 +51,6 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     // next calls will be executed upon IMU INT1 interrupt signal
     imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 0.1f);
 
-    // set hat mode switch callback
-    modeSwitch.setCallback(callback(this, &Yoke::switchMode));
-
     // start handler timer
     handlerTimer.start();
 
@@ -74,6 +72,9 @@ void Yoke::handler(void)
     float deltaT = handlerTimer.read();
     handlerTimer.reset();
     counter++;
+
+    // set HAT switch mode
+    hatMode = leftToggle.read() ? HatSwitchMode::TrimMode : HatSwitchMode::HatMode;
 
     // read IMU sensor data
     auto sensorData = sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);
@@ -263,10 +264,4 @@ void Yoke::setJoystickHat(void)
         // in trim mode hat position is neutral
         joystickData.hat = 0;
     }
-}
-
-void Yoke::switchMode(uint8_t dummy)
-{
-    //hatMode = (hatMode == HatSwitchMode::HatMode) ? HatSwitchMode::TrimMode : HatSwitchMode::HatMode;
-    printf("mode=%d\r\n", (int)hatMode);
 }
