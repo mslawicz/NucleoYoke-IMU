@@ -26,7 +26,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
-    modeSwitch(SwitchType::Pushbutton, PE_12, eventQueue)
+    modeSwitch(SwitchType::Pushbutton, PE_1, eventQueue)
 {
     printf("Yoke object created\r\n");
 
