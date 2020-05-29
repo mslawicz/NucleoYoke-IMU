@@ -20,6 +20,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     gearDownSwitch(PF_5, PullUp),
     redPushbutton(PB_11, PullUp),
     greenPushbutton(PB_2, PullUp),
+    hatCenterSwitch(PG_15, PullUp),
     leftToggle(PG_5, PullUp),
     rightToggle(PG_8, PullUp),
     throttlePotentiometer(PC_5),
@@ -248,6 +249,8 @@ void Yoke::setJoystickButtons(void)
         // in hat mode trim buttons always off
         joystickData.buttons &= ~(0x000F << 6);
     }
+
+    setButton(hatCenterSwitch.read(), 10);
 }
 
 /*
