@@ -75,6 +75,8 @@ private:
     DigitalIn redPushbutton;
     DigitalIn greenPushbutton;
     DigitalIn hatCenterSwitch;
+    DigitalIn setSwitch;
+    DigitalIn resetSwitch;
     DigitalIn leftToggle;
     DigitalIn rightToggle;
     AnalogIn throttlePotentiometer;
