@@ -5,6 +5,7 @@
 #include "I2CDevice.h"
 #include "Console.h"
 #include "Switch.h"
+#include "Filter.h"
 #include <mbed.h>
 
 #define USB_VID     0x0483 //STElectronics
@@ -82,10 +83,12 @@ private:
     AnalogIn throttlePotentiometer;
     AnalogIn propellerPotentiometer;
     AnalogIn mixturePotentiometer;
+    AnalogIn joystickGainPotentiometer;
     AnalogIn tinyJoystickX;
     AnalogIn tinyJoystickY;
     Hat hatSwitch;
     HatSwitchMode hatMode{HatSwitchMode::TrimMode};
+    FilterEMA joystickGainFilter;
 };
 
 #endif /* YOKE_H_ */

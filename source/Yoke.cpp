@@ -28,9 +28,11 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     throttlePotentiometer(PC_5),
     propellerPotentiometer(PC_4),
     mixturePotentiometer(PB_1),
+    joystickGainPotentiometer(PA_2),
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2),
-    hatSwitch(PG_13, PG_9, PG_12, PG_10)
+    hatSwitch(PG_13, PG_9, PG_12, PG_10),
+    joystickGainFilter(0.01f)
 {
     printf("Yoke object created\r\n");
 
@@ -167,10 +169,13 @@ void Yoke::handler(void)
     float joystickPitch = calibratedSensorPitch * cos2yaw + calibratedSensorRoll * sin2yaw;
     float joystickRoll = calibratedSensorRoll * cos2yaw - calibratedSensorPitch * sin2yaw;
 
+    // calculate joystick axes gain
+    joystickGainFilter.calculate(joystickGainPotentiometer.read() + 0.5f);  // range 0.5 .. 1.5
+
     // scale joystick axes to USB joystick report range
-    joystickData.X = scale<float, int16_t>(-1.4f, 1.4f, joystickRoll, -32767, 32767);
-    joystickData.Y = scale<float, int16_t>(-0.9f, 0.9f, joystickPitch, -32767, 32767);
-    joystickData.Z = scale<float, int16_t>(-0.75f, 0.75f, sensorYaw, -32767, 32767);
+    joystickData.X = scale<float, int16_t>(-1.45f, 1.45f, joystickRoll * joystickGainFilter.getValue(), -32767, 32767);
+    joystickData.Y = scale<float, int16_t>(-0.9f, 0.9f, joystickPitch * joystickGainFilter.getValue(), -32767, 32767);
+    joystickData.Z = scale<float, int16_t>(-0.78f, 0.78f, sensorYaw * joystickGainFilter.getValue(), -32767, 32767);
 
     joystickData.slider = scale<float, int16_t>(0.0f, 1.0f, throttlePotentiometer.read(), -32767, 32767);
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
