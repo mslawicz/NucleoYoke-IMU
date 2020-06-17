@@ -150,7 +150,7 @@ void Yoke::handler(void)
     float calibratedSensorRoll = sensorRoll - sensorRollReference;
 
     // calculate sensor relative yaw
-    sensorYaw += angularRate.Z * deltaT;
+    sensorYaw = 0.0f;
 
     //XXX test
     g_gyroX = angularRate.X; g_gyroY = angularRate.Y; g_gyroZ = angularRate.Z;
@@ -159,21 +159,8 @@ void Yoke::handler(void)
     g_sensorRoll = sensorRoll;
     g_sensorYaw = sensorYaw;
 
-    // autocalibration of yaw
-    const float YawAutocalibrationThreshold = 0.15f;    // joystick deflection threshold for disabling yaw autocalibration function
-    const float YawAutocalibrationFactor = 0.9999f;      // yaw autocalibration factor
-    float joystickDeflection = sqrt(calibratedSensorPitch * calibratedSensorPitch + calibratedSensorRoll * calibratedSensorRoll);
-    if(joystickDeflection < YawAutocalibrationThreshold)
-    {
-        sensorYaw *= YawAutocalibrationFactor;
-    }
-
-    // calculate joystick pitch and roll depending on the joystick yaw
-    float sin2yaw = sin(sensorYaw) * fabs(sin(sensorYaw));
-    float cos2yaw = cos(sensorYaw) * fabs(cos(sensorYaw));
-
-    float joystickPitch = calibratedSensorPitch * cos2yaw + calibratedSensorRoll * sin2yaw;
-    float joystickRoll = calibratedSensorRoll * cos2yaw - calibratedSensorPitch * sin2yaw;
+    float joystickPitch = calibratedSensorPitch;
+    float joystickRoll = calibratedSensorRoll;
 
     // calculate joystick axes gain
     joystickGainFilter.calculate(joystickGainPotentiometer.read() + 0.5f);  // range 0.5 .. 1.5
