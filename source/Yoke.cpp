@@ -32,7 +32,10 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
-    joystickGainFilter(0.01f)
+    joystickGainFilter(0.01f),
+    tensometerThread(osPriorityBelowNormal),
+    leftPedalTensometer(PD_0, PD_1, tensometerQueue),
+    rightPedalTensometer(PF_8, PF_9, tensometerQueue)
 {
     printf("Yoke object created\r\n");
 
@@ -55,6 +58,9 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     // this timeout calls handler for the first time
     // next calls will be executed upon IMU INT1 interrupt signal
     imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 0.1f);
+
+    // tensometer queue will be dispatched in another thread
+    tensometerThread.start(callback(&tensometerQueue, &EventQueue::dispatch_forever));
 
     // start handler timer
     handlerTimer.start();
