@@ -57,7 +57,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     imuInterruptSignal.rise(callback(this, &Yoke::imuInterruptHandler));
     // this timeout calls handler for the first time
     // next calls will be executed upon IMU INT1 interrupt signal
-    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 0.1f);
+    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 100ms);
 
     // tensometer queue will be dispatched in another thread
     tensometerThread.start(callback(&tensometerQueue, &EventQueue::dispatch_forever));
@@ -77,10 +77,10 @@ void Yoke::handler(void)
 {
     // this timeout is set only for the case of lost IMU interrupt signal
     // the timeout should never happen, as the next interrupt should be called earlier
-    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 0.02f);
+    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 20ms);
 
     // measure time elapsed since the previous call
-    float deltaT = handlerTimer.read();
+    float deltaT = std::chrono::duration<float>(handlerTimer.elapsed_time()).count();
     handlerTimer.reset();
     counter++;
 

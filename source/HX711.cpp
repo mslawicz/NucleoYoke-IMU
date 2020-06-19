@@ -11,7 +11,7 @@ HX711::HX711(PinName dataPin, PinName clockPin, EventQueue& eventQueue, uint8_t 
     totalPulses(totalPulses)
 {
     MBED_ASSERT((totalPulses >= 25) && (totalPulses <= 27));
-    data.fall(eventQueue.event(callback(this, &HX711::read)));
+    //data.fall(eventQueue.event(callback(this, &HX711::read)));
 }
 
 /*
@@ -39,5 +39,5 @@ void HX711::read(void)
 
     dataRegister = dataBuffer;
     // enable interrupt
-    data.fall(eventQueue.event(callback(this, &HX711::read)));
+    //data.fall(eventQueue.event(callback(this, &HX711::read)));
 }
