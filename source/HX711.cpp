@@ -11,7 +11,7 @@ HX711::HX711(PinName dataPin, PinName clockPin, EventQueue& eventQueue, uint8_t 
     totalPulses(totalPulses)
 {
     MBED_ASSERT((totalPulses >= 25) && (totalPulses <= 27));
-    //data.fall(eventQueue.event(callback(this, &HX711::read)));
+    data.fall(callback(this, &HX711::onFallHandler));
 }
 
 /*
@@ -20,9 +20,6 @@ it should be called in a separate low priority thread
 */
 void HX711::read(void)
 {
-    // disable data signal interrupts until the data is read
-    data.fall(nullptr);
-
     uint32_t dataBuffer = 0;
     // generate clock pulses and read data bits
     for(uint8_t pulse = 0; pulse < totalPulses; pulse++)
@@ -39,5 +36,5 @@ void HX711::read(void)
 
     dataRegister = dataBuffer;
     // enable interrupt
-    //data.fall(eventQueue.event(callback(this, &HX711::read)));
+    data.fall(callback(this, &HX711::onFallHandler));
 }

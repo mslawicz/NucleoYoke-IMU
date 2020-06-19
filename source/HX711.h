@@ -10,6 +10,7 @@ public:
     uint32_t getDataRegister(void) const { return dataRegister; }
     float getValue(void) const { return 1.0f * static_cast<int32_t>(dataRegister << 8) / 0x7FFFFF00; }
 private:
+    void onFallHandler(void) { data.fall(nullptr); eventQueue.call(this, &HX711::read); }
     void read(void);            // reads data from HX711 chip
     InterruptIn data;           // interrupt and data pin
     DigitalOut clock;           // clock pin
