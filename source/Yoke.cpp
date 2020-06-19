@@ -34,8 +34,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
     joystickGainFilter(0.01f),
     tensometerThread(osPriorityBelowNormal),
-    leftPedalTensometer(PD_0, PD_1, tensometerQueue),
-    rightPedalTensometer(PF_8, PF_9, tensometerQueue)
+    //leftPedalTensometer(PC_10, PC_11, tensometerQueue),
+    rightPedalTensometer(PD_2,PC_12, tensometerQueue)
 {
     printf("Yoke object created\r\n");
 
