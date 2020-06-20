@@ -187,6 +187,10 @@ void Yoke::handler(void)
 
     usbJoystick.sendReport(joystickData);
 
+    // request new tensometer readouts
+    leftPedalTensometer.readRequest();
+    rightPedalTensometer.readRequest();
+
     // LED heartbeat
     systemLed = ((counter & 0x68) == 0x68);
 }

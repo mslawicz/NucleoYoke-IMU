@@ -9,10 +9,10 @@ public:
     HX711(PinName dataPin, PinName clockPin, EventQueue& eventQueue, uint8_t totalPulses = 25);
     uint32_t getDataRegister(void) const { return dataRegister; }
     float getValue(void) const { return 1.0f * static_cast<int32_t>(dataRegister << 8) / 0x7FFFFF00; }
+    void readRequest(void);
 private:
-    void onFallHandler(void) { data.fall(nullptr); eventQueue.call(this, &HX711::read); }
     void read(void);            // reads data from HX711 chip
-    InterruptIn data;           // interrupt and data pin
+    DigitalIn data;
     DigitalOut clock;           // clock pin
     EventQueue& eventQueue;     // event queue for HX711 data readouts
     uint8_t totalPulses;        // number of pulses to generate <25-27>
