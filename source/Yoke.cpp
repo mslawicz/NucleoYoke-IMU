@@ -187,6 +187,12 @@ void Yoke::handler(void)
 
     usbJoystick.sendReport(joystickData);
 
+    //XXX test
+    if(counter % 100 == 0)
+    {
+        printf("lpt=%f  rpt=%f\r\n", leftPedalTensometer.getValue(), rightPedalTensometer.getValue());
+    }
+
     // request new tensometer readouts
     leftPedalTensometer.readRequest();
     rightPedalTensometer.readRequest();
