@@ -30,7 +30,7 @@ void SH1106::init(void)
     interface.write(0);
     resetSignal = 1;
     // wait after reset
-    ThisThread::sleep_for(1);
+    ThisThread::sleep_for(1ms);
     // send initialization data
     write(SH1106InitData, true);
     // clear screen
@@ -38,7 +38,7 @@ void SH1106::init(void)
     //display on
     write(std::vector<uint8_t>{0xAF}, true);
     // wait after init
-    ThisThread::sleep_for(100);
+    ThisThread::sleep_for(100ms);
 }
 
 /*

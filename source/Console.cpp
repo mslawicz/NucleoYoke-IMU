@@ -20,7 +20,7 @@ Console& Console::getInstance(void)
 void Console::handler(void)
 {
     // start console execution with a delay
-    ThisThread::sleep_for(500);
+    ThisThread::sleep_for(500ms);
 
     int ch;
     while(true)

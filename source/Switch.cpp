@@ -33,7 +33,7 @@ void Switch::onLevelFallInterrupt(void)
         }
         stableHigh = false;
     }
-    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), debounceTimeout);
+    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds((long)(debounceTimeout * 1000000)));
 }
 
 void Switch::onLevelRiseInterrupt(void)
@@ -56,7 +56,7 @@ void Switch::onLevelRiseInterrupt(void)
         }
         stableLow = false;
     }
-    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), debounceTimeout);
+    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds((long)(debounceTimeout * 1000000)));
 }
 
 void Switch::onDebounceTimeoutCb(void)
