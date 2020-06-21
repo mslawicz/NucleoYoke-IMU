@@ -33,9 +33,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     tinyJoystickY(PC_2),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
     joystickGainFilter(0.01f),
-    tensometerThread(osPriority_t::osPriorityBelowNormal4, OS_STACK_SIZE, nullptr, "tensometer"),
-    leftPedalTensometer(PC_10, PC_11, tensometerQueue),
-    rightPedalTensometer(PD_2,PC_12, tensometerQueue)
+    leftPedalTensometer(PC_10, PC_11, eventQueue),
+    rightPedalTensometer(PD_2,PC_12, eventQueue)
 {
     printf("Yoke object created\r\n");
 
@@ -58,9 +57,6 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     // this timeout calls handler for the first time
     // next calls will be executed upon IMU INT1 interrupt signal
     imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 100ms);
-
-    // tensometer queue will be dispatched in another thread
-    tensometerThread.start(callback(&tensometerQueue, &EventQueue::dispatch_forever));
 
     // start handler timer
     handlerTimer.start();
@@ -187,18 +183,18 @@ void Yoke::handler(void)
 
     usbJoystick.sendReport(joystickData);
 
-    //XXX test
-    if(counter % 100 == 0)
-    {
-        printf("lpt=%f  rpt=%f\r\n", leftPedalTensometer.getValue(), rightPedalTensometer.getValue());
-    }
-
     // request new tensometer readouts
     leftPedalTensometer.readRequest();
     rightPedalTensometer.readRequest();
 
     // LED heartbeat
     systemLed = ((counter & 0x68) == 0x68);
+
+    //XXX test
+    if(counter % 60 == 0)
+    {
+        printf("lpt=%f  rpt=%f\r\n", leftPedalTensometer.getValue(), rightPedalTensometer.getValue());
+    }
 }
 
 /*

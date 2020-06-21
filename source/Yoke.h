@@ -90,8 +90,6 @@ private:
     Hat hatSwitch;
     HatSwitchMode hatMode{HatSwitchMode::TrimMode};
     FilterEMA joystickGainFilter;
-    events::EventQueue tensometerQueue; // tensometer event queue
-    Thread tensometerThread;            // low priority thread for readout tensometer data
     HX711 leftPedalTensometer;          // left pedal tensometer object
     HX711 rightPedalTensometer;         // right pedal tensometer object
 };
