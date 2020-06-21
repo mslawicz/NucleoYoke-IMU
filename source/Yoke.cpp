@@ -145,15 +145,15 @@ void Yoke::handler(void)
     float calibratedSensorPitch = sensorPitch - sensorPitchReference;
     float calibratedSensorRoll = sensorRoll - sensorRollReference;
 
-    // calculate sensor relative yaw
-    sensorYaw = 0.0f;
+    // calculate rudder deflection
+    float rudder = rightPedalTensometer.getValue() - leftPedalTensometer.getValue();
 
     //XXX test
     g_gyroX = angularRate.X; g_gyroY = angularRate.Y; g_gyroZ = angularRate.Z;
     g_accX = acceleration.X; g_accY = acceleration.Y; g_accZ = acceleration.Z;
     g_sensorPitch = sensorPitch;
     g_sensorRoll = sensorRoll;
-    g_sensorYaw = sensorYaw;
+    g_sensorYaw = rudder;
 
     float joystickPitch = calibratedSensorPitch;
     float joystickRoll = calibratedSensorRoll;
@@ -164,7 +164,7 @@ void Yoke::handler(void)
     // scale joystick axes to USB joystick report range
     joystickData.X = scale<float, int16_t>(-1.45f, 1.45f, joystickRoll * joystickGainFilter.getValue(), -32767, 32767);
     joystickData.Y = scale<float, int16_t>(-0.9f, 0.9f, joystickPitch * joystickGainFilter.getValue(), -32767, 32767);
-    joystickData.Z = scale<float, int16_t>(-0.78f, 0.78f, sensorYaw * joystickGainFilter.getValue(), -32767, 32767);
+    joystickData.Z = scale<float, int16_t>(-1.0f, 1.0f, rudder * joystickGainFilter.getValue(), -32767, 32767);
 
     joystickData.slider = scale<float, int16_t>(0.0f, 1.0f, throttlePotentiometer.read(), -32767, 32767);
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
@@ -189,12 +189,6 @@ void Yoke::handler(void)
 
     // LED heartbeat
     systemLed = ((counter & 0x68) == 0x68);
-
-    //XXX test
-    if(counter % 60 == 0)
-    {
-        printf("lpt=%f  rpt=%f\r\n", leftPedalTensometer.getValue(), rightPedalTensometer.getValue());
-    }
 }
 
 /*
