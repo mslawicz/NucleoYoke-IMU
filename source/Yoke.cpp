@@ -4,6 +4,7 @@
 //XXX global variables for test
 float g_gyroX, g_gyroY, g_gyroZ;
 float g_accX, g_accY, g_accZ;
+float g_magX, g_magY, g_magZ;
 float g_sensorPitch, g_sensorRoll, g_sensorYaw;
 
 Yoke::Yoke(events::EventQueue& eventQueue) :
@@ -99,6 +100,12 @@ void Yoke::handler(void)
     accelerometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[8]);
     accelerometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[6]);
 
+    // read magnetometer data
+    sensorData = sensorM.read((uint8_t)LSM9DS1reg::OUT_X_L_M, 6);
+    magnetometerData.X = *reinterpret_cast<int16_t*>(&sensorData[0]);
+    magnetometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
+    magnetometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[4]);
+
     // calculate IMU sensor physical values; using right hand rule
     // X = roll axis = pointing North
     // Y = pitch axis = pointing East
@@ -111,6 +118,10 @@ void Yoke::handler(void)
     acceleration.X = AccelerationResolution * accelerometerData.X;
     acceleration.Y = -AccelerationResolution * accelerometerData.Y;
     acceleration.Z = -AccelerationResolution * accelerometerData.Z;
+    // magnetic field in gauss
+    magneticField.X = MagneticFieldResolution * magnetometerData.X;
+    magneticField.Y = MagneticFieldResolution * magnetometerData.Y;
+    magneticField.Z = MagneticFieldResolution * magnetometerData.Z;
 
     float accelerationXZ = sqrt(acceleration.X * acceleration.X + acceleration.Z * acceleration.Z);
     float accelerationYZ = sqrt(acceleration.Y * acceleration.Y + acceleration.Z * acceleration.Z);
@@ -158,6 +169,7 @@ void Yoke::handler(void)
     //XXX test
     g_gyroX = angularRate.X; g_gyroY = angularRate.Y; g_gyroZ = angularRate.Z;
     g_accX = acceleration.X; g_accY = acceleration.Y; g_accZ = acceleration.Z;
+    g_magX = magneticField.X; g_magY = magneticField.Y; g_magZ = magneticField.Z;
     g_sensorPitch = sensorPitch;
     g_sensorRoll = sensorRoll;
     g_sensorYaw = sensorYaw;

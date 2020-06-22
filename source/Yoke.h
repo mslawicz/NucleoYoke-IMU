@@ -74,10 +74,13 @@ private:
     Timer handlerTimer;                 // measures handler call period
     Vector3D<int16_t> gyroscopeData;    // raw data from gyroscope
     Vector3D<int16_t> accelerometerData;    // raw data from accelerometer
+    Vector3D<int16_t> magnetometerData; // raw data from magnetometer
     Vector3D<float> angularRate;        // measured IMU sensor angular rate in rad/s
     Vector3D<float>  acceleration;      // measured IMU sensor acceleration in g
+    Vector3D<float>  magneticField;     // measured magnetometer sensor magnetic field in gauss
     const float AngularRateResolution = 500.0f * 3.14159265f / 180.0f / 32768.0f;   // 1-bit resolution of angular rate in rad/s
     const float AccelerationResolution = 2.0f / 32768.0f;   // 1-bit resolution of acceleration in g
+    const float MagneticFieldResolution = 16.0f / 32768.0f;   // 1-bit resolution of magnetic field in gauss
     float sensorPitch{0.0f}, sensorRoll{0.0f}, sensorYaw{0.0f};             // orientation of the IMU sensor
     float sensorPitchVariability{0.0f}, sensorRollVariability{0.0f};
     float sensorPitchReference{0.0f}, sensorRollReference{0.0f};
