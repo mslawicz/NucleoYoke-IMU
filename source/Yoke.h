@@ -17,6 +17,9 @@
 
 #define LSM6DS3_AG_ADD  0xD6
 #define LSM6DS3_INT1    PD_0
+#define LSM9DS1_AG_ADD  0xD6
+#define LSM9DS1_M_ADD   0x3C
+#define LSM9DS1_INT1    PD_0
 
 template<typename T> struct Vector3D
 {
@@ -31,6 +34,16 @@ enum struct LSM6DS3reg : uint8_t
     CTRL1_XL = 0x10,
     CTRL7_G = 0x16,
     OUT_X_L_G = 0x22,
+};
+
+enum struct LSM9DS1reg : uint8_t
+{
+    INT1_CTRL = 0x0C,
+    CTRL_REG1_G = 0x10,
+    OUT_X_L_G = 0x18,
+    CTRL_REG6_XL = 0x20,
+    CTRL_REG1_M = 0x20,
+    OUT_X_L_M = 0x28
 };
 
 enum struct HatSwitchMode
@@ -56,6 +69,7 @@ private:
     InterruptIn imuInterruptSignal;     //IMU sensor interrupt signal
     I2C i2cBus;                         // I2C bus for IMU sensor
     I2CDevice sensorGA;                 // IMU gyroscope and accelerometer sensor
+    I2CDevice sensorM;                  // magnetometer sensor
     Timeout imuIntTimeout;              // timeout of the IMU sensor interrupts
     Timer handlerTimer;                 // measures handler call period
     Vector3D<int16_t> gyroscopeData;    // raw data from gyroscope

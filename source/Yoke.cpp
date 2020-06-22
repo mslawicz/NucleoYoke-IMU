@@ -10,9 +10,10 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
     systemLed(LED2),
     usbJoystick(USB_VID, USB_PID, USB_VER),
-    imuInterruptSignal(LSM6DS3_INT1),
+    imuInterruptSignal(LSM9DS1_INT1),
     i2cBus(I2C2_SDA, I2C2_SCL),
-    sensorGA(i2cBus, LSM6DS3_AG_ADD),
+    sensorGA(i2cBus, LSM9DS1_AG_ADD),
+    sensorM(i2cBus, LSM9DS1_M_ADD),
     calibrationLed(LED1, 0),
     flapsUpSwitch(PB_15, PullUp),
     flapsDownSwitch(PB_13, PullUp),
@@ -42,13 +43,21 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     usbJoystick.connect();
 
     // configure IMU sensor
+    // Gyroscope ODR=119 Hz, full scale 500 dps
+    // int/out selection default
+    // low power disable, HPF enable, HPF=0.05 Hz
+    sensorGA.write((uint8_t)LSM9DS1reg::CTRL_REG1_G, std::vector<uint8_t>{0x68, 0x00, 0x47});
+    // Accelerometer ODR=119 Hz, full scale +=2g
+    sensorGA.write((uint8_t)LSM9DS1reg::CTRL_REG6_XL, std::vector<uint8_t>{0x60});
     // INT1<-DRDY_G
-    sensorGA.write((uint8_t)LSM6DS3reg::INT1_CTRL, std::vector<uint8_t>{0x02});
-    // accelerometer ODR=104 Hz, full scale 2g, antialiasing 400 Hz
-    // gyroscope ODR=104 Hz, full scale 500 dps,
-    sensorGA.write((uint8_t)LSM6DS3reg::CTRL1_XL, std::vector<uint8_t>{0x40, 0x44});
-    // gyroscope HPF enable, HPF=0.0081 Hz
-    sensorGA.write((uint8_t)LSM6DS3reg::CTRL7_G, std::vector<uint8_t>{0x40});
+    sensorGA.write((uint8_t)LSM9DS1reg::INT1_CTRL, std::vector<uint8_t>{0x02});
+
+    // configure magnetometer sensor
+    // Magnetometer X&Y high-performance mode, ODR=80 Hz
+    // full scale +-16 gauss
+    // continues conversion mode
+    // Z-axis high-performance mode
+    sensorM.write((uint8_t)LSM9DS1reg::CTRL_REG1_M, std::vector<uint8_t>{0x5C, 0x60, 0x00, 0x80});
 
     // call handler on IMU interrupt rise signal
     imuInterruptSignal.rise(callback(this, &Yoke::imuInterruptHandler));
@@ -82,7 +91,7 @@ void Yoke::handler(void)
     hatMode = leftToggle.read() ? HatSwitchMode::TrimMode : HatSwitchMode::HatMode;
 
     // read IMU sensor data
-    auto sensorData = sensorGA.read((uint8_t)LSM6DS3reg::OUT_X_L_G, 12);
+    auto sensorData = sensorGA.read((uint8_t)LSM9DS1reg::OUT_X_L_G, 12);
     gyroscopeData.X = *reinterpret_cast<int16_t*>(&sensorData[4]);
     gyroscopeData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
     gyroscopeData.Z = *reinterpret_cast<int16_t*>(&sensorData[0]);
