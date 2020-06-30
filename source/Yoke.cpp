@@ -11,7 +11,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
     systemLed(LED2),
     usbJoystick(USB_VID, USB_PID, USB_VER),
-    imuInterruptSignal(LSM9DS1_INT1),
+    imuInterruptSignal(LSM9DS1_INT1, PullDown),
     i2cBus(I2C2_SDA, I2C2_SCL),
     sensorGA(i2cBus, LSM9DS1_AG_ADD),
     sensorM(i2cBus, LSM9DS1_M_ADD),
@@ -139,6 +139,8 @@ void Yoke::handler(void)
     sensorPitch = (1.0f - SensorFilterFactor) * (sensorPitch + angularRate.Y * deltaT) + SensorFilterFactor * accelerometerPitch;
     sensorRoll = (1.0f - SensorFilterFactor) * (sensorRoll + angularRate.X * deltaT) + SensorFilterFactor * accelerometerRoll;
 
+    sensorYaw = atan2(-magneticField.X, magneticField.Y);
+
     // calculate sensor pitch and roll variability
     const float variabilityFilterFactor = 0.01f;
     float reciprocalDeltaT = (deltaT > 0.0f) ? (1.0f / deltaT) : 1.0f;
@@ -162,9 +164,6 @@ void Yoke::handler(void)
     // calculate sensor calibrated values
     float calibratedSensorPitch = sensorPitch - sensorPitchReference;
     float calibratedSensorRoll = sensorRoll - sensorRollReference;
-
-    // calculate sensor relative yaw
-    sensorYaw += angularRate.Z * deltaT;
 
     //XXX test
     g_gyroX = angularRate.X; g_gyroY = angularRate.Y; g_gyroZ = angularRate.Z;
