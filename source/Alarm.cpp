@@ -6,6 +6,7 @@
  */
 
 #include "Alarm.h"
+#include "Display.h"
 
 Alarm::Alarm() :
     alarmLed(LED3, 0)
@@ -27,6 +28,7 @@ void Alarm::set(AlarmID alarmID)
 {
     alarmRegister |= (1 << static_cast<int>(alarmID));
     alarmLed = 1;
+    displayOnScreen();
 }
 
 /*
@@ -45,4 +47,37 @@ void Alarm::clear(CommandVector cv)
     alarmRegister = 0;
     alarmLed = 0;
     printf("Alarms cleared\r\n");
+}
+
+/*
+* display alarms on screen
+*/
+void Alarm::displayOnScreen(void)
+{
+    const std::vector<const std::string> texts =
+    {
+        "W",    // I2C write
+        "Wr",   // I2C write before read
+        "wR",   // read after write
+        "I"     // no gyroscope interrupt
+    };
+    Display::getInstance().setFont(FontTahoma11);
+    std::string text = "alarms:";
+    if(alarmRegister)
+    {
+        for(uint8_t index=0; index<32; index++)
+        {
+            if(alarmRegister & (1 << index))
+            {
+                text += " ";
+                text += texts[index];
+            }
+        }
+    }
+    else
+    {
+        text += " -";
+    }
+    Display::getInstance().print(0, 52, text);
+    Display::getInstance().update();
 }

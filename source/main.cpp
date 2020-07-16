@@ -40,6 +40,8 @@ int main()
     Display::getInstance().print(2, 0, "Nucleo Yoke");
     Display::getInstance().update();
 
+    Alarm::getInstance().displayOnScreen();
+
     // main event queue
     events::EventQueue eventQueue;
 

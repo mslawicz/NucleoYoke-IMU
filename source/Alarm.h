@@ -28,6 +28,7 @@ public:
     void set(AlarmID alarmId);
     void display(CommandVector cv);
     void clear(CommandVector cv);
+    void displayOnScreen(void);
 private:
     Alarm();
     uint32_t alarmRegister{0};
