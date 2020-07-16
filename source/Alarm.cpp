@@ -61,7 +61,7 @@ void Alarm::displayOnScreen(void)
         "wR",   // read after write
         "I"     // no gyroscope interrupt
     };
-    Display::getInstance().setFont(FontTahoma11);
+    Display::getInstance().setFont(FontTahoma11, false, 127);
     std::string text = "alarms:";
     if(alarmRegister)
     {

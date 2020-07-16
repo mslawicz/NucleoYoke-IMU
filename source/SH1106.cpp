@@ -258,4 +258,12 @@ void SH1106::print(uint8_t sX, uint8_t sY, std::string text)
             putChar2CharSpace();
         }
     }
+
+    if(upToX !=0)
+    {
+        while(X < upToX)
+        {
+            putChar2CharSpace();
+        }
+    }
 }
