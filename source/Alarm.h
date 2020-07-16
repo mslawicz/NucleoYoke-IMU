@@ -15,7 +15,8 @@ enum class AlarmID
 {
     I2CWrite,
     I2CWriteBeforeRead,
-    I2CReadAfterWrite
+    I2CReadAfterWrite,
+    NoImuInterrupt
 };
 
 class Alarm

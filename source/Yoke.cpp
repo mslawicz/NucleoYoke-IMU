@@ -1,5 +1,6 @@
 #include "Yoke.h"
 #include "Scale.h"
+#include "Alarm.h"
 
 //XXX global variables for test
 float g_gyroX, g_gyroY, g_gyroZ;
@@ -109,6 +110,11 @@ void Yoke::handler(void)
         magnetometerData.X = *reinterpret_cast<int16_t*>(&sensorData[0]);
         magnetometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
         magnetometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[4]);
+    }
+    else
+    {
+        // no interrupt signal
+        Alarm::getInstance().set(AlarmID::NoImuInterrupt);
     }
 
     // calculate IMU sensor physical values; using right hand rule
