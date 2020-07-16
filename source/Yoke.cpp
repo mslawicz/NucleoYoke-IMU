@@ -91,20 +91,25 @@ void Yoke::handler(void)
     // set HAT switch mode
     hatMode = leftToggle.read() ? HatSwitchMode::TrimMode : HatSwitchMode::HatMode;
 
-    // read IMU sensor data
-    auto sensorData = sensorGA.read((uint8_t)LSM9DS1reg::OUT_X_L_G, 12);
-    gyroscopeData.X = *reinterpret_cast<int16_t*>(&sensorData[4]);
-    gyroscopeData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
-    gyroscopeData.Z = *reinterpret_cast<int16_t*>(&sensorData[0]);
-    accelerometerData.X = *reinterpret_cast<int16_t*>(&sensorData[10]);
-    accelerometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[8]);
-    accelerometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[6]);
+    std::vector<uint8_t> sensorData;
+    if(imuInterruptSignal.read() == 1)
+    {
+        // interrupt signal is active
+        // read IMU sensor data
+        sensorData = sensorGA.read((uint8_t)LSM9DS1reg::OUT_X_L_G, 12);
+        gyroscopeData.X = *reinterpret_cast<int16_t*>(&sensorData[4]);
+        gyroscopeData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
+        gyroscopeData.Z = *reinterpret_cast<int16_t*>(&sensorData[0]);
+        accelerometerData.X = *reinterpret_cast<int16_t*>(&sensorData[10]);
+        accelerometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[8]);
+        accelerometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[6]);
 
-    // read magnetometer data
-    sensorData = sensorM.read((uint8_t)LSM9DS1reg::OUT_X_L_M, 6);
-    magnetometerData.X = *reinterpret_cast<int16_t*>(&sensorData[0]);
-    magnetometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
-    magnetometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[4]);
+        // read magnetometer data
+        sensorData = sensorM.read((uint8_t)LSM9DS1reg::OUT_X_L_M, 6);
+        magnetometerData.X = *reinterpret_cast<int16_t*>(&sensorData[0]);
+        magnetometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
+        magnetometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[4]);
+    }
 
     // calculate IMU sensor physical values; using right hand rule
     // X = roll axis = pointing North
