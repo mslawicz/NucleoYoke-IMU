@@ -8,6 +8,8 @@ float g_accX, g_accY, g_accZ;
 float g_magX, g_magY, g_magZ;
 float g_sensorPitch, g_sensorRoll, g_sensorYaw;
 
+static const float PI = 3.14159265359f;
+
 Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
     systemLed(LED2),
@@ -141,6 +143,9 @@ void Yoke::handler(void)
     float accelerometerPitch = atan2(acceleration.Y, accelerationXZ);
     float accelerometerRoll = atan2(acceleration.X, accelerationYZ);
 
+    // calculate yaw from magnetometer
+    float magnetometerYaw = -0.1f * PI * (atan2(magneticField.Z, magneticField.X) + (magneticField.Z >= 0.0f ? -PI : PI));
+
     // store sensor values for calculation of deviation
     float previousSensorPitch = sensorPitch;
     float previousSensorRoll = sensorRoll;
@@ -149,8 +154,7 @@ void Yoke::handler(void)
     const float SensorFilterFactor = 0.02f;
     sensorPitch = (1.0f - SensorFilterFactor) * (sensorPitch + angularRate.Y * deltaT) + SensorFilterFactor * accelerometerPitch;
     sensorRoll = (1.0f - SensorFilterFactor) * (sensorRoll + angularRate.X * deltaT) + SensorFilterFactor * accelerometerRoll;
-
-    sensorYaw = atan2(-magneticField.X, magneticField.Y);
+    sensorYaw = (1.0f - SensorFilterFactor) * (sensorYaw + angularRate.Z * deltaT) + SensorFilterFactor * magnetometerYaw;
 
     // calculate sensor pitch and roll variability
     const float variabilityFilterFactor = 0.01f;
@@ -183,15 +187,6 @@ void Yoke::handler(void)
     g_sensorPitch = sensorPitch;
     g_sensorRoll = sensorRoll;
     g_sensorYaw = sensorYaw;
-
-    // autocalibration of yaw
-    const float YawAutocalibrationThreshold = 0.15f;    // joystick deflection threshold for disabling yaw autocalibration function
-    const float YawAutocalibrationFactor = 0.9999f;      // yaw autocalibration factor
-    float joystickDeflection = sqrt(calibratedSensorPitch * calibratedSensorPitch + calibratedSensorRoll * calibratedSensorRoll);
-    if(joystickDeflection < YawAutocalibrationThreshold)
-    {
-        sensorYaw *= YawAutocalibrationFactor;
-    }
 
     // calculate joystick pitch and roll depending on the joystick yaw
     float sin2yaw = sin(sensorYaw) * fabs(sin(sensorYaw));
