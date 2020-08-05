@@ -149,6 +149,7 @@ void Yoke::handler(void)
     // store sensor values for calculation of deviation
     float previousSensorPitch = sensorPitch;
     float previousSensorRoll = sensorRoll;
+    float previousSensorYaw = sensorYaw;
 
     // calculate sensor pitch and roll using complementary filter
     const float SensorFilterFactor = 0.02f;
@@ -161,14 +162,17 @@ void Yoke::handler(void)
     float reciprocalDeltaT = (deltaT > 0.0f) ? (1.0f / deltaT) : 1.0f;
     sensorPitchVariability = (1.0f - variabilityFilterFactor) * sensorPitchVariability + variabilityFilterFactor * fabs(sensorPitch - previousSensorPitch) * reciprocalDeltaT;
     sensorRollVariability = (1.0f - variabilityFilterFactor) * sensorRollVariability + variabilityFilterFactor * fabs(sensorRoll - previousSensorRoll) * reciprocalDeltaT;
+    sensorYawVariability = (1.0f - variabilityFilterFactor) * sensorYawVariability + variabilityFilterFactor * fabs(sensorYaw - previousSensorYaw) * reciprocalDeltaT;
 
-    // store sensor pitch and roll reference value
+    // store sensor pitch, roll and yaw reference values
     const float sensorVariabilityThreshold = 0.0025f;
     if((sensorPitchVariability < sensorVariabilityThreshold) &&
-       (sensorRollVariability < sensorVariabilityThreshold))
+       (sensorRollVariability < sensorVariabilityThreshold) &&
+       (sensorYawVariability < sensorVariabilityThreshold))
     {
         sensorPitchReference = sensorPitch;
         sensorRollReference = sensorRoll;
+        sensorYawReference = sensorYaw;
         calibrationLed = 1;
     }
     else
@@ -179,6 +183,7 @@ void Yoke::handler(void)
     // calculate sensor calibrated values
     float calibratedSensorPitch = sensorPitch - sensorPitchReference;
     float calibratedSensorRoll = sensorRoll - sensorRollReference;
+    float calibratedSensorYaw = sensorYaw - sensorYawReference;
 
     //XXX test
     g_gyroX = angularRate.X; g_gyroY = angularRate.Y; g_gyroZ = angularRate.Z;
@@ -194,6 +199,7 @@ void Yoke::handler(void)
 
     float joystickPitch = calibratedSensorPitch * cos2yaw + calibratedSensorRoll * sin2yaw;
     float joystickRoll = calibratedSensorRoll * cos2yaw - calibratedSensorPitch * sin2yaw;
+    float joystickYaw = calibratedSensorYaw;
 
     // calculate joystick axes gain
     joystickGainFilter.calculate(joystickGainPotentiometer.read() + 0.5f);  // range 0.5 .. 1.5
@@ -201,7 +207,7 @@ void Yoke::handler(void)
     // scale joystick axes to USB joystick report range
     joystickData.X = scale<float, int16_t>(-1.45f, 1.45f, joystickRoll * joystickGainFilter.getValue(), -32767, 32767);
     joystickData.Y = scale<float, int16_t>(-0.9f, 0.9f, joystickPitch * joystickGainFilter.getValue(), -32767, 32767);
-    joystickData.Z = scale<float, int16_t>(-0.78f, 0.78f, sensorYaw * joystickGainFilter.getValue(), -32767, 32767);
+    joystickData.Z = scale<float, int16_t>(-0.78f, 0.78f, joystickYaw * joystickGainFilter.getValue(), -32767, 32767);
 
     joystickData.slider = scale<float, int16_t>(0.0f, 1.0f, throttlePotentiometer.read(), -32767, 32767);
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
