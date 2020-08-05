@@ -122,13 +122,13 @@ void Yoke::handler(void)
     // Y = pitch axis = pointing East
     // Z = yaw axis = pointing down
     // angular rate in rad/s
-    angularRate.X = AngularRateResolution * gyroscopeData.X;
-    angularRate.Y = AngularRateResolution * gyroscopeData.Y;
-    angularRate.Z = -AngularRateResolution * gyroscopeData.Z;
+    angularRate.X = -AngularRateResolution * gyroscopeData.Y;
+    angularRate.Y = -AngularRateResolution * gyroscopeData.Z;
+    angularRate.Z = AngularRateResolution * gyroscopeData.X;
     // acceleration in g
-    acceleration.X = AccelerationResolution * accelerometerData.X;
+    acceleration.X = AccelerationResolution * accelerometerData.Z;
     acceleration.Y = -AccelerationResolution * accelerometerData.Y;
-    acceleration.Z = -AccelerationResolution * accelerometerData.Z;
+    acceleration.Z = -AccelerationResolution * accelerometerData.X;
     // magnetic field in gauss
     magneticField.X = MagneticFieldResolution * magnetometerData.X;
     magneticField.Y = MagneticFieldResolution * magnetometerData.Y;
@@ -138,8 +138,8 @@ void Yoke::handler(void)
     float accelerationYZ = sqrt(acceleration.Y * acceleration.Y + acceleration.Z * acceleration.Z);
 
     // calculate pitch and roll from accelerometer itself
-    float accelerometerPitch = atan2(acceleration.X, accelerationYZ);
-    float accelerometerRoll = atan2(acceleration.Y, accelerationXZ);
+    float accelerometerPitch = atan2(acceleration.Y, accelerationXZ);
+    float accelerometerRoll = atan2(acceleration.X, accelerationYZ);
 
     // store sensor values for calculation of deviation
     float previousSensorPitch = sensorPitch;
