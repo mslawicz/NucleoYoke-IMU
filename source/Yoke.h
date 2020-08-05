@@ -16,10 +16,10 @@
 #define I2C2_SDA    PF_0
 
 #define LSM6DS3_AG_ADD  0xD6
-#define LSM6DS3_INT1    PD_0
+#define LSM6DS3_INT1    PD_1
 #define LSM9DS1_AG_ADD  0xD6
 #define LSM9DS1_M_ADD   0x3C
-#define LSM9DS1_INT1    PD_0
+#define LSM9DS1_INT1    PD_1
 
 template<typename T> struct Vector3D
 {
