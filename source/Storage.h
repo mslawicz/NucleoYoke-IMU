@@ -9,7 +9,6 @@
 class KvStore
 {
 public:
-    KvStore();
     template<typename T> void store(const std::string key, T value)
     {
         int result = kv_set(key.c_str(), &value, sizeof(T), 0);

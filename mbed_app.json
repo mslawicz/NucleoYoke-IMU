@@ -7,7 +7,9 @@
             "platform.thread-stats-enabled": true,
             "platform.sys-stats-enabled": true,
             "platform.stdio-baud-rate": 115200,
-            "target.printf_lib": "std"
+            "target.printf_lib": "std",
+            "target.features_add": ["STORAGE"],
+            "target.components_add": ["FLASHIAP"]
         }
     }
 }
