@@ -9,6 +9,9 @@
 class KvStore
 {
 public:
+    KvStore(KvStore const&) = delete;       // do not allow copy constructor of a singleton
+    void operator=(KvStore const&) = delete;
+    static KvStore& getInstance();
     template<typename T> void store(const std::string key, T value)
     {
         int result = kv_set(key.c_str(), &value, sizeof(T), 0);
@@ -48,6 +51,7 @@ public:
         return value;
     }
 private:
+    KvStore();
     kv_info_t info;
 };
 

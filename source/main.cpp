@@ -48,8 +48,7 @@ int main()
     float x = 0.1f;
     printf("x=%f\n", x);
     std::string x_name = "/kv/variable_x";
-    KvStore flashDisk;
-    x = flashDisk.restore<float>(x_name, 3.14f);
+    x = KvStore::getInstance().restore<float>(x_name, 3.14f);
     printf("x=%f\n", x);
 
     // main event queue
