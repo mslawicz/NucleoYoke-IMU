@@ -7,13 +7,17 @@
 #include "mbed.h"
 #include <string>
 
+/*
+class of flash disk storage for program parameters
+*/
 class KvStore
 {
 public:
     KvStore(KvStore const&) = delete;       // do not allow copy constructor of a singleton
     void operator=(KvStore const&) = delete;
     static KvStore& getInstance();
-    template<typename T> void store(const std::string key, T value)
+    
+    template<typename T> void store(const std::string key, T value)     // store key-value pair in memory
     {
         int result = kv_set(key.c_str(), &value, sizeof(T), 0);
         if(result)
@@ -22,6 +26,10 @@ public:
         }
     }
 
+    /*
+    restore value from the given key
+    if key not found, create the parameter with default value
+    */
     template<typename T> T restore(const std::string key, const T defaultValue)
     {
         T value;
@@ -53,6 +61,7 @@ public:
     }
 
     void list(CommandVector cv);
+    void clear(CommandVector cv);
 private:
     KvStore();
     kv_info_t info;

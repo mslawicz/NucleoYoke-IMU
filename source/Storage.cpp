@@ -3,7 +3,7 @@
 KvStore::KvStore()
 {
     Console::getInstance().registerCommand("lp", "list stored parameters", callback(this, &KvStore::list));
-    //Console::getInstance().registerCommand("ca", "clear alarms", callback(this, &Alarm::clear));
+    Console::getInstance().registerCommand("cp", "clear all stored parameters", callback(this, &KvStore::clear));
 }
 
 KvStore& KvStore::getInstance()
@@ -12,6 +12,9 @@ KvStore& KvStore::getInstance()
     return instance;
 }
 
+/*
+list all stored parameter keys
+*/
 void KvStore::list(CommandVector cv)
 {
     kv_iterator_t it;
@@ -29,5 +32,22 @@ void KvStore::list(CommandVector cv)
         printf("%s, ", key);
         memset(key, 0, MaxKeySize);
     }
+    kv_iterator_close(it);
     printf("\n");
+}
+
+/*
+clear storage memory
+*/
+void KvStore::clear(CommandVector cv)
+{
+    int result = kv_reset("/kv/");
+    if(result)
+    {
+        printf("Resetting parameter storage failed with error %d\n", MBED_GET_ERROR_CODE(result));
+    }
+    else
+    {
+        printf("Parameter storage cleared\n");
+    }
 }
