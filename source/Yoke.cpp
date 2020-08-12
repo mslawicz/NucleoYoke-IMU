@@ -30,9 +30,9 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     resetSwitch(PE_6, PullUp),
     leftToggle(PG_5, PullUp),
     rightToggle(PG_8, PullUp),
-    throttlePotentiometer(PC_5),
-    propellerPotentiometer(PC_4),
-    mixturePotentiometer(PB_1),
+    throttlePotentiometer(PA_0),
+    propellerPotentiometer(PA_4),
+    mixturePotentiometer(PA_1),
     joystickGainPotentiometer(PA_2),
     tinyJoystickX(PC_3),
     tinyJoystickY(PC_2),
@@ -151,13 +151,13 @@ void Yoke::handler(void)
     float previousSensorRoll = sensorRoll;
     float previousSensorYaw = sensorYaw;
 
-    // calculate sensor pitch and roll using complementary filter
+    // calculate sensor pitch, roll anfd yaw using complementary filter
     const float SensorFilterFactor = 0.02f;
     sensorPitch = (1.0f - SensorFilterFactor) * (sensorPitch + angularRate.Y * deltaT) + SensorFilterFactor * accelerometerPitch;
     sensorRoll = (1.0f - SensorFilterFactor) * (sensorRoll + angularRate.X * deltaT) + SensorFilterFactor * accelerometerRoll;
     sensorYaw = (1.0f - SensorFilterFactor) * (sensorYaw + angularRate.Z * deltaT) + SensorFilterFactor * magnetometerYaw;
 
-    // calculate sensor pitch and roll variability
+    // calculate sensor pitch, roll and yaw variability
     const float variabilityFilterFactor = 0.01f;
     float reciprocalDeltaT = (deltaT > 0.0f) ? (1.0f / deltaT) : 1.0f;
     sensorPitchVariability = (1.0f - variabilityFilterFactor) * sensorPitchVariability + variabilityFilterFactor * fabs(sensorPitch - previousSensorPitch) * reciprocalDeltaT;

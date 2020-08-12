@@ -18,12 +18,14 @@ public:
         }
     }
 
-    template<typename T> T restore(const std::string key)
+    template<typename T> T restore(const std::string key, const T defaultValue)
     {
         T value;
+        bool error = false;
         int result = kv_get_info(key.c_str(), &info);
         if(result)
         {
+            error = true;
             printf("Parameter '%s' get info error %d\n", key.c_str(), MBED_GET_ERROR_CODE(result));
         }
         else
@@ -32,9 +34,17 @@ public:
             result = kv_get(key.c_str(), &value, info.size, &actualSize);
             if(result)
             {
+                error = true;
                 printf("Parameter '%s' restore error %d\n", key.c_str(), MBED_GET_ERROR_CODE(result));
             }
         }
+
+        if(error)
+        {
+            value = defaultValue;
+            store<T>(key, value);
+        }
+
         return value;
     }
 private:
