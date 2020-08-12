@@ -48,7 +48,8 @@ int main()
     float x = 0.1f;
     printf("x=%f\n", x);
     std::string x_name = "/kv/variable_x";
-    x = KvStore::getInstance().restore<float>(x_name, 3.14f);
+    x = KvStore::getInstance().restore<float>(x_name, 1.5f);
+    x = KvStore::getInstance().restore<float>("/kv/PI", 3.14159265f);
     printf("x=%f\n", x);
 
     // main event queue

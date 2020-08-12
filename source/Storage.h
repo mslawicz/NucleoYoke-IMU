@@ -1,6 +1,7 @@
 #ifndef STORAGE_H_
 #define STORAGE_H_
 
+#include "Console.h"
 #include "KVStore.h"
 #include "kvstore_global_api.h"
 #include "mbed.h"
@@ -50,6 +51,8 @@ public:
 
         return value;
     }
+
+    void list(CommandVector cv);
 private:
     KvStore();
     kv_info_t info;
