@@ -102,6 +102,7 @@ private:
     AnalogIn mixturePotentiometer;
     AnalogIn orangePotentiometer;
     AnalogIn yellowPotentiometer;
+    AnalogIn hallSensor;
     Hat hatSwitch;
     HatSwitchMode hatMode{HatSwitchMode::TrimMode};
     FilterEMA joystickGainFilter;

@@ -35,6 +35,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     mixturePotentiometer(PA_1),
     orangePotentiometer(PC_0),
     yellowPotentiometer(PC_1),
+    hallSensor(PA_3),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
     joystickGainFilter(0.01f)
 {
@@ -191,6 +192,7 @@ void Yoke::handler(void)
     g_sensorPitch = sensorPitch;
     g_sensorRoll = sensorRoll;
     g_sensorYaw = sensorYaw;
+    g_accZ = hallSensor.read(); //XXX test
 
     // calculate joystick pitch and roll depending on the joystick yaw
     float sin2yaw = sin(sensorYaw) * fabs(sin(sensorYaw));
