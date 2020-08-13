@@ -30,7 +30,7 @@ public:
     restore value from the given key
     if key not found, create the parameter with default value
     */
-    template<typename T> T restore(const std::string key, const T defaultValue)
+    template<typename T> T restore(const std::string key, T defaultValue)
     {
         T value;
         bool error = false;
@@ -55,6 +55,25 @@ public:
         {
             value = defaultValue;
             store<T>(key, value);
+        }
+
+        return value;
+    }
+
+    /*
+    restore value from the given key using min-max limits
+    if key not found, create the parameter with default value
+    */
+    template<typename T> T restoreLimited(const std::string key, T defaultValue, T minValue, T maxValue)
+    {
+        T value = restore<T>(key, defaultValue);
+        if(value > maxValue)
+        {
+            value = maxValue;
+        }
+        else if(value < minValue)
+        {
+            value = minValue;
         }
 
         return value;
