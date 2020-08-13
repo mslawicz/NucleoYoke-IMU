@@ -100,9 +100,8 @@ private:
     AnalogIn throttlePotentiometer;
     AnalogIn propellerPotentiometer;
     AnalogIn mixturePotentiometer;
-    AnalogIn joystickGainPotentiometer;
-    AnalogIn tinyJoystickX;
-    AnalogIn tinyJoystickY;
+    AnalogIn orangePotentiometer;
+    AnalogIn yellowPotentiometer;
     Hat hatSwitch;
     HatSwitchMode hatMode{HatSwitchMode::TrimMode};
     FilterEMA joystickGainFilter;

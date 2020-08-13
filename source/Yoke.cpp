@@ -23,19 +23,18 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     flapsDownSwitch(PB_13, PullUp),
     gearUpSwitch(PF_4, PullUp),
     gearDownSwitch(PF_5, PullUp),
-    redPushbutton(PB_11, PullUp),
+    redPushbutton(PG_0, PullUp),
     greenPushbutton(PB_2, PullUp),
     hatCenterSwitch(PG_15, PullUp),
     setSwitch(PE_1, PullUp),
     resetSwitch(PE_6, PullUp),
-    leftToggle(PG_5, PullUp),
-    rightToggle(PG_8, PullUp),
+    leftToggle(PF_9, PullUp),
+    rightToggle(PF_8, PullUp),
     throttlePotentiometer(PA_0),
     propellerPotentiometer(PA_4),
     mixturePotentiometer(PA_1),
-    joystickGainPotentiometer(PA_2),
-    tinyJoystickX(PC_3),
-    tinyJoystickY(PC_2),
+    orangePotentiometer(PC_0),
+    yellowPotentiometer(PC_1),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
     joystickGainFilter(0.01f)
 {
@@ -202,7 +201,8 @@ void Yoke::handler(void)
     float joystickYaw = calibratedSensorYaw;
 
     // calculate joystick axes gain
-    joystickGainFilter.calculate(joystickGainPotentiometer.read() + 0.5f);  // range 0.5 .. 1.5
+    //joystickGainFilter.calculate(joystickGainPotentiometer.read() + 0.5f);  // range 0.5 .. 1.5
+    joystickGainFilter.calculate(1.0f);  // XXX temporary
 
     // scale joystick axes to USB joystick report range
     joystickData.X = scale<float, int16_t>(-1.45f, 1.45f, joystickRoll * joystickGainFilter.getValue(), -32767, 32767);
@@ -213,8 +213,8 @@ void Yoke::handler(void)
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
     joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixturePotentiometer.read(), -32767, 32767);
 
-    float leftBrake = 1.0f - tinyJoystickX.read() - tinyJoystickY.read();
-    float rightBrake = tinyJoystickY.read() - tinyJoystickX.read();
+    float leftBrake = 0.0f; //XXX 1.0f - tinyJoystickX.read() - tinyJoystickY.read();
+    float rightBrake = 0.0f; //XXX tinyJoystickY.read() - tinyJoystickX.read();
     joystickData.Rx = scale<float, int16_t>(0.1f, 0.5f, leftBrake, -32767, 32767);
     joystickData.Ry = scale<float, int16_t>(0.1f, 0.5f, rightBrake, -32767, 32767);
 
