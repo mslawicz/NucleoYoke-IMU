@@ -93,6 +93,9 @@ void Yoke::handler(void)
     // set HAT switch mode
     hatMode = leftToggle.read() ? HatSwitchMode::TrimMode : HatSwitchMode::HatMode;
 
+    // set brake mode from SET pushbutton
+    bool brakeActive = !setSwitch.read();
+
     std::vector<uint8_t> sensorData;
     if(imuInterruptSignal.read() == 1)
     {
@@ -204,19 +207,35 @@ void Yoke::handler(void)
     //joystickGainFilter.calculate(joystickGainPotentiometer.read() + 0.5f);  // range 0.5 .. 1.5
     joystickGainFilter.calculate(1.0f);  // XXX temporary
 
+    float leftBrake;
+    float rightBrake;
+
     // scale joystick axes to USB joystick report range
+    if(brakeActive)
+    {
+        // both brakes from joystick deflected forward
+        leftBrake = rightBrake = ( joystickPitch < 0 ? -joystickPitch : 0.0f);
+        // left and right brakes from joystick deflected sideways
+        leftBrake += (joystickRoll < 0 ? -joystickRoll : 0.0f);
+        rightBrake += (joystickRoll > 0 ? joystickRoll : 0.0f);
+    }
+    else
+    {
+        // update pitch axis when not braking only
+        joystickData.Y = scale<float, int16_t>(-0.9f, 0.9f, joystickPitch * joystickGainFilter.getValue(), -32767, 32767);
+        // release brakes
+        leftBrake = 0.0f;
+        rightBrake = 0.0f;
+    }
     joystickData.X = scale<float, int16_t>(-1.45f, 1.45f, joystickRoll * joystickGainFilter.getValue(), -32767, 32767);
-    joystickData.Y = scale<float, int16_t>(-0.9f, 0.9f, joystickPitch * joystickGainFilter.getValue(), -32767, 32767);
     joystickData.Z = scale<float, int16_t>(-0.78f, 0.78f, joystickYaw * joystickGainFilter.getValue(), -32767, 32767);
 
     joystickData.slider = scale<float, int16_t>(0.0f, 1.0f, throttlePotentiometer.read(), -32767, 32767);
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
     joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixturePotentiometer.read(), -32767, 32767);
 
-    float leftBrake = 0.0f; //XXX 1.0f - tinyJoystickX.read() - tinyJoystickY.read();
-    float rightBrake = 0.0f; //XXX tinyJoystickY.read() - tinyJoystickX.read();
-    joystickData.Rx = scale<float, int16_t>(0.1f, 0.5f, leftBrake, -32767, 32767);
-    joystickData.Ry = scale<float, int16_t>(0.1f, 0.5f, rightBrake, -32767, 32767);
+    joystickData.Rx = scale<float, int16_t>(0.0f, 1.0f, leftBrake, -32767, 32767);
+    joystickData.Ry = scale<float, int16_t>(0.0f, 1.0f, rightBrake, -32767, 32767);
 
     // set joystick buttons
     setJoystickButtons();
