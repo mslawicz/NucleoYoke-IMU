@@ -36,9 +36,6 @@ int main()
 
     // init display
     Display::getInstance().init();
-    Display::getInstance().setFont(FontTahoma16b);
-    Display::getInstance().print(2, 0, "Nucleo Yoke");
-    Display::getInstance().update();
 
     Alarm::getInstance().displayOnScreen();
 
@@ -47,6 +44,7 @@ int main()
 
     // create Yoke object
     Yoke yoke(eventQueue);
+    yoke.displayMode();
 
     // process the event queue
     eventQueue.dispatch_forever();

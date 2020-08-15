@@ -52,10 +52,11 @@ enum struct HatSwitchMode
     TrimMode
 };
 
-enum struct JoystickMode
+enum struct YokeMode
 {
     FixedWing,
-    Helicopter
+    Helicopter,
+    Size
 };
 
 class Yoke
@@ -63,6 +64,7 @@ class Yoke
 public:
     Yoke(events::EventQueue& eventQueue);
     void displayStatus(CommandVector cv);
+    void displayMode(void);
 private:
     void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
     void handler(void);
@@ -112,7 +114,12 @@ private:
     Hat hatSwitch;
     HatSwitchMode hatMode{HatSwitchMode::TrimMode};
     FilterEMA joystickGainFilter;
-    JoystickMode joystickMode;
+    YokeMode yokeMode;
+    const std::vector<const std::string> modeTexts =
+    {
+        "fixed-wing",
+        "helicopter"
+    };
 };
 
 #endif /* YOKE_H_ */

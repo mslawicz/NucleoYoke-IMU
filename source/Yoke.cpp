@@ -2,6 +2,7 @@
 #include "Scale.h"
 #include "Alarm.h"
 #include "Storage.h"
+#include "Display.h"
 
 //XXX global variables for test
 float g_gyroX, g_gyroY, g_gyroZ;
@@ -65,7 +66,9 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     sensorM.write((uint8_t)LSM9DS1reg::CTRL_REG1_M, std::vector<uint8_t>{0x5C, 0x60, 0x00, 0x80});
 
     // restore yoke parameters
-    KvStore::getInstance().restore<JoystickMode>("/kv/joystickMode", JoystickMode::FixedWing);
+    yokeMode = KvStore::getInstance().restore<YokeMode>("/kv/yokeMode", YokeMode::FixedWing,
+        static_cast<YokeMode>(0),
+        static_cast<YokeMode>(static_cast<int>(YokeMode::Size) - 1));
 
     // call handler on IMU interrupt rise signal
     imuInterruptSignal.rise(callback(this, &Yoke::imuInterruptHandler));
@@ -259,6 +262,7 @@ void Yoke::handler(void)
  */
 void Yoke::displayStatus(CommandVector cv)
 {
+    printf("yoke mode = %s\r\n", modeTexts[static_cast<int>(yokeMode)].c_str());
     printf("IMU sensor pitch = %f\r\n", sensorPitch);
     printf("IMU sensor roll = %f\r\n", sensorRoll);
     printf("IMU sensor yaw = %f\r\n", sensorYaw);
@@ -333,4 +337,15 @@ void Yoke::setJoystickHat(void)
         // in trim mode hat position is neutral
         joystickData.hat = 0;
     }
+}
+
+/*
+* display yoke mode on screen
+*/
+void Yoke::displayMode(void)
+{
+    Display::getInstance().setFont(FontTahoma11, false, 127);
+    std::string text = "mode: " + modeTexts[static_cast<int>(yokeMode)]; 
+    Display::getInstance().print(0, 2, text);
+    Display::getInstance().update();
 }

@@ -78,6 +78,6 @@ void Alarm::displayOnScreen(void)
     {
         text += " -";
     }
-    Display::getInstance().print(0, 52, text);
+    Display::getInstance().print(0, 13, text);
     Display::getInstance().update();
 }
