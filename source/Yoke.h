@@ -52,6 +52,12 @@ enum struct HatSwitchMode
     TrimMode
 };
 
+enum struct JoystickMode
+{
+    FixedWing,
+    Helicopter
+};
+
 class Yoke
 {
 public:
@@ -97,6 +103,7 @@ private:
     DigitalIn resetSwitch;
     DigitalIn leftToggle;
     DigitalIn rightToggle;
+    DigitalIn reverserSwitch;
     AnalogIn throttlePotentiometer;
     AnalogIn propellerPotentiometer;
     AnalogIn mixturePotentiometer;
@@ -105,6 +112,7 @@ private:
     Hat hatSwitch;
     HatSwitchMode hatMode{HatSwitchMode::TrimMode};
     FilterEMA joystickGainFilter;
+    JoystickMode joystickMode;
 };
 
 #endif /* YOKE_H_ */

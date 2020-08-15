@@ -20,7 +20,6 @@
 #include "Statistics.h"
 #include "Display.h"
 #include <mbed.h>
-#include "Storage.h" //XXX test
 
 
 int main()
@@ -42,15 +41,6 @@ int main()
     Display::getInstance().update();
 
     Alarm::getInstance().displayOnScreen();
-
-
-    //XXX test
-    float x = 0.1f;
-    printf("x=%f\n", x);
-    std::string x_name = "/kv/variable_x";
-    x = KvStore::getInstance().restore<float>(x_name, 1.5f);
-    x = KvStore::getInstance().restoreLimited<float>("/kv/PI", 3.14159265f, 1.0f, 2.0f);
-    printf("x=%f\n", x);
 
     // main event queue
     events::EventQueue eventQueue;

@@ -1,6 +1,7 @@
 #include "Yoke.h"
 #include "Scale.h"
 #include "Alarm.h"
+#include "Storage.h"
 
 //XXX global variables for test
 float g_gyroX, g_gyroY, g_gyroZ;
@@ -30,6 +31,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     resetSwitch(PE_6, PullUp),
     leftToggle(PF_9, PullUp),
     rightToggle(PF_8, PullUp),
+    reverserSwitch(PG_3, PullUp),
     throttlePotentiometer(PA_0),
     propellerPotentiometer(PA_4),
     mixturePotentiometer(PA_1),
@@ -61,6 +63,9 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     // continues conversion mode
     // Z-axis high-performance mode
     sensorM.write((uint8_t)LSM9DS1reg::CTRL_REG1_M, std::vector<uint8_t>{0x5C, 0x60, 0x00, 0x80});
+
+    // restore yoke parameters
+    KvStore::getInstance().restore<JoystickMode>("/kv/joystickMode", JoystickMode::FixedWing);
 
     // call handler on IMU interrupt rise signal
     imuInterruptSignal.rise(callback(this, &Yoke::imuInterruptHandler));
@@ -311,6 +316,7 @@ void Yoke::setJoystickButtons(void)
     setButton(hatCenterSwitch.read(), 10);
     setButton(setSwitch.read(), 11);
     setButton(resetSwitch.read(), 12);
+    setButton(reverserSwitch.read(), 13);
 }
 
 /*
