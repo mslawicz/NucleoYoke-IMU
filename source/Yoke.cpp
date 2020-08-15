@@ -39,7 +39,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     orangePotentiometer(PC_0),
     yellowPotentiometer(PC_1),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
-    joystickGainFilter(0.01f)
+    joystickGainFilter(0.01f),
+    menuSelector(SwitchType::RotaryEncoder, PB_10/*, eventQueue*/, 0.01f, PC_12)
 {
     printf("Yoke object created\r\n");
 

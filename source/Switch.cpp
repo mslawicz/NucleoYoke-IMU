@@ -1,75 +1,73 @@
 #include "Switch.h"
 
-Switch::Switch(SwitchType switchType, PinName levelPin, EventQueue& eventQueue, float debounceTimeout, PinName directionPin) :
+Switch::Switch(SwitchType switchType, PinName levelPin, float debounceTimeout, PinName directionPin) :
     switchType(switchType),
     level(levelPin, PullUp),
-    eventQueue(eventQueue),
     debounceTimeout(debounceTimeout),
     direction(directionPin, PullUp)
 {
-    level.fall(callback(this, &Switch::onLevelFallInterrupt));
-    level.rise(callback(this, &Switch::onLevelRiseInterrupt));
 }
 
-void Switch::onLevelFallInterrupt(void)
+void Switch::handler(void)
 {
-    if(stableHigh)
+    int newLevel = level.read();
+    if(isStable)
     {
-        // execute user callback on falling edge
-        if(userCb)
+        if(newLevel != currentLevel)
         {
-            switch(switchType)
+            // signal was stable and now is changed
+            currentLevel = newLevel;
+            isStable = false;
+            debounceTimer.reset();
+
+            if(switchType == SwitchType::RotaryEncoder)
             {
-                case SwitchType::RotaryEncoder:
-                    eventQueue.call(userCb, direction.read());
-                    break;
-                case SwitchType::Pushbutton:
-                case SwitchType::ToggleSwitch:
-                    eventQueue.call(userCb, 0);
-                    break;
-                default:
-                    break;
+                if(currentLevel == 0)
+                {
+                    // sample direction on clock falling edge
+                    if(direction.read() == 0)
+                    {
+                        changedToZero = true;
+                    }
+                    else
+                    {
+                        changedToOne = true;
+                    }
+                }
+            }
+            else
+            {
+                // pushbutton and toggle switch
+                if(currentLevel)
+                {
+                    changedToOne = true;
+                }
+                else
+                {
+                    changedToZero = true;
+                }
             }
         }
-        stableHigh = false;
-    }
-    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds((long)(debounceTimeout * 1000000)));
-}
-
-void Switch::onLevelRiseInterrupt(void)
-{
-    if(stableLow)
-    {
-        // execute user callback on rising edge
-        if(userCb)
-        {
-            switch(switchType)
-            {
-                case SwitchType::ToggleSwitch:
-                    eventQueue.call(userCb, 1);
-                    break;
-                case SwitchType::Pushbutton:
-                case SwitchType::RotaryEncoder:
-                default:
-                    break;
-            }
-        }
-        stableLow = false;
-    }
-    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds((long)(debounceTimeout * 1000000)));
-}
-
-void Switch::onDebounceTimeoutCb(void)
-{
-    if(level.read() == 1)
-    {
-        stableHigh = true;
     }
     else
     {
-        stableLow = true;
+        // signal is not stable
+        if(chrono::duration<float>(debounceTimer.elapsed_time().count()) > chrono::duration<float>(debounceTimeout))
+        {
+            // signal is stable long enough
+            isStable = true;
+        }
+        else if(newLevel != previousLevel)
+        {
+            // signal is still bouncing
+            debounceTimer.reset();
+        }
     }
+
+    previousLevel = newLevel;
 }
+
+
 
 Hat::Hat(PinName northPin, PinName eastPin, PinName southPin, PinName westPin) :
     switchBus(northPin, eastPin, southPin, westPin)

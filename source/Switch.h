@@ -5,33 +5,31 @@
 
 enum class SwitchType
 {
-    Pushbutton,
-    ToggleSwitch,
+    Connector,
     RotaryEncoder
 };
 
 /*
 Class of various types of switches (pushbutton, toggle switch, rotary encoder)
-Caution! Do not use the same levelPin number for several objects
 */
 class Switch
 {
 public:
-    Switch(SwitchType switchType, PinName levelPin, EventQueue& eventQueue, float debounceTimeout = 0.01f, PinName directionPin = NC);
-    void setCallback(Callback<void(uint8_t)> cb) { userCb = cb; }
+    Switch(SwitchType switchType, PinName levelPin, float debounceTimeout = 0.01f, PinName directionPin = NC);
+    //XXX void setCallback(Callback<void(uint8_t)> cb) { userCb = cb; }
 private:
-    void onLevelFallInterrupt(void);
-    void onLevelRiseInterrupt(void);
-    void onDebounceTimeoutCb(void);
+    void handler(void);     // it must be called on every access
     SwitchType switchType;
-    InterruptIn level;
-    EventQueue& eventQueue;
+    DigitalIn level;
     float debounceTimeout;
     DigitalIn direction;
-    Timeout levelDebounceTimeout;
-    bool stableHigh{true};
-    bool stableLow{false};
-    Callback<void(uint8_t)> userCb{nullptr};    // callback function called with argument=0 (left turn) or 1 (right turn)
+    bool isStable{true};
+    int currentLevel{1};
+    int previousLevel{1};
+    Timer debounceTimer;
+    bool changedToOne{false};
+    bool changedToZero{false};
+    //XXX Callback<void(uint8_t)> userCb{nullptr};    // callback function called with argument=0 (left turn) or 1 (right turn)
 };
 
 /*
