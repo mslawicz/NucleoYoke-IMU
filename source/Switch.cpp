@@ -6,6 +6,7 @@ Switch::Switch(SwitchType switchType, PinName levelPin, float debounceTimeout, P
     debounceTimeout(debounceTimeout),
     direction(directionPin, PullUp)
 {
+    debounceTimer.start();
 }
 
 void Switch::handler(void)
@@ -19,6 +20,7 @@ void Switch::handler(void)
             currentLevel = newLevel;
             isStable = false;
             debounceTimer.reset();
+            //printf("XXX new level %d\n", currentLevel);
 
             if(switchType == SwitchType::RotaryEncoder)
             {
@@ -41,10 +43,12 @@ void Switch::handler(void)
                 if(currentLevel)
                 {
                     changedToOne = true;
+                    //printf("XXX changed to 1\n");
                 }
                 else
                 {
                     changedToZero = true;
+                    //printf("XXX changed to 0\n");
                 }
             }
         }
@@ -56,10 +60,12 @@ void Switch::handler(void)
         {
             // signal is stable long enough
             isStable = true;
+            //printf("XXX timeout reached\n");
         }
         else if(newLevel != previousLevel)
         {
             // signal is still bouncing
+            //printf("XXX debouncing %d  %f\n", newLevel, chrono::duration<float>(debounceTimer.elapsed_time().count()));
             debounceTimer.reset();
         }
     }

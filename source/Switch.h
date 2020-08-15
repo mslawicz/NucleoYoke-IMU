@@ -16,7 +16,9 @@ class Switch
 {
 public:
     Switch(SwitchType switchType, PinName levelPin, float debounceTimeout = 0.01f, PinName directionPin = NC);
-    //XXX void setCallback(Callback<void(uint8_t)> cb) { userCb = cb; }
+    int getLevel(void) { handler(); return currentLevel; }
+    bool hasChangedToOne(void) { handler(); bool result = changedToOne; changedToOne = false; return result; }
+    bool hasChangedToZero(void) { handler(); bool result = changedToZero; changedToZero = false; return result; }
 private:
     void handler(void);     // it must be called on every access
     SwitchType switchType;
@@ -29,7 +31,6 @@ private:
     Timer debounceTimer;
     bool changedToOne{false};
     bool changedToZero{false};
-    //XXX Callback<void(uint8_t)> userCb{nullptr};    // callback function called with argument=0 (left turn) or 1 (right turn)
 };
 
 /*

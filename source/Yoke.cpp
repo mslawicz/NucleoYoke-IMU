@@ -40,7 +40,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     yellowPotentiometer(PC_1),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
     joystickGainFilter(0.01f),
-    menuSelector(SwitchType::RotaryEncoder, PB_10/*, eventQueue*/, 0.01f, PC_12)
+    //menuSelector(SwitchType::RotaryEncoder, PG_4, 0.01f, PG_7)
+    menuSelector(SwitchType::Connector, PG_0)
 {
     printf("Yoke object created\r\n");
 
@@ -253,6 +254,16 @@ void Yoke::handler(void)
     setJoystickHat();
 
     usbJoystick.sendReport(joystickData);
+
+    //XXX switch test
+    if(menuSelector.hasChangedToOne())
+    {
+        printf("...has changed to 1\n");
+    }
+    if(menuSelector.hasChangedToZero())
+    {
+        printf("...has changed to 0\n");
+    }
 
     // LED heartbeat
     systemLed = ((counter & 0x68) == 0x68);
