@@ -1,79 +1,75 @@
 #include "Switch.h"
 
-Switch::Switch(SwitchType switchType, PinName levelPin, float debounceTimeout, PinName directionPin) :
+Switch::Switch(SwitchType switchType, PinName levelPin, EventQueue& eventQueue, float debounceTimeout, PinName directionPin) :
     switchType(switchType),
     level(levelPin, PullUp),
+    eventQueue(eventQueue),
     debounceTimeout(debounceTimeout),
     direction(directionPin, PullUp)
 {
-    debounceTimer.start();
+    level.fall(callback(this, &Switch::onLevelFallInterrupt));
+    level.rise(callback(this, &Switch::onLevelRiseInterrupt));
 }
 
-void Switch::handler(void)
+void Switch::onLevelFallInterrupt(void)
 {
-    int newLevel = level.read();
-    if(isStable)
+    if(stableHigh)
     {
-        if(newLevel != currentLevel)
+        // execute user callback on falling edge
+        if(userCb)
         {
-            // signal was stable and now is changed
-            currentLevel = newLevel;
-            isStable = false;
-            debounceTimer.reset();
-            //printf("XXX new level %d\n", currentLevel);
-
-            if(switchType == SwitchType::RotaryEncoder)
+            switch(switchType)
             {
-                if(currentLevel == 0)
-                {
-                    // sample direction on clock falling edge
-                    if(direction.read() == 0)
-                    {
-                        changedToZero = true;
-                    }
-                    else
-                    {
-                        changedToOne = true;
-                    }
-                }
-            }
-            else
-            {
-                // pushbutton and toggle switch
-                if(currentLevel)
-                {
-                    changedToOne = true;
-                    //printf("XXX changed to 1\n");
-                }
-                else
-                {
-                    changedToZero = true;
-                    //printf("XXX changed to 0\n");
-                }
+                case SwitchType::RotaryEncoder:
+                    eventQueue.call(userCb, direction.read());
+                    break;
+                case SwitchType::Pushbutton:
+                case SwitchType::ToggleSwitch:
+                    eventQueue.call(userCb, 0);
+                    break;
+                default:
+                    break;
             }
         }
+        stableHigh = false;
+    }
+    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds((long)(debounceTimeout * 1000000)));
+}
+
+void Switch::onLevelRiseInterrupt(void)
+{
+    if(stableLow)
+    {
+        // execute user callback on rising edge
+        if(userCb)
+        {
+            switch(switchType)
+            {
+                case SwitchType::ToggleSwitch:
+                    eventQueue.call(userCb, 1);
+                    break;
+                case SwitchType::Pushbutton:
+                case SwitchType::RotaryEncoder:
+                default:
+                    break;
+            }
+        }
+        stableLow = false;
+    }
+    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds((long)(debounceTimeout * 1000000)));
+}
+
+void Switch::onDebounceTimeoutCb(void)
+{
+    if(level.read() == 1)
+    {
+        stableHigh = true;
     }
     else
     {
-        // signal is not stable
-        if(chrono::duration<float>(debounceTimer.elapsed_time().count()) > chrono::duration<float>(debounceTimeout))
-        {
-            // signal is stable long enough
-            isStable = true;
-            //printf("XXX timeout reached\n");
-        }
-        else if(newLevel != previousLevel)
-        {
-            // signal is still bouncing
-            //printf("XXX debouncing %d  %f\n", newLevel, chrono::duration<float>(debounceTimer.elapsed_time().count()));
-            debounceTimer.reset();
-        }
+        stableLow = true;
     }
-
-    previousLevel = newLevel;
 }
-
-
 
 Hat::Hat(PinName northPin, PinName eastPin, PinName southPin, PinName westPin) :
     switchBus(northPin, eastPin, southPin, westPin)
