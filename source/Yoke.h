@@ -71,6 +71,7 @@ private:
     void setJoystickButtons(void);
     void setJoystickHat(void);
     void axisCalibration(void);
+    void toggleAxisCalibration(void);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution

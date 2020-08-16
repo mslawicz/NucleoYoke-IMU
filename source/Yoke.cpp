@@ -368,23 +368,6 @@ analog axis calibration on user request
 */
 void Yoke::axisCalibration(void)
 {
-    // if(!isCalibrationOn)
-    // {
-    //     isCalibrationOn = true;
-    //     printf("Axis calibration on; move throttle lever from min to max\n");
-    //     throttleInputMin = 0.49f;
-    //     throttleInputMax = 0.51f;
-    // }
-
-    // if(isCalibrationOn)
-    // {
-    //     isCalibrationOn = false;
-    //     printf("Axis calibration off\n");
-
-    //     KvStore::getInstance().store<float>("/kv/throttleInputMin", throttleInputMin);
-    //     KvStore::getInstance().store<float>("/kv/throttleInputMax", throttleInputMax);
-    // }
-
     if(isCalibrationOn)
     {
         if(throttleInput < throttleInputMin)
@@ -396,5 +379,28 @@ void Yoke::axisCalibration(void)
         {
             throttleInputMax = throttleInput;
         }
+    }
+}
+
+/*
+start / stop axis calibration
+*/
+void Yoke::toggleAxisCalibration(void)
+{
+    if(!isCalibrationOn)
+    {
+        isCalibrationOn = true;
+        printf("Axis calibration on; move throttle lever from min to max\n");
+        throttleInputMin = 0.49f;
+        throttleInputMax = 0.51f;
+    }
+
+    if(isCalibrationOn)
+    {
+        isCalibrationOn = false;
+        printf("Axis calibration off\n");
+
+        KvStore::getInstance().store<float>("/kv/throttleInputMin", throttleInputMin);
+        KvStore::getInstance().store<float>("/kv/throttleInputMax", throttleInputMax);
     }
 }
