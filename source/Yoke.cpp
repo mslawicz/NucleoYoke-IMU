@@ -31,7 +31,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     setSwitch(PE_1, PullUp),
     resetSwitch(PE_6, PullUp),
     leftToggle(PF_9, PullUp),
-    rightToggle(PF_8, PullUp),
+    rightToggle(PG_8, PullUp),//XXXrightToggle(PF_8, PullUp),
     reverserSwitch(PG_3, PullUp),
     throttlePotentiometer(PA_0),
     propellerPotentiometer(PA_4),
@@ -40,8 +40,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     yellowPotentiometer(PC_1),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
     joystickGainFilter(0.01f),
-    //menuSelector(SwitchType::RotaryEncoder, PG_4, 0.01f, PG_7)
-    menuSelector(SwitchType::Connector, PG_0)
+    calibrationSwitch(SwitchType::Connector, PF_8)  //XXX change to final pin later
 {
     printf("Yoke object created\r\n");
 
@@ -256,11 +255,11 @@ void Yoke::handler(void)
     usbJoystick.sendReport(joystickData);
 
     //XXX switch test
-    if(menuSelector.hasChangedToOne())
+    if(calibrationSwitch.hasChangedToOne())
     {
         printf("...has changed to 1\n");
     }
-    if(menuSelector.hasChangedToZero())
+    if(calibrationSwitch.hasChangedToZero())
     {
         printf("...has changed to 0\n");
     }

@@ -115,7 +115,7 @@ private:
     HatSwitchMode hatMode{HatSwitchMode::TrimMode};
     FilterEMA joystickGainFilter;
     YokeMode yokeMode;
-    Switch menuSelector;
+    Switch calibrationSwitch;
     const std::vector<const std::string> modeTexts =
     {
         "fixed-wing",
