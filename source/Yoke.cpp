@@ -364,5 +364,33 @@ analog axis calibration on user request
 */
 void Yoke::axisCalibration(void)
 {
+    if(calibrationSwitch.hasChangedToZero() && !isCalibrationOn)
+    {
+        isCalibrationOn = true;
+        printf("Axis calibration on; move throttle lever from min to max\n");
+        throttleInputMin = 0.49f;
+        throttleInputMax = 0.51f;
+    }
 
+    if(calibrationSwitch.hasChangedToOne() && isCalibrationOn)
+    {
+        isCalibrationOn = false;
+        printf("Axis calibration off\n");
+
+        KvStore::getInstance().store<float>("/kv/throttleInputMin", throttleInputMin);
+        KvStore::getInstance().store<float>("/kv/throttleInputMax", throttleInputMax);
+    }
+
+    if(isCalibrationOn)
+    {
+        if(throttleInput < throttleInputMin)
+        {
+            throttleInputMin = throttleInput;
+        }
+
+        if(throttleInput > throttleInputMax)
+        {
+            throttleInputMax = throttleInput;
+        }
+    }
 }
