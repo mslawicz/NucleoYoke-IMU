@@ -1,10 +1,13 @@
 #include "Menu.h"
 
 Menu::Menu() :
-    menuQueueDispatchThread(osPriority_t::osPriorityLow4, OS_STACK_SIZE, nullptr, "menu")
+    menuQueueDispatchThread(osPriority_t::osPriorityLow4, OS_STACK_SIZE, nullptr, "menu"),
+    execPushbutton(SwitchType::Pushbutton, PF_3, eventQueue)
 {
     // Start the display queue's dispatch thread
     menuQueueDispatchThread.start(callback(&eventQueue, &EventQueue::dispatch_forever));
+
+    execPushbutton.setCallback(callback(this, &Menu::execute));
 }
 
 Menu& Menu::getInstance(void)
@@ -13,3 +16,10 @@ Menu& Menu::getInstance(void)
     return instance;
 }
 
+/*
+execute menu action on user button press
+*/
+void Menu::execute(uint8_t argument)
+{
+    printf("executing menu command\n");
+}

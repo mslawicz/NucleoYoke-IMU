@@ -116,7 +116,6 @@ private:
     HatSwitchMode hatMode{HatSwitchMode::TrimMode};
     FilterEMA joystickGainFilter;
     YokeMode yokeMode;
-    Switch calibrationSwitch;
     bool isCalibrationOn{false};
     float throttleInput;
     float throttleInputMin;

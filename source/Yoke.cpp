@@ -3,6 +3,7 @@
 #include "Alarm.h"
 #include "Storage.h"
 #include "Display.h"
+#include "Menu.h"
 
 //XXX global variables for test
 float g_gyroX, g_gyroY, g_gyroZ;
@@ -31,7 +32,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     setSwitch(PE_1, PullUp),
     resetSwitch(PE_6, PullUp),
     leftToggle(PF_9, PullUp),
-    rightToggle(PG_8, PullUp),//XXXrightToggle(PF_8, PullUp),
+    rightToggle(PF_8, PullUp),
     reverserSwitch(PG_3, PullUp),
     throttlePotentiometer(PA_0),
     propellerPotentiometer(PA_4),
@@ -39,8 +40,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     orangePotentiometer(PC_0),
     yellowPotentiometer(PC_1),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
-    joystickGainFilter(0.01f),
-    calibrationSwitch(SwitchType::Pushbutton, PF_8, eventQueue)  //XXX change to final pin later
+    joystickGainFilter(0.01f)
 {
     printf("Yoke object created\r\n");
 
@@ -83,7 +83,11 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     // start handler timer
     handlerTimer.start();
 
+    // register console commands
     Console::getInstance().registerCommand("ys", "display yoke status", callback(this, &Yoke::displayStatus));
+
+    // add menu items
+    Menu::getInstance().addItem();  //XXX to refine later
 }
 
 
