@@ -265,7 +265,7 @@ void Yoke::handler(void)
     usbJoystick.sendReport(joystickData);
 
     // analog axis calibration on user request
-    //axisCalibration();
+    axisCalibration();
 
     // LED heartbeat
     systemLed = ((counter & 0x68) == 0x68);
@@ -368,22 +368,22 @@ analog axis calibration on user request
 */
 void Yoke::axisCalibration(void)
 {
-    if(!isCalibrationOn)
-    {
-        isCalibrationOn = true;
-        printf("Axis calibration on; move throttle lever from min to max\n");
-        throttleInputMin = 0.49f;
-        throttleInputMax = 0.51f;
-    }
+    // if(!isCalibrationOn)
+    // {
+    //     isCalibrationOn = true;
+    //     printf("Axis calibration on; move throttle lever from min to max\n");
+    //     throttleInputMin = 0.49f;
+    //     throttleInputMax = 0.51f;
+    // }
 
-    if(isCalibrationOn)
-    {
-        isCalibrationOn = false;
-        printf("Axis calibration off\n");
+    // if(isCalibrationOn)
+    // {
+    //     isCalibrationOn = false;
+    //     printf("Axis calibration off\n");
 
-        KvStore::getInstance().store<float>("/kv/throttleInputMin", throttleInputMin);
-        KvStore::getInstance().store<float>("/kv/throttleInputMax", throttleInputMax);
-    }
+    //     KvStore::getInstance().store<float>("/kv/throttleInputMin", throttleInputMin);
+    //     KvStore::getInstance().store<float>("/kv/throttleInputMax", throttleInputMax);
+    // }
 
     if(isCalibrationOn)
     {

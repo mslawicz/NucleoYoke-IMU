@@ -14,9 +14,11 @@ public:
 private:
     Menu(); // private constructor definition
     void execute(uint8_t argument);
+    void changeItem(uint8_t direction);
     EventQueue eventQueue;
     Thread menuQueueDispatchThread;
     Switch execPushbutton;
+    Switch menuSelector;
 };
 
 #endif /* MENU_H_ */
