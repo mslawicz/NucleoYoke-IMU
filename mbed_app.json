@@ -7,6 +7,7 @@
             "platform.thread-stats-enabled": true,
             "platform.sys-stats-enabled": true,
             "platform.stdio-baud-rate": 115200,
+            "rtos.main-thread-stack-size" : 8192,
             "target.printf_lib": "std",
             "target.features_add": ["STORAGE"],
             "target.components_add": ["FLASHIAP"]

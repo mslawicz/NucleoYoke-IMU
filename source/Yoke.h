@@ -70,6 +70,7 @@ private:
     void handler(void);
     void setJoystickButtons(void);
     void setJoystickHat(void);
+    void axisCalibration(void);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution
@@ -116,6 +117,10 @@ private:
     FilterEMA joystickGainFilter;
     YokeMode yokeMode;
     Switch calibrationSwitch;
+    bool isCalibrationOn{false};
+    float throttleInput;
+    float throttleInputMin;
+    float throttleInputMax;
     const std::vector<const std::string> modeTexts =
     {
         "fixed-wing",

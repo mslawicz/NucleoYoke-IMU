@@ -71,6 +71,9 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
         static_cast<YokeMode>(0),
         static_cast<YokeMode>(static_cast<int>(YokeMode::Size) - 1));
 
+    throttleInputMin = KvStore::getInstance().restore<float>("/kv/throttleInputMin", 0.0f, 0.0f, 0.49f);
+    throttleInputMax = KvStore::getInstance().restore<float>("/kv/throttleInputMax", 1.0f, 0.51f, 1.0f);
+
     // call handler on IMU interrupt rise signal
     imuInterruptSignal.rise(callback(this, &Yoke::imuInterruptHandler));
     // this timeout calls handler for the first time
@@ -239,7 +242,10 @@ void Yoke::handler(void)
     joystickData.X = scale<float, int16_t>(-1.45f, 1.45f, joystickRoll * joystickGainFilter.getValue(), -32767, 32767);
     joystickData.Z = scale<float, int16_t>(-0.78f, 0.78f, joystickYaw * joystickGainFilter.getValue(), -32767, 32767);
 
-    joystickData.slider = scale<float, int16_t>(0.0f, 1.0f, throttlePotentiometer.read(), -32767, 32767);
+    throttleInput = throttlePotentiometer.read();
+    const float ThrottleDeadZone = 0.03f;
+
+    joystickData.slider = scale<float, int16_t>(throttleInputMin + ThrottleDeadZone, throttleInputMax - ThrottleDeadZone, throttleInput, -32767, 32767);
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
     joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixturePotentiometer.read(), -32767, 32767);
 
@@ -254,15 +260,8 @@ void Yoke::handler(void)
 
     usbJoystick.sendReport(joystickData);
 
-    //XXX switch test
-    if(calibrationSwitch.hasChangedToOne())
-    {
-        printf("...has changed to 1\n");
-    }
-    if(calibrationSwitch.hasChangedToZero())
-    {
-        printf("...has changed to 0\n");
-    }
+    // analog axis calibration on user request
+    axisCalibration();
 
     // LED heartbeat
     systemLed = ((counter & 0x68) == 0x68);
@@ -274,9 +273,7 @@ void Yoke::handler(void)
 void Yoke::displayStatus(CommandVector cv)
 {
     printf("yoke mode = %s\r\n", modeTexts[static_cast<int>(yokeMode)].c_str());
-    printf("IMU sensor pitch = %f\r\n", sensorPitch);
-    printf("IMU sensor roll = %f\r\n", sensorRoll);
-    printf("IMU sensor yaw = %f\r\n", sensorYaw);
+    printf("IMU sensor pitch/roll/yaw = %f %f %f\r\n", sensorPitch, sensorRoll, sensorYaw);
     printf("joystick X = %d\r\n", joystickData.X);
     printf("joystick Y = %d\r\n", joystickData.Y);
     printf("joystick Z = %d\r\n", joystickData.Z);
@@ -288,6 +285,7 @@ void Yoke::displayStatus(CommandVector cv)
     printf("joystick wheel = %d\r\n", joystickData.wheel);
     printf("joystick hat = 0x%02X\r\n", joystickData.hat);
     printf("joystick buttons = 0x%04X\r\n", joystickData.buttons);
+    printf("throttle min / value / max = %f %f %f\r\n", throttleInputMin, throttleInput, throttleInputMax);
 }
 
 /*
@@ -359,4 +357,12 @@ void Yoke::displayMode(void)
     std::string text = "mode: " + modeTexts[static_cast<int>(yokeMode)]; 
     Display::getInstance().print(0, 2, text);
     Display::getInstance().update();
+}
+
+/*
+analog axis calibration on user request
+*/
+void Yoke::axisCalibration(void)
+{
+
 }
