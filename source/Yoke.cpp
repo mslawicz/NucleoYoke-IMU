@@ -40,7 +40,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     yellowPotentiometer(PC_1),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
     joystickGainFilter(0.01f),
-    calibrationSwitch(SwitchType::Connector, PF_8)  //XXX change to final pin later
+    calibrationSwitch(SwitchType::Pushbutton, PF_8, eventQueue)  //XXX change to final pin later
 {
     printf("Yoke object created\r\n");
 
@@ -261,7 +261,7 @@ void Yoke::handler(void)
     usbJoystick.sendReport(joystickData);
 
     // analog axis calibration on user request
-    axisCalibration();
+    //axisCalibration();
 
     // LED heartbeat
     systemLed = ((counter & 0x68) == 0x68);
@@ -364,7 +364,7 @@ analog axis calibration on user request
 */
 void Yoke::axisCalibration(void)
 {
-    if(calibrationSwitch.hasChangedToZero() && !isCalibrationOn)
+    if(!isCalibrationOn)
     {
         isCalibrationOn = true;
         printf("Axis calibration on; move throttle lever from min to max\n");
@@ -372,7 +372,7 @@ void Yoke::axisCalibration(void)
         throttleInputMax = 0.51f;
     }
 
-    if(calibrationSwitch.hasChangedToOne() && isCalibrationOn)
+    if(isCalibrationOn)
     {
         isCalibrationOn = false;
         printf("Axis calibration off\n");
