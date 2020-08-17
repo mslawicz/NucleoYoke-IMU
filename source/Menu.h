@@ -3,6 +3,10 @@
 
 #include <mbed.h>
 #include "Switch.h"
+#include <string>
+#include <vector>
+
+using MenuItem = std::pair<std::string, Callback<void(void)>>;
 
 class Menu
 {
@@ -10,7 +14,7 @@ public:
     static Menu& getInstance(void);
     Menu(Menu const&) = delete;   // copy constructor removed for singleton
     void operator=(Menu const&) = delete;
-    void addItem(void) {} //XXX to implement later
+    void addItem(std::string itemText, Callback<void(void)> itemFunction) { menuItems.emplace_back(itemText, itemFunction); }
 private:
     Menu(); // private constructor definition
     void execute(uint8_t argument);
@@ -19,6 +23,8 @@ private:
     Thread menuQueueDispatchThread;
     Switch execPushbutton;
     Switch menuSelector;
+    std::vector<MenuItem> menuItems;
+    uint8_t currentItem{0};
 };
 
 #endif /* MENU_H_ */
