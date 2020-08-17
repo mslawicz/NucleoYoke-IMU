@@ -11,6 +11,8 @@
 #include "mbed.h"
 #include "Arial9.h"
 #include "Tahoma11.h"
+#include "Tahoma11b.h"
+#include "Tahoma14b.h"
 #include "Tahoma16b.h"
 
 extern const uint8_t FontArial9[];

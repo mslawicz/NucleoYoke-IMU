@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "Display.h"
 
 Menu::Menu() :
     menuQueueDispatchThread(osPriority_t::osPriorityLow4, OS_STACK_SIZE, nullptr, "menu"),
@@ -23,7 +24,12 @@ execute menu action on user button press
 */
 void Menu::execute(uint8_t argument)
 {
-    printf("executing menu command\n");
+    if(!menuItems.empty() &&
+      (menuItems.size() > currentItem) &&
+      menuItems[currentItem].second)
+      {
+          menuItems[currentItem].second();
+      }
 }
 
 /*
@@ -32,5 +38,47 @@ direction 0 (left) or 1 (right)
 */
 void Menu::changeItem(uint8_t direction)
 {
-    printf("item change %d\n", direction);
+    if(!menuItems.empty())
+    {
+        uint8_t noOfItems = menuItems.size();
+        currentItem = (currentItem + direction * 2 - 1 + noOfItems) % noOfItems;
+        displayItemText();
+    }
+}
+
+/*
+displays menu item text
+*/
+void Menu::displayItemText(void)
+{
+    if(!menuItems.empty() && (menuItems.size() > currentItem))
+    {
+        std::string text = ">" + menuItems[currentItem].first;
+        Display::getInstance().setFont(FontTahoma14b, false, 127);
+        Display::getInstance().print(0, 49, text);
+        Display::getInstance().update();
+    }
+}
+
+/*
+displays the message in a separate line
+use timeout in [s] to clear automatically clear the message
+*/
+void Menu::displayMessage(std::string message, uint16_t timeout)
+{
+    Display::getInstance().setFont(FontTahoma14b, true, 127);
+    Display::getInstance().print(0, MessageLine, message);
+    Display::getInstance().update();
+    messageClearTimeout.attach(callback(this, &Menu::clearMessage), std::chrono::microseconds(timeout * 1000000));
+}
+
+/*
+displays the message in a separate line
+use timeout in [s] to clear automatically clear the message
+*/
+void Menu::clearMessage(void)
+{
+    Display::getInstance().setFont(FontTahoma14b, false, 127);
+    Display::getInstance().print(0, MessageLine, " ");
+    Display::getInstance().update();
 }

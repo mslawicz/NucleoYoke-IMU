@@ -19,6 +19,7 @@
 #include "Alarm.h"
 #include "Statistics.h"
 #include "Display.h"
+#include "Menu.h"
 #include <mbed.h>
 
 
@@ -45,6 +46,9 @@ int main()
     // create Yoke object
     Yoke yoke(eventQueue);
     yoke.displayMode();
+
+    // display current menu item text
+    Menu::getInstance().displayItemText();
 
     // process the event queue
     eventQueue.dispatch_forever();

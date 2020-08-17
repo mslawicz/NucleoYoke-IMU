@@ -31,6 +31,7 @@ public:
     void displayOnScreen(void);
 private:
     Alarm();
+    void clearFromMenu(void);
     uint32_t alarmRegister{0};
     DigitalOut alarmLed;
 };

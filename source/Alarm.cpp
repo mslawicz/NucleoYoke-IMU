@@ -7,12 +7,14 @@
 
 #include "Alarm.h"
 #include "Display.h"
+#include "Menu.h"
 
 Alarm::Alarm() :
     alarmLed(LED3, 0)
 {
     Console::getInstance().registerCommand("da", "display alarms", callback(this, &Alarm::display));
     Console::getInstance().registerCommand("ca", "clear alarms", callback(this, &Alarm::clear));
+    Menu::getInstance().addItem("clear alarms", callback(this, &Alarm::clearFromMenu));
 }
 
 Alarm& Alarm::getInstance()
@@ -47,6 +49,15 @@ void Alarm::clear(CommandVector cv)
     alarmRegister = 0;
     alarmLed = 0;
     printf("Alarms cleared\r\n");
+}
+
+/*
+ * clear alarms - to be called from display menu
+ */
+void Alarm::clearFromMenu(void)
+{
+    clear(CommandVector{});
+    Menu::getInstance().displayMessage("alarms cleared", 5);
 }
 
 /*

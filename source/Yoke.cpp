@@ -87,7 +87,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     Console::getInstance().registerCommand("ys", "display yoke status", callback(this, &Yoke::displayStatus));
 
     // add menu items
-    Menu::getInstance().addItem();  //XXX to refine later
+    Menu::getInstance().addItem("calibrate", nullptr);  //XXX to refine later
 }
 
 
