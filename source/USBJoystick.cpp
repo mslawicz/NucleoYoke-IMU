@@ -68,11 +68,11 @@ const uint8_t* USBJoystick::report_desc()
         0x81, 0x41,                    //   INPUT (Cnst,Ary,Abs,Null)
         0x05, 0x09,                    //   USAGE_PAGE (Button)
         0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
-        0x29, 0x10,                    //   USAGE_MAXIMUM (Button 16)
+        0x29, 0x20,                    //   USAGE_MAXIMUM (Button 32)
         0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
         0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
         0x75, 0x01,                    //   REPORT_SIZE (1)
-        0x95, 0x10,                    //   REPORT_COUNT (16)
+        0x95, 0x20,                    //   REPORT_COUNT (16)
         0x55, 0x00,                    //   UNIT_EXPONENT (0)
         0x65, 0x00,                    //   UNIT (None)
         0x81, 0x02,                    //   INPUT (Data,Var,Abs)
@@ -191,8 +191,10 @@ bool USBJoystick::sendReport(JoystickData& joystickData)
     report.data[index++] = LSB(joystickData.wheel);
     report.data[index++] = MSB(joystickData.wheel);
     report.data[index++] = joystickData.hat;
-    report.data[index++] = LSB(joystickData.buttons);
-    report.data[index++] = MSB(joystickData.buttons);
+    report.data[index++] = joystickData.buttons & 0xFF;
+    report.data[index++] = (joystickData.buttons >> 8) & 0xFF;
+    report.data[index++] = (joystickData.buttons >> 16) & 0xFF;
+    report.data[index++] = (joystickData.buttons >> 24) & 0xFF;
 
     report.length = index;
     return send(&report);

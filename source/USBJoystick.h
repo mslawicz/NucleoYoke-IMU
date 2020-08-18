@@ -23,7 +23,7 @@ struct JoystickData
     int16_t dial;
     int16_t wheel;
     uint8_t hat;
-    uint16_t buttons;
+    uint32_t buttons;
 };
 
 class USBJoystick : public USBHID

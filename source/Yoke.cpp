@@ -288,7 +288,7 @@ void Yoke::displayStatus(CommandVector cv)
     printf("joystick dial = %d\r\n", joystickData.dial);
     printf("joystick wheel = %d\r\n", joystickData.wheel);
     printf("joystick hat = 0x%02X\r\n", joystickData.hat);
-    printf("joystick buttons = 0x%04X\r\n", joystickData.buttons);
+    printf("joystick buttons = 0x%08X\r\n", joystickData.buttons);
     printf("throttle min / value / max = %f %f %f\r\n", throttleInputMin, throttleInput, throttleInputMax);
 }
 
@@ -327,7 +327,7 @@ void Yoke::setJoystickButtons(void)
     else
     {
         // in hat mode trim buttons always off
-        joystickData.buttons &= ~(0x000F << 6);
+        joystickData.buttons &= ~(0x0000000F << 6);
     }
 
     setButton(hatCenterSwitch.read(), 10);
