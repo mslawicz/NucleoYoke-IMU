@@ -32,8 +32,10 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     setSwitch(PE_1, PullUp),
     resetSwitch(PE_6, PullUp),
     leftToggle(PF_9, PullUp),
-    rightToggle(PF_8, PullUp),
+    viewModeToggle(PF_8, PullUp),
     reverserSwitch(PG_3, PullUp),
+    brakeModeSwitch(PE_3, PullUp),
+    trimModeSwitch(PE_4, PullUp),
     throttlePotentiometer(PA_0),
     propellerPotentiometer(PA_4),
     mixturePotentiometer(PA_1),
@@ -107,10 +109,21 @@ void Yoke::handler(void)
     counter++;
 
     // set HAT switch mode
-    hatMode = leftToggle.read() ? HatSwitchMode::TrimMode : HatSwitchMode::FreeViewMode;
+    if(trimModeSwitch.read() == 0)      // trim shift switch pressed
+    {
+        hatMode = HatSwitchMode::TrimMode;
+    }
+    else if(viewModeToggle.read())      // hat view mode toggle down
+    {
+        hatMode = HatSwitchMode::DefinedViewMode;
+    }
+    else        // hat view mode toggle up
+    {
+        hatMode = HatSwitchMode::FreeViewMode;
+    }
 
     // set brake mode from SET pushbutton
-    bool brakeActive = !setSwitch.read();
+    bool brakeActive = !brakeModeSwitch.read();
 
     std::vector<uint8_t> sensorData;
     if(imuInterruptSignal.read() == 1)
@@ -259,9 +272,6 @@ void Yoke::handler(void)
     // set joystick buttons
     setJoystickButtons();
 
-    // set joystick hat
-    setJoystickHat();
-
     usbJoystick.sendReport(joystickData);
 
     // analog axis calibration on user request
@@ -309,6 +319,8 @@ void Yoke::setJoystickButtons(void)
         }
     };
 
+    joystickData.buttons = 0;
+
     setButton(flapsUpSwitch.read(), 0);
     setButton(flapsDownSwitch.read(), 1);
     setButton(gearUpSwitch.read(), 2);
@@ -316,40 +328,37 @@ void Yoke::setJoystickButtons(void)
     setButton(redPushbutton.read(), 4);
     setButton(greenPushbutton.read(), 5);
 
-    if(hatMode == HatSwitchMode::TrimMode)
+    // set buttons from HAT switch
+    uint8_t hatPosition = hatSwitch.getPosition();
+
+    switch(hatMode)
     {
-        uint8_t hatPosition = hatSwitch.getPosition();
-        setButton(hatPosition != 1, 6); // elevator trim down
-        setButton(hatPosition != 5, 7); // elevator trim up
-        setButton(hatPosition != 3, 8); // yaw trim right
-        setButton(hatPosition != 7, 9); // yaw trim left
-    }
-    else
-    {
-        // in hat mode trim buttons always off
-        joystickData.buttons &= ~(0x0000000F << 6);
+        case HatSwitchMode::FreeViewMode:
+            joystickData.hat = hatSwitch.getPosition();
+            setButton(hatCenterSwitch.read(), 10);
+            break;
+        case HatSwitchMode::DefinedViewMode:
+            joystickData.hat = 0;
+            if(hatPosition != 0)
+            {
+                setButton(0, 15 + hatPosition); // set one button in the range 16-23
+            }
+            setButton(hatCenterSwitch.read(), 24);
+            break;
+        case HatSwitchMode::TrimMode:
+            joystickData.hat = 0;
+            setButton(hatPosition != 1, 6); // elevator trim down
+            setButton(hatPosition != 5, 7); // elevator trim up
+            setButton(hatPosition != 3, 8); // rudder trim right
+            setButton(hatPosition != 7, 9); // rudder trim left
+            break;
+        default:
+            break;
     }
 
-    setButton(hatCenterSwitch.read(), 10);
     setButton(setSwitch.read(), 11);
     setButton(resetSwitch.read(), 12);
     setButton(reverserSwitch.read(), 13);
-}
-
-/*
-set joystick HAT
-*/
-void Yoke::setJoystickHat(void)
-{
-    if(hatMode == HatSwitchMode::FreeViewMode)
-    {
-        joystickData.hat = hatSwitch.getPosition();
-    }
-    else
-    {
-        // in trim mode hat position is neutral
-        joystickData.hat = 0;
-    }
 }
 
 /*

@@ -70,7 +70,6 @@ private:
     void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
     void handler(void);
     void setJoystickButtons(void);
-    void setJoystickHat(void);
     void axisCalibration(void);
     void toggleAxisCalibration(void);
     events::EventQueue& eventQueue;     // event queue of the main thread
@@ -107,8 +106,10 @@ private:
     DigitalIn setSwitch;
     DigitalIn resetSwitch;
     DigitalIn leftToggle;
-    DigitalIn rightToggle;
+    DigitalIn viewModeToggle;
     DigitalIn reverserSwitch;
+    DigitalIn brakeModeSwitch;
+    DigitalIn trimModeSwitch;
     AnalogIn throttlePotentiometer;
     AnalogIn propellerPotentiometer;
     AnalogIn mixturePotentiometer;
