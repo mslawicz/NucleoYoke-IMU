@@ -48,7 +48,8 @@ enum struct LSM9DS1reg : uint8_t
 
 enum struct HatSwitchMode
 {
-    HatMode,
+    FreeViewMode,
+    DefinedViewMode,
     TrimMode
 };
 

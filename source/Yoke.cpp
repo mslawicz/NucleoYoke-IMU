@@ -107,7 +107,7 @@ void Yoke::handler(void)
     counter++;
 
     // set HAT switch mode
-    hatMode = leftToggle.read() ? HatSwitchMode::TrimMode : HatSwitchMode::HatMode;
+    hatMode = leftToggle.read() ? HatSwitchMode::TrimMode : HatSwitchMode::FreeViewMode;
 
     // set brake mode from SET pushbutton
     bool brakeActive = !setSwitch.read();
@@ -341,7 +341,7 @@ set joystick HAT
 */
 void Yoke::setJoystickHat(void)
 {
-    if(hatMode == HatSwitchMode::HatMode)
+    if(hatMode == HatSwitchMode::FreeViewMode)
     {
         joystickData.hat = hatSwitch.getPosition();
     }
