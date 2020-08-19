@@ -110,6 +110,7 @@ private:
     DigitalIn reverserSwitch;
     DigitalIn brakeModeSwitch;
     DigitalIn trimModeSwitch;
+    DigitalIn headTrackingSwitch;
     AnalogIn throttlePotentiometer;
     AnalogIn propellerPotentiometer;
     AnalogIn mixturePotentiometer;

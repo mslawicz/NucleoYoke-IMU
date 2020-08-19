@@ -36,6 +36,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     reverserSwitch(PG_3, PullUp),
     brakeModeSwitch(PE_3, PullUp),
     trimModeSwitch(PE_4, PullUp),
+    headTrackingSwitch(PC_8, PullUp),
     throttlePotentiometer(PA_0),
     propellerPotentiometer(PA_4),
     mixturePotentiometer(PA_1),
@@ -109,8 +110,10 @@ void Yoke::handler(void)
     counter++;
 
     // set HAT switch mode
-    if(trimModeSwitch.read() == 0)      // trim shift switch pressed
+    if((trimModeSwitch.read() ^ headTrackingSwitch.read()) == 1)
     {
+        // trim shift switch pressed in HAT view or
+        // trim switch NOT pressed in head tracking mode
         hatMode = HatSwitchMode::TrimMode;
     }
     else if(viewModeToggle.read())      // hat view mode toggle down
