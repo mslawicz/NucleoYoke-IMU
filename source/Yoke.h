@@ -72,6 +72,7 @@ private:
     void setJoystickButtons(void);
     void axisCalibration(void);
     void toggleAxisCalibration(void);
+    void togglePilotsTimer(void);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution
@@ -124,6 +125,7 @@ private:
     float throttleInput;
     float throttleInputMin;
     float throttleInputMax;
+    bool isTimerDisplayed{false};
     const std::vector<const std::string> modeTexts =
     {
         "fixed-wing",

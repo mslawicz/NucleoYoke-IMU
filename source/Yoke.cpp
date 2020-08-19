@@ -94,6 +94,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
 
     // add menu items
     Menu::getInstance().addItem("calibrate", callback(this, &Yoke::toggleAxisCalibration));
+    Menu::getInstance().addItem("timer", callback(this, &Yoke::togglePilotsTimer));
 }
 
 
@@ -425,5 +426,20 @@ void Yoke::toggleAxisCalibration(void)
         Menu::getInstance().displayMessage("cal. started");
         throttleInputMin = 0.49f;
         throttleInputMax = 0.51f;
+    }
+}
+
+/*
+start / stop pilots timer on display
+*/
+void Yoke::togglePilotsTimer(void)
+{
+    if(isTimerDisplayed)
+    {
+        isTimerDisplayed = false;
+    }
+    else
+    {
+        isTimerDisplayed = true;
     }
 }
