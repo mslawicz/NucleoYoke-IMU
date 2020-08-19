@@ -64,9 +64,9 @@ void Menu::displayItemText(void)
 displays the message in a separate line
 use timeout in [s] to clear automatically clear the message
 */
-void Menu::displayMessage(std::string message, uint16_t timeout)
+void Menu::displayMessage(std::string message, uint16_t timeout, bool inverted)
 {
-    Display::getInstance().setFont(FontTahoma14b, true, 127);
+    Display::getInstance().setFont(FontTahoma14b, inverted, 127);
     Display::getInstance().print(0, MessageLine, message);
     Display::getInstance().update();
     if(timeout)
