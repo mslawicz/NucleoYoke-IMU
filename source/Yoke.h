@@ -93,7 +93,7 @@ private:
     const float MagneticFieldResolution = 16.0f / 32768.0f;   // 1-bit resolution of magnetic field in gauss
     float sensorPitch{0.0f}, sensorRoll{0.0f}, sensorYaw{0.0f};             // orientation of the IMU sensor
     float sensorPitchVariability{0.0f}, sensorRollVariability{0.0f}, sensorYawVariability{0.0f};
-    float sensorPitchReference{0.0f}, sensorRollReference{0.0f}, sensorYawReference{0.0f};
+    float sensorPitchReference, sensorRollReference, sensorYawReference;
     DigitalOut calibrationLed;
     JoystickData joystickData{0};
     DigitalIn flapsUpSwitch;

@@ -76,6 +76,9 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
 
     throttleInputMin = KvStore::getInstance().restore<float>("/kv/throttleInputMin", 0.0f, 0.0f, 0.49f);
     throttleInputMax = KvStore::getInstance().restore<float>("/kv/throttleInputMax", 1.0f, 0.51f, 1.0f);
+    sensorPitchReference = KvStore::getInstance().restore<float>("/kv/sensorPitchRef", 0.0f, -0.5f, 0.5f);
+    sensorRollReference = KvStore::getInstance().restore<float>("/kv/sensorRollRef", 0.0f, -0.5f, 0.5f);
+    sensorYawReference = KvStore::getInstance().restore<float>("/kv/sensorYawRef", 0.0f, -0.5f, 0.5f);
 
     // call handler on IMU interrupt rise signal
     imuInterruptSignal.rise(callback(this, &Yoke::imuInterruptHandler));
@@ -291,6 +294,7 @@ void Yoke::displayStatus(CommandVector cv)
 {
     printf("yoke mode = %s\r\n", modeTexts[static_cast<int>(yokeMode)].c_str());
     printf("IMU sensor pitch/roll/yaw = %f %f %f\r\n", sensorPitch, sensorRoll, sensorYaw);
+    printf("reference pitch/roll/yaw = %f %f %f\r\n", sensorPitchReference, sensorRollReference, sensorYawReference);
     printf("joystick X = %d\r\n", joystickData.X);
     printf("joystick Y = %d\r\n", joystickData.Y);
     printf("joystick Z = %d\r\n", joystickData.Z);
@@ -405,11 +409,14 @@ void Yoke::toggleAxisCalibration(void)
     if(isCalibrationOn)
     {
         isCalibrationOn = false;
-        printf("Axis calibration off\n");
+        printf("Axis calibration completed\n");
         Menu::getInstance().displayMessage("cal. completed", 10);
 
         KvStore::getInstance().store<float>("/kv/throttleInputMin", throttleInputMin);
         KvStore::getInstance().store<float>("/kv/throttleInputMax", throttleInputMax);
+        KvStore::getInstance().store<float>("/kv/sensorPitchRef", sensorPitchReference);
+        KvStore::getInstance().store<float>("/kv/sensorRollRef", sensorRollReference);
+        KvStore::getInstance().store<float>("/kv/sensorYawRef", sensorYawReference);
     }
     else
     {
