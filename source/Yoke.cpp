@@ -436,10 +436,30 @@ void Yoke::togglePilotsTimer(void)
 {
     if(isTimerDisplayed)
     {
-        isTimerDisplayed = false;
+        if(pilotsTimer.elapsed_time() > std::chrono::microseconds(3000000))
+        {
+            isTimerDisplayed = false;
+            pilotsTimer.stop();
+            // stop ticker and clear message
+        }
+        else
+        {
+            pilotsTimer.reset();
+            // call displayTimer immediately
+        }
     }
     else
     {
         isTimerDisplayed = true;
+        pilotsTimer.start();
+        // call displayTimer immediately and set ticker
     }
+}
+
+/*
+displays timer on display
+*/
+void Yoke::displayTimer(void)
+{
+    // display timer value as non-inverted menu message with 2s timeout
 }
