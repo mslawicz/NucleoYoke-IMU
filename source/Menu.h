@@ -16,7 +16,7 @@ public:
     void operator=(Menu const&) = delete;
     void addItem(std::string itemText, Callback<void(void)> itemFunction) { menuItems.emplace_back(itemText, itemFunction); }
     void displayItemText(void);
-    void displayMessage(std::string message, uint16_t timeout);
+    void displayMessage(std::string message, uint16_t timeout = 0);
 private:
     Menu(); // private constructor definition
     void execute(uint8_t argument);

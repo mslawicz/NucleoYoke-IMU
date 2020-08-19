@@ -261,7 +261,7 @@ void SH1106::print(uint8_t sX, uint8_t sY, std::string text)
 
     if(upToX !=0)
     {
-        while(X < upToX)
+        while(X <= upToX)
         {
             putChar2CharSpace();
         }

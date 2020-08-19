@@ -69,7 +69,10 @@ void Menu::displayMessage(std::string message, uint16_t timeout)
     Display::getInstance().setFont(FontTahoma14b, true, 127);
     Display::getInstance().print(0, MessageLine, message);
     Display::getInstance().update();
-    messageClearTimeout.attach(callback(this, &Menu::clearMessage), std::chrono::microseconds(timeout * 1000000));
+    if(timeout)
+    {
+        messageClearTimeout.attach(callback(this, &Menu::clearMessage), std::chrono::microseconds(timeout * 1000000));
+    }
 }
 
 /*

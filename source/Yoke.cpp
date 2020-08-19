@@ -90,7 +90,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     Console::getInstance().registerCommand("ys", "display yoke status", callback(this, &Yoke::displayStatus));
 
     // add menu items
-    Menu::getInstance().addItem("calibrate", nullptr);  //XXX to refine later
+    Menu::getInstance().addItem("calibrate", callback(this, &Yoke::toggleAxisCalibration));
 }
 
 
@@ -399,20 +399,21 @@ start / stop axis calibration
 */
 void Yoke::toggleAxisCalibration(void)
 {
-    if(!isCalibrationOn)
-    {
-        isCalibrationOn = true;
-        printf("Axis calibration on; move throttle lever from min to max\n");
-        throttleInputMin = 0.49f;
-        throttleInputMax = 0.51f;
-    }
-
     if(isCalibrationOn)
     {
         isCalibrationOn = false;
         printf("Axis calibration off\n");
+        Menu::getInstance().displayMessage("cal. completed", 10);
 
         KvStore::getInstance().store<float>("/kv/throttleInputMin", throttleInputMin);
         KvStore::getInstance().store<float>("/kv/throttleInputMax", throttleInputMax);
+    }
+    else
+    {
+        isCalibrationOn = true;
+        printf("Axis calibration on; move throttle lever from min to max\n");
+        Menu::getInstance().displayMessage("cal. started");
+        throttleInputMin = 0.49f;
+        throttleInputMax = 0.51f;
     }
 }
