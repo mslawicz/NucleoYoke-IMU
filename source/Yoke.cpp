@@ -22,8 +22,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     sensorGA(i2cBus, LSM9DS1_AG_ADD),
     sensorM(i2cBus, LSM9DS1_M_ADD),
     calibrationLed(LED1, 0),
-    flapsUpSwitch(PB_15, PullUp),
-    flapsDownSwitch(PB_13, PullUp),
+    flapsUpSwitch(PE_3, PullUp),
+    flapsDownSwitch(PE_4, PullUp),
     gearUpSwitch(PF_4, PullUp),
     gearDownSwitch(PF_5, PullUp),
     redPushbutton(PG_0, PullUp),
@@ -34,8 +34,8 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     leftToggle(PF_9, PullUp),
     viewModeToggle(PF_8, PullUp),
     reverserSwitch(PG_3, PullUp),
-    brakeModeSwitch(PE_3, PullUp),
-    trimModeSwitch(PE_4, PullUp),
+    brakeModeSwitch(PB_15, PullUp), //XXX
+    trimModeSwitch(PB_13, PullUp),
     headTrackingSwitch(PC_8, PullUp),
     throttlePotentiometer(PA_0),
     propellerPotentiometer(PA_4),
@@ -129,8 +129,8 @@ void Yoke::handler(void)
         hatMode = HatSwitchMode::FreeViewMode;
     }
 
-    // set brake mode from SET pushbutton
-    bool brakeActive = !brakeModeSwitch.read();
+    // set brake mode from RESET pushbutton
+    bool brakeActive = !resetSwitch.read();
 
     std::vector<uint8_t> sensorData;
     if(imuInterruptSignal.read() == 1)
@@ -436,23 +436,26 @@ void Yoke::togglePilotsTimer(void)
 {
     if(isTimerDisplayed)
     {
-        if(pilotsTimer.elapsed_time() > std::chrono::microseconds(3000000))
+        if(chrono::duration_cast<chrono::seconds>(pilotsTimer.elapsed_time()).count() < 3)
         {
             isTimerDisplayed = false;
             pilotsTimer.stop();
-            // stop ticker and clear message
+            timerTicker.detach();
+            Menu::getInstance().clearMessage();
         }
         else
         {
             pilotsTimer.reset();
-            // call displayTimer immediately
+            displayTimer();
         }
     }
     else
     {
         isTimerDisplayed = true;
+        pilotsTimer.reset();
         pilotsTimer.start();
-        // call displayTimer immediately and set ticker
+        displayTimer();
+        timerTicker.attach(callback(this, &Yoke::displayTimer), std::chrono::microseconds(1000000));
     }
 }
 
@@ -461,5 +464,8 @@ displays timer on display
 */
 void Yoke::displayTimer(void)
 {
-    // display timer value as non-inverted menu message with 2s timeout
+    uint16_t secondsElapsed = static_cast<uint16_t>(chrono::duration_cast<chrono::seconds>(pilotsTimer.elapsed_time()).count());
+    char timerString[6]; 
+    sprintf(timerString, "%2d:%02d", (secondsElapsed / 60) % 99, secondsElapsed % 60);
+    Menu::getInstance().displayMessage(std::string(timerString), 2, false);
 }

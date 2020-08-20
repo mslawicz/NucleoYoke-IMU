@@ -110,7 +110,7 @@ private:
     DigitalIn leftToggle;
     DigitalIn viewModeToggle;
     DigitalIn reverserSwitch;
-    DigitalIn brakeModeSwitch;
+    DigitalIn brakeModeSwitch; //XXX
     DigitalIn trimModeSwitch;
     DigitalIn headTrackingSwitch;
     AnalogIn throttlePotentiometer;
@@ -128,6 +128,7 @@ private:
     float throttleInputMax;
     bool isTimerDisplayed{false};
     Timer pilotsTimer;
+    Ticker timerTicker;
     const std::vector<const std::string> modeTexts =
     {
         "fixed-wing",
