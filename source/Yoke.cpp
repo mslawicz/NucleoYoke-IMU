@@ -264,7 +264,7 @@ void Yoke::handler(void)
         rightBrake = 0.0f;
     }
     joystickData.X = scale<float, int16_t>(-1.45f, 1.45f, joystickRoll * joystickGainFilter.getValue(), -32767, 32767);
-    joystickData.Z = scale<float, int16_t>(-0.78f, 0.78f, joystickYaw * joystickGainFilter.getValue(), -32767, 32767);
+    joystickData.Rz = scale<float, int16_t>(-0.78f, 0.78f, joystickYaw * joystickGainFilter.getValue(), -32767, 32767);
 
     throttleInput = throttlePotentiometer.read();
     const float ThrottleDeadZone = 0.03f;
