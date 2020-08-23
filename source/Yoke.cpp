@@ -301,7 +301,6 @@ void Yoke::displayStatus(CommandVector cv)
     printf("reference pitch/roll/yaw = %f %f %f\r\n", sensorPitchReference, sensorRollReference, sensorYawReference);
     printf("joystick X = %d\r\n", joystickData.X);
     printf("joystick Y = %d\r\n", joystickData.Y);
-    printf("joystick Z = %d\r\n", joystickData.Z);
     printf("joystick Rx = %d\r\n", joystickData.Rx);
     printf("joystick Ry = %d\r\n", joystickData.Ry);
     printf("joystick Rz = %d\r\n", joystickData.Rz);
