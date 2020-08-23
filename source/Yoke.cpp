@@ -12,6 +12,7 @@ float g_magX, g_magY, g_magZ;
 float g_sensorPitch, g_sensorRoll, g_sensorYaw;
 
 static const float PI = 3.14159265359f;
+static const bool MSFS = true;      // Microsoft Flight Simulator Mode
 
 Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
@@ -273,8 +274,18 @@ void Yoke::handler(void)
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
     joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixturePotentiometer.read(), -32767, 32767);
 
-    joystickData.Rx = scale<float, int16_t>(0.0f, 1.0f, leftBrake, -32767, 32767);
-    joystickData.Ry = scale<float, int16_t>(0.0f, 1.0f, rightBrake, -32767, 32767);
+    if(MSFS)
+    {
+        // brakes scalled 0..max
+        joystickData.Rx = scale<float, int16_t>(0.0f, 1.0f, leftBrake, 0, 32767);
+        joystickData.Ry = scale<float, int16_t>(0.0f, 1.0f, rightBrake, 0, 32767);
+    }
+    else
+    {
+        //brakes scalled -max..max
+        joystickData.Rx = scale<float, int16_t>(0.0f, 1.0f, leftBrake, -32767, 32767);
+        joystickData.Ry = scale<float, int16_t>(0.0f, 1.0f, rightBrake, -32767, 32767);
+    }
 
     // set joystick buttons
     setJoystickButtons();
