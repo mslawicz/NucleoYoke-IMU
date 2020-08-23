@@ -42,6 +42,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     mixturePotentiometer(PA_1),
     orangePotentiometer(PC_0),
     yellowPotentiometer(PC_1),
+    blueGrayPotentiometer(PA_5),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
     joystickGainFilter(0.01f)
 {
@@ -240,8 +241,7 @@ void Yoke::handler(void)
     float joystickYaw = calibratedSensorYaw;
 
     // calculate joystick axes gain
-    //joystickGainFilter.calculate(joystickGainPotentiometer.read() + 0.5f);  // range 0.5 .. 1.5
-    joystickGainFilter.calculate(1.0f);  // XXX temporary
+    joystickGainFilter.calculate(blueGrayPotentiometer.read() + 0.5f);  // range 0.5 .. 1.5
 
     float leftBrake;
     float rightBrake;
