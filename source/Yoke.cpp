@@ -267,12 +267,16 @@ void Yoke::handler(void)
     joystickData.X = scale<float, int16_t>(-1.45f, 1.45f, joystickRoll * joystickGainFilter.getValue(), -32767, 32767);
     joystickData.Rz = scale<float, int16_t>(-0.78f, 0.78f, joystickYaw * joystickGainFilter.getValue(), -32767, 32767);
 
-    throttleInput = throttlePotentiometer.read();
+    throttleFilter.calculate(throttlePotentiometer.read());
+    throttleInput = throttleFilter.getValue();
     const float ThrottleDeadZone = 0.03f;
-
     joystickData.slider = scale<float, int16_t>(throttleInputMin + ThrottleDeadZone, throttleInputMax - ThrottleDeadZone, throttleInput, -32767, 32767);
-    joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerPotentiometer.read(), -32767, 32767);
-    joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixturePotentiometer.read(), -32767, 32767);
+
+    propellerFilter.calculate(propellerPotentiometer.read());
+    joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerFilter.getValue(), -32767, 32767);
+
+    mixtureFilter.calculate(mixturePotentiometer.read());
+    joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixtureFilter.getValue(), -32767, 32767);
 
     if(MSFS)
     {

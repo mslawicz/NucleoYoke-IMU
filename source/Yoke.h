@@ -130,6 +130,9 @@ private:
     bool isTimerDisplayed{false};
     Timer pilotsTimer;
     Ticker timerTicker;
+    FilterAEMA throttleFilter;
+    FilterAEMA mixtureFilter;
+    FilterAEMA propellerFilter;
     const std::vector<const std::string> modeTexts =
     {
         "fixed-wing",
