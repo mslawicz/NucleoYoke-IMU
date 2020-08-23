@@ -250,7 +250,7 @@ void Yoke::handler(void)
     if(brakeActive)
     {
         // both brakes from joystick deflected forward
-        leftBrake = rightBrake = ( joystickPitch < 0 ? -joystickPitch : 0.0f);
+        leftBrake = rightBrake = 2.0f * ( joystickPitch < 0 ? -joystickPitch : 0.0f);
         // left and right brakes from joystick deflected sideways
         leftBrake += (joystickRoll < 0 ? -joystickRoll : 0.0f);
         rightBrake += (joystickRoll > 0 ? joystickRoll : 0.0f);
