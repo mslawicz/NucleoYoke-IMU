@@ -39,18 +39,22 @@ const uint8_t* USBJoystick::report_desc()
         0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
         0x09, 0x01,                    //   USAGE (Pointer)
         0xa1, 0x00,                    //   COLLECTION (Physical)
+        0x75, 0x10,                    //     REPORT_SIZE (16)
         0x16, 0x01, 0x80,              //     LOGICAL_MINIMUM (-32767)
         0x26, 0xff, 0x7f,              //     LOGICAL_MAXIMUM (32767)
         0x09, 0x30,                    //     USAGE (X)
         0x09, 0x31,                    //     USAGE (Y)
+        0x09, 0x35,                    //     USAGE (Rz)
+        0x95, 0x03,                    //     REPORT_COUNT (3)
+        0x81, 0x02,                    //     INPUT (Data,Var,Abs)
+        0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
+        0x26, 0xff, 0x7f,              //     LOGICAL_MAXIMUM (32767)
         0x09, 0x33,                    //     USAGE (Rx)
         0x09, 0x34,                    //     USAGE (Ry)
-        0x09, 0x35,                    //     USAGE (Rz)
         0x09, 0x36,                    //     USAGE (slider)
         0x09, 0x37,                    //     USAGE (dial)
         0x09, 0x38,                    //     USAGE (wheel)
-        0x75, 0x10,                    //     REPORT_SIZE (16)
-        0x95, 0x08,                    //     REPORT_COUNT (8)
+        0x95, 0x05,                    //     REPORT_COUNT (5)
         0x81, 0x02,                    //     INPUT (Data,Var,Abs)
         0xc0,                          //   END_COLLECTION
         0x09, 0x39,                    //   USAGE (Hat switch)
@@ -175,12 +179,12 @@ bool USBJoystick::sendReport(JoystickData& joystickData)
     report.data[index++] = MSB(joystickData.X);
     report.data[index++] = LSB(joystickData.Y);
     report.data[index++] = MSB(joystickData.Y);
+    report.data[index++] = LSB(joystickData.Rz);
+    report.data[index++] = MSB(joystickData.Rz);
     report.data[index++] = LSB(joystickData.Rx);
     report.data[index++] = MSB(joystickData.Rx);
     report.data[index++] = LSB(joystickData.Ry);
     report.data[index++] = MSB(joystickData.Ry);
-    report.data[index++] = LSB(joystickData.Rz);
-    report.data[index++] = MSB(joystickData.Rz);
     report.data[index++] = LSB(joystickData.slider);
     report.data[index++] = MSB(joystickData.slider);
     report.data[index++] = LSB(joystickData.dial);

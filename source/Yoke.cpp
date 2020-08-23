@@ -269,15 +269,15 @@ void Yoke::handler(void)
     throttleFilter.calculate(throttlePotentiometer.read());
     throttleInput = throttleFilter.getValue();
     const float ThrottleDeadZone = 0.03f;
-    joystickData.slider = scale<float, int16_t>(throttleInputMin + ThrottleDeadZone, throttleInputMax - ThrottleDeadZone, throttleInput, -32767, 32767);
+    joystickData.slider = scale<float, int16_t>(throttleInputMin + ThrottleDeadZone, throttleInputMax - ThrottleDeadZone, throttleInput, 0, 32767);
 
     propellerFilter.calculate(propellerPotentiometer.read());
-    joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerFilter.getValue(), -32767, 32767);
+    joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerFilter.getValue(), 0, 32767);
 
     mixtureFilter.calculate(mixturePotentiometer.read());
-    joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixtureFilter.getValue(), -32767, 32767);
-    joystickData.Rx = scale<float, int16_t>(0.0f, 1.0f, leftBrake, -32767, 32767);
-    joystickData.Ry = scale<float, int16_t>(0.0f, 1.0f, rightBrake, -32767, 32767);
+    joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixtureFilter.getValue(), 0, 32767);
+    joystickData.Rx = scale<float, int16_t>(0.0f, 1.0f, leftBrake, 0, 32767);
+    joystickData.Ry = scale<float, int16_t>(0.0f, 1.0f, rightBrake, 0, 32767);
 
     // set joystick buttons
     setJoystickButtons();
