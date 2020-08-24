@@ -275,7 +275,7 @@ void Yoke::handler(void)
     joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerFilter.getValue(), 0, 32767);
 
     mixtureFilter.calculate(mixturePotentiometer.read());
-    joystickData.wheel = scale<float, int16_t>(0.0f, 1.0f, mixtureFilter.getValue(), 0, 32767);
+    joystickData.Z = scale<float, int16_t>(0.0f, 1.0f, mixtureFilter.getValue(), -32767, 32767);
     joystickData.Rx = scale<float, int16_t>(0.0f, 1.0f, leftBrake, 0, 32767);
     joystickData.Ry = scale<float, int16_t>(0.0f, 1.0f, rightBrake, 0, 32767);
 
@@ -301,6 +301,7 @@ void Yoke::displayStatus(CommandVector cv)
     printf("reference pitch/roll/yaw = %f %f %f\r\n", sensorPitchReference, sensorRollReference, sensorYawReference);
     printf("joystick X = %d\r\n", joystickData.X);
     printf("joystick Y = %d\r\n", joystickData.Y);
+    printf("joystick Z = %d\r\n", joystickData.Z);
     printf("joystick Rx = %d\r\n", joystickData.Rx);
     printf("joystick Ry = %d\r\n", joystickData.Ry);
     printf("joystick Rz = %d\r\n", joystickData.Rz);

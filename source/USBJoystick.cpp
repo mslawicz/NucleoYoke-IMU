@@ -44,8 +44,9 @@ const uint8_t* USBJoystick::report_desc()
         0x26, 0xff, 0x7f,              //     LOGICAL_MAXIMUM (32767)
         0x09, 0x30,                    //     USAGE (X)
         0x09, 0x31,                    //     USAGE (Y)
+        0x09, 0x32,                    //     USAGE (Z)
         0x09, 0x35,                    //     USAGE (Rz)
-        0x95, 0x03,                    //     REPORT_COUNT (3)
+        0x95, 0x04,                    //     REPORT_COUNT (4)
         0x81, 0x02,                    //     INPUT (Data,Var,Abs)
         0x15, 0x00,                    //     LOGICAL_MINIMUM (0)
         0x26, 0xff, 0x7f,              //     LOGICAL_MAXIMUM (32767)
@@ -179,6 +180,8 @@ bool USBJoystick::sendReport(JoystickData& joystickData)
     report.data[index++] = MSB(joystickData.X);
     report.data[index++] = LSB(joystickData.Y);
     report.data[index++] = MSB(joystickData.Y);
+    report.data[index++] = LSB(joystickData.Z);
+    report.data[index++] = MSB(joystickData.Z);
     report.data[index++] = LSB(joystickData.Rz);
     report.data[index++] = MSB(joystickData.Rz);
     report.data[index++] = LSB(joystickData.Rx);

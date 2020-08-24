@@ -15,6 +15,7 @@ struct JoystickData
 {
     int16_t X;
     int16_t Y;
+    int16_t Z;
     int16_t Rx;
     int16_t Ry;
     int16_t Rz;
