@@ -307,7 +307,6 @@ void Yoke::displayStatus(CommandVector cv)
     printf("joystick Rz = %d\r\n", joystickData.Rz);
     printf("joystick slider = %d\r\n", joystickData.slider);
     printf("joystick dial = %d\r\n", joystickData.dial);
-    printf("joystick wheel = %d\r\n", joystickData.wheel);
     printf("joystick hat = 0x%02X\r\n", joystickData.hat);
     printf("joystick buttons = 0x%08X\r\n", joystickData.buttons);
     printf("throttle min / value / max = %f %f %f\r\n", throttleInputMin, throttleInput, throttleInputMax);

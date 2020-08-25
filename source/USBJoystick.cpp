@@ -54,8 +54,7 @@ const uint8_t* USBJoystick::report_desc()
         0x09, 0x34,                    //     USAGE (Ry)
         0x09, 0x36,                    //     USAGE (slider)
         0x09, 0x37,                    //     USAGE (dial)
-        0x09, 0x38,                    //     USAGE (wheel)
-        0x95, 0x05,                    //     REPORT_COUNT (5)
+        0x95, 0x04,                    //     REPORT_COUNT (4)
         0x81, 0x02,                    //     INPUT (Data,Var,Abs)
         0xc0,                          //   END_COLLECTION
         0x09, 0x39,                    //   USAGE (Hat switch)
@@ -192,8 +191,6 @@ bool USBJoystick::sendReport(JoystickData& joystickData)
     report.data[index++] = MSB(joystickData.slider);
     report.data[index++] = LSB(joystickData.dial);
     report.data[index++] = MSB(joystickData.dial);
-    report.data[index++] = LSB(joystickData.wheel);
-    report.data[index++] = MSB(joystickData.wheel);
     report.data[index++] = joystickData.hat;
     report.data[index++] = joystickData.buttons & 0xFF;
     report.data[index++] = (joystickData.buttons >> 8) & 0xFF;
