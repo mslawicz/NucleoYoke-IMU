@@ -49,7 +49,7 @@ enum struct LSM9DS1reg : uint8_t
 enum struct HatSwitchMode
 {
     FreeViewMode,
-    DefinedViewMode,
+    QuickViewMode,
     TrimMode
 };
 
@@ -107,12 +107,10 @@ private:
     DigitalIn hatCenterSwitch;
     DigitalIn setSwitch;
     DigitalIn resetSwitch;
-    DigitalIn leftToggle;
-    DigitalIn viewModeToggle;
     DigitalIn reverserSwitch;
-    DigitalIn brakeModeSwitch; //XXX
-    DigitalIn trimModeSwitch;
-    DigitalIn headTrackingSwitch;
+    DigitalIn hatModeToggle;
+    DigitalIn viewModeToggle;
+    DigitalIn hatModeShift;
     AnalogIn throttlePotentiometer;
     AnalogIn propellerPotentiometer;
     AnalogIn mixturePotentiometer;

@@ -31,12 +31,10 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     hatCenterSwitch(PG_15, PullUp),
     setSwitch(PE_1, PullUp),
     resetSwitch(PE_6, PullUp),
-    leftToggle(PF_9, PullUp),
-    viewModeToggle(PF_8, PullUp),
     reverserSwitch(PG_3, PullUp),
-    brakeModeSwitch(PB_15, PullUp), //XXX
-    trimModeSwitch(PB_13, PullUp),
-    headTrackingSwitch(PC_8, PullUp),
+    hatModeToggle(PF_9, PullUp),
+    viewModeToggle(PF_8, PullUp),
+    hatModeShift(PB_13, PullUp),
     throttlePotentiometer(PA_0),
     propellerPotentiometer(PA_4),
     mixturePotentiometer(PA_1),
@@ -115,15 +113,15 @@ void Yoke::handler(void)
     counter++;
 
     // set HAT switch mode
-    if((trimModeSwitch.read() ^ headTrackingSwitch.read()) == 1)
+    if((hatModeToggle.read() ^ hatModeShift.read()) == 0)
     {
-        // trim shift switch pressed in HAT view or
-        // trim switch NOT pressed in head tracking mode
+        // HAT mode shift pressed in HAT view mode or
+        // HAT mode shift NOT pressed in HAT trim mode
         hatMode = HatSwitchMode::TrimMode;
     }
     else if(viewModeToggle.read())      // hat view mode toggle down
     {
-        hatMode = HatSwitchMode::DefinedViewMode;
+        hatMode = HatSwitchMode::QuickViewMode;
     }
     else        // hat view mode toggle up
     {
@@ -347,7 +345,7 @@ void Yoke::setJoystickButtons(void)
             joystickData.hat = hatSwitch.getPosition();
             setButton(hatCenterSwitch.read(), 10);
             break;
-        case HatSwitchMode::DefinedViewMode:
+        case HatSwitchMode::QuickViewMode:
             joystickData.hat = 0;
             if(hatPosition != 0)
             {
@@ -414,6 +412,7 @@ void Yoke::toggleAxisCalibration(void)
         isCalibrationOn = false;
         printf("Axis calibration completed\n");
         Menu::getInstance().displayMessage("cal. completed", 10);
+        Menu::getInstance().enableMenuChange();
 
         KvStore::getInstance().store<float>("/kv/throttleInputMin", throttleInputMin);
         KvStore::getInstance().store<float>("/kv/throttleInputMax", throttleInputMax);
@@ -428,6 +427,7 @@ void Yoke::toggleAxisCalibration(void)
         Menu::getInstance().displayMessage("cal. started");
         throttleInputMin = 0.49f;
         throttleInputMax = 0.51f;
+        Menu::getInstance().disableMenuChange();
     }
 }
 
@@ -444,6 +444,7 @@ void Yoke::togglePilotsTimer(void)
             pilotsTimer.stop();
             timerTicker.detach();
             Menu::getInstance().clearMessage();
+            Menu::getInstance().enableMenuChange();
         }
         else
         {
@@ -458,6 +459,7 @@ void Yoke::togglePilotsTimer(void)
         pilotsTimer.start();
         displayTimer();
         timerTicker.attach(callback(this, &Yoke::displayTimer), std::chrono::microseconds(1000000));
+        Menu::getInstance().disableMenuChange();
     }
 }
 

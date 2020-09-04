@@ -38,7 +38,7 @@ direction 0 (left) or 1 (right)
 */
 void Menu::changeItem(uint8_t direction)
 {
-    if(!menuItems.empty())
+    if(isChangeItemEnabled && !menuItems.empty())
     {
         uint8_t noOfItems = menuItems.size();
         currentItem = (currentItem + direction * 2 - 1 + noOfItems) % noOfItems;

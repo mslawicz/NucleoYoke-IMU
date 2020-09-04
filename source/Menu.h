@@ -18,6 +18,8 @@ public:
     void displayItemText(void);
     void displayMessage(std::string message, uint16_t timeout = 0, bool inverted = true);
     void clearMessage(void);
+    void enableMenuChange(void) { isChangeItemEnabled = true; }
+    void disableMenuChange(void) { isChangeItemEnabled = false; }
 private:
     Menu(); // private constructor definition
     void execute(uint8_t argument);
@@ -30,6 +32,7 @@ private:
     uint8_t currentItem{0};
     const uint8_t MessageLine = 35;
     Timeout messageClearTimeout;
+    bool isChangeItemEnabled{true};
 };
 
 #endif /* MENU_H_ */
