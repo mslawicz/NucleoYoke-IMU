@@ -473,3 +473,13 @@ void Yoke::displayTimer(void)
     sprintf(timerString, "%2d:%02d", (secondsElapsed / 60) % 99, secondsElapsed % 60);
     Menu::getInstance().displayMessage(std::string(timerString), 2, false);
 }
+
+/*
+display all regular fields
+*/
+void Yoke::displayAll(void)
+{
+    Alarm::getInstance().displayOnScreen();
+    displayMode();
+    Menu::getInstance().displayItemText();
+}

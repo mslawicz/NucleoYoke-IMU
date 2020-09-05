@@ -65,7 +65,7 @@ class Yoke
 public:
     Yoke(events::EventQueue& eventQueue);
     void displayStatus(CommandVector cv);
-    void displayMode(void);
+    void displayAll(void);
 private:
     void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
     void handler(void);
@@ -73,6 +73,7 @@ private:
     void axisCalibration(void);
     void toggleAxisCalibration(void);
     void togglePilotsTimer(void);
+    void displayMode(void);
     void displayTimer(void);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED

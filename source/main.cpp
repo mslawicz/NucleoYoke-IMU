@@ -38,17 +38,14 @@ int main()
     // init display
     Display::getInstance().init();
 
-    Alarm::getInstance().displayOnScreen();
-
     // main event queue
     events::EventQueue eventQueue;
 
     // create Yoke object
     Yoke yoke(eventQueue);
-    yoke.displayMode();
 
-    // display current menu item text
-    Menu::getInstance().displayItemText();
+    // shaw all fields on pilot's display
+    yoke.displayAll();
 
     // process the event queue
     eventQueue.dispatch_forever();
