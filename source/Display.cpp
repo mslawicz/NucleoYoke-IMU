@@ -48,3 +48,11 @@ void Display::setFont(const uint8_t* newFont, bool newInvertion, uint8_t newXLim
 {
     eventQueue.call(callback(&controller, &SH1106::setFont), newFont, newInvertion, newXLimit);
 }
+
+/*
+ * clear entire display
+ */
+void Display::clear(void)
+{
+    eventQueue.call(callback(&controller, &SH1106::clear));
+}

@@ -443,7 +443,7 @@ void Yoke::togglePilotsTimer(void)
             isTimerDisplayed = false;
             pilotsTimer.stop();
             timerTicker.detach();
-            Menu::getInstance().clearMessage();
+            displayAll();
             Menu::getInstance().enableMenuChange();
         }
         else

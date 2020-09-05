@@ -267,3 +267,16 @@ void SH1106::print(uint8_t sX, uint8_t sY, std::string text)
         }
     }
 }
+
+/*
+clear the display memory
+*/
+void SH1106::clear(void)
+{
+    memset(dataBuffer, 0, noOfPages * sizeX);
+    for(uint8_t page = 0; page < noOfPages; page++)
+    {
+        updateArray[page][0] = 0;
+        updateArray[page][1] = sizeX - 1;
+    }
+}

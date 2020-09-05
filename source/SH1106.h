@@ -23,6 +23,7 @@ public:
     void setFont(const uint8_t* newFont, bool newInvertion = false, uint8_t newXLimit = 0);
     void putChar(uint8_t cX, uint8_t cY, uint8_t ch);
     void print(uint8_t sX, uint8_t sY, std::string text);
+    void clear(void);
 private:
     void write(uint8_t* data, int length, bool command = false);
     void write(std::vector<uint8_t>data, bool command = false) { write(&data[0], data.size(), command); }
