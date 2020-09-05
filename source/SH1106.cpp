@@ -300,12 +300,12 @@ draw line between points
 */
 void SH1106::drawLine(uint8_t fromX, uint8_t fromY, uint8_t toX, uint8_t toY, bool clear)
 {
+    uint8_t X, Y;
     if(abs(fromX - toX) > abs(fromY - toY))
     {
         // line is aligned more horizontally
         int8_t incValue = fromX < toX ? 1 : -1;
-        uint8_t X = fromX;
-        uint8_t Y;
+        X = fromX;
         do
         {
             Y = (toX == fromX) ? fromY : fromY + (toY - fromY) * (X - fromX) / (toX - fromX); 
@@ -317,8 +317,7 @@ void SH1106::drawLine(uint8_t fromX, uint8_t fromY, uint8_t toX, uint8_t toY, bo
     {
         // line is aligned more vertically
         int8_t incValue = fromY < toY ? 1 : -1;
-        uint8_t Y = fromY;
-        uint8_t X;
+        Y = fromY;
         do
         {
             X = (toY == fromY) ? fromX : fromX + (toX - fromX) * (Y - fromY) / (toY - fromY); 

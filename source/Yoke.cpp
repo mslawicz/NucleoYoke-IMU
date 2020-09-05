@@ -458,7 +458,6 @@ void Yoke::togglePilotsTimer(void)
         isTimerDisplayed = true;
         pilotsTimer.reset();
         pilotsTimer.start();
-        Display::getInstance().clear();
         displayTimer();
         timerTicker.attach(callback(this, &Yoke::displayTimer), std::chrono::microseconds(1000000));
         Menu::getInstance().disableMenuChange();
@@ -470,17 +469,41 @@ displays timer on display
 */
 void Yoke::displayTimer(void)
 {
-    const uint8_t refX = 64;
-    const uint8_t refY = 32;
-    const uint8_t radius = 29;
+    const uint8_t refX = 96;
+    const uint8_t refY = 33;
+    const uint8_t radius = 31;
     uint16_t secondsElapsed = static_cast<uint16_t>(chrono::duration_cast<chrono::seconds>(pilotsTimer.elapsed_time()).count());
     // char timerString[6]; 
     // sprintf(timerString, "%2d:%02d", (secondsElapsed / 60) % 99, secondsElapsed % 60);
     // Menu::getInstance().displayMessage(std::string(timerString), 2, false);
     uint8_t seconds = secondsElapsed % 60;
-    uint8_t pointX = refX + sin(PI * seconds / 30) * radius;
-    uint8_t pointY = refY - cos(PI * seconds / 30) * radius;
-    Display::getInstance().drawLine(pointX, pointX +3, pointY, pointY - 2);
+    uint16_t minutes = secondsElapsed / 60; 
+    if(seconds == 0)
+    {
+        Display::getInstance().clear();
+        Display::getInstance().setFont(FontTahoma34d);
+        if(minutes >= 10)
+        {
+            Display::getInstance().putChar(0, 18, 0x30 + (minutes / 10) % 10);
+        }
+        Display::getInstance().putChar(26, 18, 0x30 + minutes % 10);
+    }
+    float sinX = sin(PI * seconds / 30);
+    float cosX = cos(PI * seconds / 30);
+    uint8_t fromX = refX + sinX * radius;
+    uint8_t fromY = refY - cosX * radius;
+    uint8_t toRadius = radius - 5;
+    if(seconds % 5 == 0)
+    {
+        toRadius -= 5;
+    }
+    if(seconds % 15 == 0)
+    {
+        toRadius -= 5;
+    }
+    uint8_t toX = refX + sinX * toRadius;
+    uint8_t toY = refY - cosX * toRadius;
+    Display::getInstance().drawLine(fromX, toX, fromY, toY);
     Display::getInstance().update();
 }
 
