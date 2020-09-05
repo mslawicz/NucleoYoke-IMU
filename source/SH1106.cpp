@@ -280,3 +280,50 @@ void SH1106::clear(void)
         updateArray[page][1] = sizeX - 1;
     }
 }
+
+/*
+draw rectangle
+*/
+void SH1106::drawRectangle(uint8_t X, uint8_t Y, uint8_t sizeX, uint8_t sizeY, bool clear)
+{
+    for(uint8_t iX = X; iX <= X + sizeX; iX++)
+    {
+        for(uint8_t iY = Y; iY <= Y + sizeY; iY++)
+        {
+            setPoint(iX, iY, clear);
+        }
+    }
+}
+
+/*
+draw line between points
+*/
+void SH1106::drawLine(uint8_t fromX, uint8_t fromY, uint8_t toX, uint8_t toY, bool clear)
+{
+    if(abs(fromX - toX) > abs(fromY - toY))
+    {
+        // line is aligned more horizontally
+        int8_t incValue = fromX < toX ? 1 : -1;
+        uint8_t X = fromX;
+        uint8_t Y;
+        do
+        {
+            Y = (toX == fromX) ? fromY : fromY + (toY - fromY) * (X - fromX) / (toX - fromX); 
+            setPoint(X, Y, clear);
+            X += incValue;
+        } while(X != toX);
+    }
+    else
+    {
+        // line is aligned more vertically
+        int8_t incValue = fromY < toY ? 1 : -1;
+        uint8_t Y = fromY;
+        uint8_t X;
+        do
+        {
+            X = (toY == fromY) ? fromX : fromX + (toX - fromX) * (Y - fromY) / (toY - fromY); 
+            setPoint(X, Y, clear);
+            Y += incValue;
+        } while(Y != toY);
+    }
+}

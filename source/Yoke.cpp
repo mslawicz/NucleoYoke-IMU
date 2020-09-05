@@ -470,10 +470,18 @@ displays timer on display
 */
 void Yoke::displayTimer(void)
 {
+    const uint8_t refX = 64;
+    const uint8_t refY = 32;
+    const uint8_t radius = 29;
     uint16_t secondsElapsed = static_cast<uint16_t>(chrono::duration_cast<chrono::seconds>(pilotsTimer.elapsed_time()).count());
-    char timerString[6]; 
-    sprintf(timerString, "%2d:%02d", (secondsElapsed / 60) % 99, secondsElapsed % 60);
-    Menu::getInstance().displayMessage(std::string(timerString), 2, false);
+    // char timerString[6]; 
+    // sprintf(timerString, "%2d:%02d", (secondsElapsed / 60) % 99, secondsElapsed % 60);
+    // Menu::getInstance().displayMessage(std::string(timerString), 2, false);
+    uint8_t seconds = secondsElapsed % 60;
+    uint8_t pointX = refX + sin(PI * seconds / 30) * radius;
+    uint8_t pointY = refY - cos(PI * seconds / 30) * radius;
+    Display::getInstance().drawLine(pointX, pointX +3, pointY, pointY - 2);
+    Display::getInstance().update();
 }
 
 /*

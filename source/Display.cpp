@@ -56,3 +56,27 @@ void Display::clear(void)
 {
     eventQueue.call(callback(&controller, &SH1106::clear));
 }
+
+/*
+ * set point on display
+ */
+void Display::setPoint(uint8_t X, uint8_t Y, bool clear)
+{
+    eventQueue.call(callback(&controller, &SH1106::setPoint), X, Y, clear);
+}
+
+/*
+ * draw rectangle
+ */
+void Display::drawRectangle(uint8_t X, uint8_t Y, uint8_t sizeX, uint8_t sizeY, bool clear)
+{
+    eventQueue.call(callback(&controller, &SH1106::drawRectangle), X, Y, sizeX, sizeY, clear);
+}
+
+/*
+ * draw line between points
+ */
+void Display::drawLine(uint8_t fromX, uint8_t fromY, uint8_t toX, uint8_t toY, bool clear)
+{
+    eventQueue.call(callback(&controller, &SH1106::drawLine), fromX, toX, fromY, toY, clear);
+}
