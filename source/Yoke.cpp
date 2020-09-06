@@ -443,10 +443,10 @@ void Yoke::toggleStopwatch(void)
             isStopwatchDisplayed = false;
             stopwatch.stop();
             stopwatchTicker.detach();
+            Menu::getInstance().enableDisplay();
             Display::getInstance().clear();
             displayAll();
             Menu::getInstance().enableMenuChange();
-            Menu::getInstance().enableDisplay();
         }
         else
         {
