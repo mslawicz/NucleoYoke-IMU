@@ -93,7 +93,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
 
     // add menu items
     Menu::getInstance().addItem("calibrate", callback(this, &Yoke::toggleAxisCalibration));
-    Menu::getInstance().addItem("timer", callback(this, &Yoke::togglePilotsTimer));
+    Menu::getInstance().addItem("stopwatch", callback(this, &Yoke::toggleStopwatch));
 }
 
 
@@ -432,17 +432,17 @@ void Yoke::toggleAxisCalibration(void)
 }
 
 /*
-start / stop pilots timer on display
+start / stop pilots stopwatch on display
 */
-void Yoke::togglePilotsTimer(void)
+void Yoke::toggleStopwatch(void)
 {
-    if(isTimerDisplayed)
+    if(isStopwatchDisplayed)
     {
-        if(chrono::duration_cast<chrono::seconds>(pilotsTimer.elapsed_time()).count() < 3)
+        if(chrono::duration_cast<chrono::seconds>(stopwatch.elapsed_time()).count() < 3)
         {
-            isTimerDisplayed = false;
-            pilotsTimer.stop();
-            timerTicker.detach();
+            isStopwatchDisplayed = false;
+            stopwatch.stop();
+            stopwatchTicker.detach();
             Display::getInstance().clear();
             displayAll();
             Menu::getInstance().enableMenuChange();
@@ -450,40 +450,40 @@ void Yoke::togglePilotsTimer(void)
         }
         else
         {
-            pilotsTimer.reset();
-            displayTimer();
+            stopwatch.reset();
+            displayStopwatch();
         }
     }
     else
     {
-        isTimerDisplayed = true;
-        pilotsTimer.reset();
-        pilotsTimer.start();
-        displayTimer();
-        timerTicker.attach(callback(this, &Yoke::displayTimer), std::chrono::microseconds(1000000));
+        isStopwatchDisplayed = true;
+        stopwatch.reset();
+        stopwatch.start();
+        displayStopwatch();
+        stopwatchTicker.attach(callback(this, &Yoke::displayStopwatch), std::chrono::microseconds(1000000));
         Menu::getInstance().disableMenuChange();
         Menu::getInstance().disableDisplay();
     }
 }
 
 /*
-displays timer on display
+displays stopwatch on display
 */
-void Yoke::displayTimer(void)
+void Yoke::displayStopwatch(void)
 {
     const uint8_t refX = 96;
     const uint8_t refY = 33;
     const uint8_t radius = 31;
-    uint16_t secondsElapsed = static_cast<uint16_t>(chrono::duration_cast<chrono::seconds>(pilotsTimer.elapsed_time()).count());
+    uint16_t secondsElapsed = static_cast<uint16_t>(chrono::duration_cast<chrono::seconds>(stopwatch.elapsed_time()).count());
     uint8_t seconds = secondsElapsed % 60;
     uint16_t minutes = secondsElapsed / 60;
     if(seconds == 0)
     {
-        char timerString[3]; 
+        char stopwatchString[3]; 
         Display::getInstance().clear();
         Display::getInstance().setFont(FontArial42d);
-        sprintf(timerString, "%2d", minutes % 100);
-        Display::getInstance().print(0, 16, std::string(timerString));
+        sprintf(stopwatchString, "%2d", minutes % 100);
+        Display::getInstance().print(0, 16, std::string(stopwatchString));
     }
     float sinX = sin(PI * seconds / 30);
     float cosX = cos(PI * seconds / 30);

@@ -72,9 +72,9 @@ private:
     void setJoystickButtons(void);
     void axisCalibration(void);
     void toggleAxisCalibration(void);
-    void togglePilotsTimer(void);
+    void toggleStopwatch(void);
     void displayMode(void);
-    void displayTimer(void);
+    void displayStopwatch(void);
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution
@@ -126,9 +126,9 @@ private:
     float throttleInput;
     float throttleInputMin;
     float throttleInputMax;
-    bool isTimerDisplayed{false};
-    Timer pilotsTimer;
-    Ticker timerTicker;
+    bool isStopwatchDisplayed{false};
+    Timer stopwatch;
+    Ticker stopwatchTicker;
     FilterAEMA throttleFilter;
     FilterAEMA mixtureFilter;
     FilterAEMA propellerFilter;
