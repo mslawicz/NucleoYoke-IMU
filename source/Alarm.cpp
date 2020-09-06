@@ -65,6 +65,11 @@ void Alarm::clearFromMenu(void)
 */
 void Alarm::displayOnScreen(void)
 {
+    if(!Menu::getInstance().isDisplayEnabled())
+    {   
+        // displaying not allowed
+        return;
+    }
     const std::vector<const std::string> texts =
     {
         "W",    // I2C write

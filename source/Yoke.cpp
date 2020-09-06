@@ -446,6 +446,7 @@ void Yoke::togglePilotsTimer(void)
             Display::getInstance().clear();
             displayAll();
             Menu::getInstance().enableMenuChange();
+            Menu::getInstance().enableDisplay();
         }
         else
         {
@@ -461,6 +462,7 @@ void Yoke::togglePilotsTimer(void)
         displayTimer();
         timerTicker.attach(callback(this, &Yoke::displayTimer), std::chrono::microseconds(1000000));
         Menu::getInstance().disableMenuChange();
+        Menu::getInstance().disableDisplay();
     }
 }
 

@@ -20,6 +20,9 @@ public:
     void clearMessage(void);
     void enableMenuChange(void) { isChangeItemEnabled = true; }
     void disableMenuChange(void) { isChangeItemEnabled = false; }
+    void enableDisplay(void) { displayEnabled = true; }
+    void disableDisplay(void) { displayEnabled = false; }
+    bool isDisplayEnabled(void) const { return displayEnabled; }
 private:
     Menu(); // private constructor definition
     void execute(uint8_t argument);
@@ -33,6 +36,7 @@ private:
     const uint8_t MessageLine = 35;
     Timeout messageClearTimeout;
     bool isChangeItemEnabled{true};
+    bool displayEnabled{true};
 };
 
 #endif /* MENU_H_ */
