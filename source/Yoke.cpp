@@ -473,20 +473,15 @@ void Yoke::displayTimer(void)
     const uint8_t refY = 33;
     const uint8_t radius = 31;
     uint16_t secondsElapsed = static_cast<uint16_t>(chrono::duration_cast<chrono::seconds>(pilotsTimer.elapsed_time()).count());
-    // char timerString[6]; 
-    // sprintf(timerString, "%2d:%02d", (secondsElapsed / 60) % 99, secondsElapsed % 60);
-    // Menu::getInstance().displayMessage(std::string(timerString), 2, false);
     uint8_t seconds = secondsElapsed % 60;
-    uint16_t minutes = secondsElapsed / 60; 
+    uint16_t minutes = secondsElapsed / 60;
     if(seconds == 0)
     {
+        char timerString[3]; 
         Display::getInstance().clear();
-        Display::getInstance().setFont(FontTahoma34d);
-        if(minutes >= 10)
-        {
-            Display::getInstance().putChar(0, 18, 0x30 + (minutes / 10) % 10);
-        }
-        Display::getInstance().putChar(26, 18, 0x30 + minutes % 10);
+        Display::getInstance().setFont(FontArial42d);
+        sprintf(timerString, "%2d", minutes % 100);
+        Display::getInstance().print(0, 16, std::string(timerString));
     }
     float sinX = sin(PI * seconds / 30);
     float cosX = cos(PI * seconds / 30);

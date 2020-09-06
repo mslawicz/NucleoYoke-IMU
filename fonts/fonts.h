@@ -14,7 +14,7 @@
 #include "Tahoma11b.h"
 #include "Tahoma14b.h"
 #include "Tahoma16b.h"
-#include "Tahoma34d.h"
+#include "Arial42d.h"
 
 extern const uint8_t FontArial9[];
 extern const uint8_t FontTahoma11[];
