@@ -367,7 +367,7 @@ void Yoke::setJoystickButtons(void)
 
     setButton(setSwitch.read(), 11);
     setButton(resetSwitch.read(), 12);
-    if(joystickData.slider < -26214)    // allow toggling reverser in the lowest 10% of throttle range only
+    if(joystickData.slider < 3277)    // allow toggling reverser in the lowest 10% of throttle range only
     {
         setButton(reverserSwitch.read(), 13);
     }
