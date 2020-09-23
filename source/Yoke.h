@@ -109,6 +109,7 @@ private:
     DigitalIn setSwitch;
     DigitalIn resetSwitch;
     DigitalIn reverserSwitch;
+    DigitalIn speedBrakeSwitch;
     DigitalIn hatModeToggle;
     DigitalIn viewModeToggle;
     DigitalIn hatModeShift;

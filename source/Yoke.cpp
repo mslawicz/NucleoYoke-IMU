@@ -32,6 +32,7 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     setSwitch(PE_1, PullUp),
     resetSwitch(PE_6, PullUp),
     reverserSwitch(PG_3, PullUp),
+    speedBrakeSwitch(PG_2, PullUp),
     hatModeToggle(PF_9, PullUp),
     viewModeToggle(PF_8, PullUp),
     hatModeShift(PB_13, PullUp),
@@ -370,6 +371,7 @@ void Yoke::setJoystickButtons(void)
     {
         setButton(reverserSwitch.read(), 13);
     }
+    setButton(speedBrakeSwitch.read(), 14);
 }
 
 /*
