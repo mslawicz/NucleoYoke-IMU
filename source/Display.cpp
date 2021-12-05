@@ -15,7 +15,7 @@ Display::Display() :
     displayQueueDispatchThread.start(callback(&eventQueue, &EventQueue::dispatch_forever));
 }
 
-Display& Display::getInstance(void)
+Display& Display::getInstance()
 {
     static Display instance;    // Guaranteed to be destroyed, instantiated on first use
     return instance;
@@ -24,7 +24,7 @@ Display& Display::getInstance(void)
 /*
  * initialize display
  */
-void Display::init(void)
+void Display::init()
 {
     eventQueue.call(callback(&controller, &SH1106::init));
 }
@@ -32,10 +32,10 @@ void Display::init(void)
 /*
  * call display test function
  */
-void Display::test(void)
+void Display::test()
 {
-    uint8_t argument = 30;
-    eventQueue.call(callback(&controller, &SH1106::test), argument);
+    constexpr uint8_t Argument = 30;
+    eventQueue.call(callback(&controller, &SH1106::test), Argument);
 }
 
 /*
@@ -52,7 +52,7 @@ void Display::setFont(const uint8_t* newFont, bool newInvertion, uint8_t newXLim
 /*
  * clear entire display
  */
-void Display::clear(void)
+void Display::clear()
 {
     eventQueue.call(callback(&controller, &SH1106::clear));
 }
