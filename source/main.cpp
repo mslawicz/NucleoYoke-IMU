@@ -26,6 +26,10 @@
 
 int main()
 {
+#ifdef MBED_DEBUG
+    HAL_DBGMCU_EnableDBGSleepMode();
+#endif
+    logTimer.start();        //start timer for log purposes
     LOG_ALWAYS("Nucleo Yoke IMU v1.1");
 
     // create and start console thread
