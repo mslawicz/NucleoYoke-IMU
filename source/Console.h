@@ -9,18 +9,20 @@
 #define CONSOLE_H_
 
 #include "mbed.h"
-#include <string>
-#include <vector>
 #include <map>
+#include <string>
 #include <utility>
+#include <vector>
 
 enum class KeyCode : int
 {
+    Backspace = 8,
     LF = 10,
     CR = 13,
     Escape = 27,
+    Space = 32,
     Tilde = 126,
-    Backspace = 8
+    Delete = 127
 };
 
 using CommandVector = std::vector<std::string>;
@@ -29,15 +31,18 @@ using CommandContainer = std::pair<std::string, Callback<void(CommandVector&)>>;
 class Console
 {
 public:
-    static Console& getInstance(void);
+    static Console& getInstance();
     Console(Console const&) = delete;   // copy constructor removed for singleton
     void operator=(Console const&) = delete;
-    void handler(void);
-    void registerCommand(std::string command, std::string helpText, Callback<void(CommandVector&)> commandCallback);
+    Console(Console&&) = delete;
+    void operator=(Console&&) = delete;
+    void handler();
+    void registerCommand(std::string command, const std::string& helpText, Callback<void(CommandVector&)> commandCallback);
     void displayHelp(CommandVector& cv);
 private:
-    Console() {} // private constructor definition
-    void executeCommand(void);
+    Console() = default; // private constructor definition
+    ~Console() = default;
+    void executeCommand();
     CommandVector commandElements;
     std::map<std::string, CommandContainer> commands;
 };
