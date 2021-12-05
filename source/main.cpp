@@ -15,17 +15,18 @@
  */
 
 #include "Yoke.h"
-#include "Console.h"
 #include "Alarm.h"
-#include "Statistics.h"
+#include "Console.h"
 #include "Display.h"
+#include "Logger.h"
 #include "Menu.h"
+#include "Statistics.h"
 #include <mbed.h>
 
 
 int main()
 {
-    printf("Nucleo Yoke IMU v1\r\n");
+    LOG_ALWAYS("Nucleo Yoke IMU v1.1");
 
     // create and start console thread
     Thread consoleThread(osPriority_t::osPriorityLow4, OS_STACK_SIZE, nullptr, "console");

@@ -1,9 +1,14 @@
 #include "Storage.h"
+#include "Logger.h"
+#include "fnet.h"
+#include <cstring>
+#include <cwchar>
+
 
 KvStore::KvStore()
 {
-    Console::getInstance().registerCommand("lp", "list stored parameters", callback(this, &KvStore::list));
-    Console::getInstance().registerCommand("cp", "clear all stored parameters", callback(this, &KvStore::clear));
+    Console::getInstance().registerCommand("lsp", "list stored parameters", callback(&KvStore::list));
+    Console::getInstance().registerCommand("csp", "clear all stored parameters", callback(&KvStore::clear));    
 }
 
 KvStore& KvStore::getInstance()
@@ -15,39 +20,81 @@ KvStore& KvStore::getInstance()
 /*
 list all stored parameter keys
 */
-void KvStore::list(CommandVector cv)
+void KvStore::list(const CommandVector&  /*cv*/)
 {
-    kv_iterator_t it;
-    int result = kv_iterator_open(&it, NULL);
-    if(result)
+    kv_iterator_t it = nullptr;
+    int result = kv_iterator_open(&it, nullptr);
+    if(result != 0)
     {
-        printf("Error %d on parameters iteration\n", MBED_GET_ERROR_CODE(result));
+        std::cout << "Error " << MBED_GET_ERROR_CODE(result) << " on parameters iteration" << std::endl;    //NOLINT(hicpp-signed-bitwise)
         return;
     }
     const size_t MaxKeySize = 50;
-    char key[MaxKeySize] = {0};
-    printf("Stored parameters: ");
-    while(kv_iterator_next(it, key, MaxKeySize) != MBED_ERROR_ITEM_NOT_FOUND)
+    char key[MaxKeySize] = {0};     //NOLINT(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+    std::cout << "Stored parameters: ";
+    while(kv_iterator_next(it, static_cast<char*>(key), MaxKeySize) != MBED_ERROR_ITEM_NOT_FOUND)
     {
-        printf("%s, ", key);
-        memset(key, 0, MaxKeySize);
+        std::cout << static_cast<char*>(key) << ", ";
+        fnet_memset_zero(static_cast<char*>(key), MaxKeySize);
     }
     kv_iterator_close(it);
-    printf("\n");
+    std::cout << std::endl;
 }
 
 /*
 clear storage memory
 */
-void KvStore::clear(CommandVector cv)
+void KvStore::clear(const CommandVector&  /*cv*/)
 {
     int result = kv_reset("/kv/");
-    if(result)
+    if(result != 0)
     {
-        printf("Resetting parameter storage failed with error %d\n", MBED_GET_ERROR_CODE(result));
+        std::cout << "Resetting parameter storage failed with error " << MBED_GET_ERROR_CODE(result) << std::endl;      //NOLINT(hicpp-signed-bitwise)
     }
     else
     {
-        printf("Parameter storage cleared\n");
+        std::cout << "Parameter storage cleared" << std::endl;
     }
+}
+
+/*
+restore data from the given key
+returns the actual size od restored data or 0 if error
+*/
+size_t KvStore::restoreData(std::string& key, void* pData)
+{
+    int error = kv_get_info(key.c_str(), &info);
+    if(0 != error)
+    {
+        LOG_ERROR("Parameter '" << key << "' info error " << MBED_GET_ERROR_CODE(error));   //NOLINT(hicpp-signed-bitwise)
+        return 0;
+    }
+            
+    size_t actualSize{0};
+    error = kv_get(key.c_str(), pData, info.size, &actualSize);
+    if(0 != error)
+    {     
+        LOG_ERROR("Parameter '" << key << "' restore error " << MBED_GET_ERROR_CODE(error));    //NOLINT(hicpp-signed-bitwise)
+        return 0;
+    }
+    
+    return actualSize;
+}
+
+/*
+store data with the given key
+returns the error code or 0 if OK
+*/
+int KvStore::storeData(std::string& key, const void* pData, size_t size)
+{
+    int error = kv_set(key.c_str(), pData, size, 0);
+    if(0 != error)
+    {      
+        LOG_ERROR("Parameter '" << key << "' store error " << MBED_GET_ERROR_CODE(error));  //NOLINT(hicpp-signed-bitwise)
+    }
+    else
+    {
+        LOG_INFO("Parameter '" << key << "' successfully stored"); 
+    }
+    return error;
 }
