@@ -36,7 +36,7 @@ void Alarm::set(AlarmID alarmID)
 /*
  * display alarm register value
  */
-void Alarm::display(CommandVector cv)
+void Alarm::display(CommandVector&  /*cv*/)
 {
     printf("Alarms = 0x%08X\r\n", static_cast<unsigned int>(alarmRegister));
 }
@@ -44,7 +44,7 @@ void Alarm::display(CommandVector cv)
 /*
  * clear alarms
  */
-void Alarm::clear(CommandVector cv)
+void Alarm::clear(CommandVector&  /*cv*/)
 {
     alarmRegister = 0;
     alarmLed = 0;
@@ -56,7 +56,8 @@ void Alarm::clear(CommandVector cv)
  */
 void Alarm::clearFromMenu(void)
 {
-    clear(CommandVector{});
+    CommandVector cv{};
+    clear(cv);
     Menu::getInstance().displayMessage("alarms cleared", 5);
 }
 

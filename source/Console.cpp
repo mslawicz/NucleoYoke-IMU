@@ -79,7 +79,7 @@ void Console::handler(void)
  * register new command in the Console command map
  */
 void Console::registerCommand(std::string command, std::string helpText,
-        Callback<void(CommandVector)> commandCallback)
+        Callback<void(CommandVector&)> commandCallback)
 {
     commands.emplace(command, CommandContainer{helpText, commandCallback});
 }
@@ -87,7 +87,7 @@ void Console::registerCommand(std::string command, std::string helpText,
 /*
  * list all registered commands
  */
-void Console::displayHelp(CommandVector cv)
+void Console::displayHelp(CommandVector&  /*cv*/)
 {
     for(auto& command : commands)
     {

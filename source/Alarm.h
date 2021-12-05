@@ -26,8 +26,8 @@ public:
     void operator=(Alarm const&) = delete;
     static Alarm& getInstance();
     void set(AlarmID alarmId);
-    void display(CommandVector cv);
-    void clear(CommandVector cv);
+    void display(CommandVector& cv);
+    void clear(CommandVector& cv);
     void displayOnScreen(void);
 private:
     Alarm();

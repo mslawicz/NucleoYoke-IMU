@@ -24,7 +24,7 @@ enum class KeyCode : int
 };
 
 using CommandVector = std::vector<std::string>;
-using CommandContainer = std::pair<std::string, Callback<void(CommandVector)>>;
+using CommandContainer = std::pair<std::string, Callback<void(CommandVector&)>>;
 
 class Console
 {
@@ -33,8 +33,8 @@ public:
     Console(Console const&) = delete;   // copy constructor removed for singleton
     void operator=(Console const&) = delete;
     void handler(void);
-    void registerCommand(std::string command, std::string helpText, Callback<void(CommandVector)> commandCallback);
-    void displayHelp(CommandVector cv);
+    void registerCommand(std::string command, std::string helpText, Callback<void(CommandVector&)> commandCallback);
+    void displayHelp(CommandVector& cv);
 private:
     Console() {} // private constructor definition
     void executeCommand(void);

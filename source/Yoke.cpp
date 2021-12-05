@@ -293,7 +293,7 @@ void Yoke::handler(void)
 /*
  * display status of FlightControl
  */
-void Yoke::displayStatus(CommandVector cv)
+void Yoke::displayStatus(CommandVector&  /*cv*/)
 {
     printf("yoke mode = %s\r\n", modeTexts[static_cast<int>(yokeMode)].c_str());
     printf("IMU sensor pitch/roll/yaw = %f %f %f\r\n", sensorPitch, sensorRoll, sensorYaw);

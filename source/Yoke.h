@@ -64,7 +64,7 @@ class Yoke
 {
 public:
     Yoke(events::EventQueue& eventQueue);
-    void displayStatus(CommandVector cv);
+    void displayStatus(CommandVector& cv);
     void displayAll(void);
 private:
     void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
