@@ -10,15 +10,16 @@
 
 #include "fonts.h"
 #include <mbed.h>
-#include <vector>
 #include <string>
+#include <vector>
+
 
 class SH1106
 {
 public:
     SH1106(PinName writeDataPin, PinName readDataPin, PinName clkPin, PinName resetPin, PinName cdPin, PinName csPin);
-    void init(void);
-    void update(void);
+    void init();
+    void update();
     void test(uint32_t argument);
     void setFont(const uint8_t* newFont, bool newInvertion = false, uint8_t newXLimit = 0);
     void putChar(uint8_t cX, uint8_t cY, uint8_t ch);
@@ -26,11 +27,11 @@ public:
     void setPoint(uint8_t X, uint8_t Y, bool clear = false);
     void drawRectangle(uint8_t X, uint8_t Y, uint8_t sizeX, uint8_t sizeY, bool clear = false);
     void drawLine(uint8_t fromX, uint8_t fromY, uint8_t toX, uint8_t toY, bool clear = false);
-    void clear(void);
+    void clear();
 private:
     void write(uint8_t* data, int length, bool command = false);
-    void write(std::vector<uint8_t>data, bool command = false) { write(&data[0], data.size(), command); }
-    void putChar2CharSpace(void);
+    void write(std::vector<uint8_t>data, bool command = false) { write(&data[0], static_cast<int>(data.size()), command); }
+    void putChar2CharSpace();
     SPI interface;
     DigitalOut resetSignal;
     DigitalOut cdSignal;
@@ -51,8 +52,8 @@ private:
     static const uint8_t sizeX = 128;
     static const uint8_t sizeY = 64;
     static const uint8_t noOfPages = 8;
-    uint8_t dataBuffer[noOfPages][sizeX] = {0};
-    uint8_t updateArray[noOfPages][2] = {{0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}};
+    uint8_t dataBuffer[noOfPages][sizeX] = {0};     //NOLINT(hicpp-avoid-c-arrays,modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    uint8_t updateArray[noOfPages][2] = {{0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}, {0,sizeX-1}};   //NOLINT(hicpp-avoid-c-arrays,modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     const uint8_t* font{nullptr};      // pointer to font definition array
     bool inverted{false};   // display inverted characters
     uint8_t upToX{0};   // X limit of displayed pixels

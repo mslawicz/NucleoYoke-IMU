@@ -11,7 +11,7 @@ Switch::Switch(SwitchType switchType, PinName levelPin, EventQueue& eventQueue, 
     level.rise(callback(this, &Switch::onLevelRiseInterrupt));
 }
 
-void Switch::onLevelFallInterrupt(void)
+void Switch::onLevelFallInterrupt()
 {
     if(stableHigh)
     {
@@ -33,10 +33,10 @@ void Switch::onLevelFallInterrupt(void)
         }
         stableHigh = false;
     }
-    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds((long)(debounceTimeout * 1000000)));
+    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds(static_cast<uint64_t>(debounceTimeout * UsInSec)));
 }
 
-void Switch::onLevelRiseInterrupt(void)
+void Switch::onLevelRiseInterrupt()
 {
     if(stableLow)
     {
@@ -56,10 +56,10 @@ void Switch::onLevelRiseInterrupt(void)
         }
         stableLow = false;
     }
-    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds((long)(debounceTimeout * 1000000)));
+    levelDebounceTimeout.attach(callback(this, &Switch::onDebounceTimeoutCb), std::chrono::microseconds(static_cast<uint64_t>(debounceTimeout * UsInSec)));
 }
 
-void Switch::onDebounceTimeoutCb(void)
+void Switch::onDebounceTimeoutCb()
 {
     if(level.read() == 1)
     {
@@ -89,35 +89,35 @@ get position of the HAT switch
 7-W
 8-NW
 */
-uint8_t Hat::getPosition(void)
+uint8_t Hat::getPosition()
 {
-    uint8_t busValue = switchBus.read() & 0x0F;
-    uint8_t hatPosition;
+    auto busValue = static_cast<uint8_t>(switchBus.read() & 0x0F);       //NOLINT(hicpp-signed-bitwise,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+    uint8_t hatPosition{0};
     switch(busValue)
     {
-    case 0x0E:
+    case 0x0E:      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
         hatPosition = 1;
         break;
-    case 0x0C:
-        hatPosition = 2;
+    case 0x0C:      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+        hatPosition = 2;        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
         break;
-    case 0x0D:
-        hatPosition = 3;
+    case 0x0D:      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+        hatPosition = 3;        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
         break;
-    case 0x09:
-        hatPosition = 4;
+    case 0x09:      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+        hatPosition = 4;        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
         break;
-    case 0x0B:
-        hatPosition = 5;
+    case 0x0B:      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+        hatPosition = 5;        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
         break;
-    case 0x03:
-        hatPosition = 6;
+    case 0x03:      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+        hatPosition = 6;        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
         break;
-    case 0x07:
-        hatPosition = 7;
+    case 0x07:      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+        hatPosition = 7;        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
         break;
-    case 0x06:
-        hatPosition = 8;
+    case 0x06:      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+        hatPosition = 8;        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
         break;
     default:
         hatPosition = 0;

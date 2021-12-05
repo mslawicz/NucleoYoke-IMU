@@ -24,7 +24,7 @@ SH1106::SH1106(PinName writeDataPin, PinName readDataPin, PinName clkPin, PinNam
 /*
  * initialization of SH1106 controller
  */
-void SH1106::init(void)
+void SH1106::init()
 {
     // send a dummy byte to set proper signal levels
     interface.write(0);
@@ -36,35 +36,35 @@ void SH1106::init(void)
     // clear screen
     update();
     //display on
-    write(std::vector<uint8_t>{0xAF}, true);
+    write(std::vector<uint8_t>{0xAF}, true);    //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
     // wait after init
-    ThisThread::sleep_for(100ms);
+    ThisThread::sleep_for(100ms);   //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
 }
 
 /*
  * updates display according to the range in updateArray
  */
-void SH1106::update(void)
+void SH1106::update()
 {
     // check update of every page
     for(uint8_t page = 0; page < noOfPages; page++)
     {
         // check whether this page must be updated
-        if((updateArray[page][0] < sizeX) && (updateArray[page][1] < sizeX) && (updateArray[page][0] <= updateArray[page][1]))
+        if((updateArray[page][0] < sizeX) && (updateArray[page][1] < sizeX) && (updateArray[page][0] <= updateArray[page][1]))  //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
         {
             // set display page and column
-            uint8_t displayColumn = updateArray[page][0] + 2;   // physical display starts from column number 2
+            uint8_t displayColumn = updateArray[page][0] + 2;   // physical display starts from column number 2     //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
             std::vector<uint8_t> coordinateData =
             {
-                    static_cast<uint8_t>(displayColumn & 0x0F),     // lower part of column value
-                    static_cast<uint8_t>(0x10 | ((displayColumn >> 4) & 0x0F)),     // higher part of column value
-                    static_cast<uint8_t>(0xB0 | page)       // page value
+                    static_cast<uint8_t>(displayColumn & 0x0F),     // lower part of column value   //NOLINT(hicpp-signed-bitwise,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+                    static_cast<uint8_t>(0x10 | ((displayColumn >> 4) & 0x0F)),     // higher part of column value  //NOLINT(hicpp-signed-bitwise,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+                    static_cast<uint8_t>(0xB0 | page)       // page value   //NOLINT(hicpp-signed-bitwise,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
             };
             write(coordinateData, true);
             // send data from buffer to display
-            write(&dataBuffer[page][updateArray[page][0]], updateArray[page][1]-updateArray[page][0]+1);
+            write(&dataBuffer[page][updateArray[page][0]], updateArray[page][1]-updateArray[page][0]+1);    //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
             // clear the range to update
-            updateArray[page][0] = updateArray[page][1] = 0xFF;
+            updateArray[page][0] = updateArray[page][1] = 0xFF;     //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
         }
     }
 }
@@ -76,7 +76,7 @@ void SH1106::write(uint8_t* data, int length, bool command)
 {
     cdSignal = command ? 0 : 1;
     csSignal = 0;
-    interface.write((const char*)data, length, nullptr, 0);
+    interface.write(reinterpret_cast<const char*>(data), length, nullptr, 0);
     csSignal = 1;
 }
 
@@ -100,28 +100,28 @@ void SH1106::setPoint(uint8_t X, uint8_t Y, bool clear)
         // out of range
         return;
     }
-    uint8_t page = Y / 8;
-    uint8_t mask = 1 << (Y % 8);
+    uint8_t page = Y / 8;       //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+    uint8_t mask = 1U << (Y % 8);   //NOLINT(hicpp-signed-bitwise,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
 
     // set or clear point in display buffer
     if(clear)
     {
-        dataBuffer[page][X] &= ~mask;
+        dataBuffer[page][X] &= ~mask;       //NOLINT(hicpp-signed-bitwise,cppcoreguidelines-pro-bounds-constant-array-index)
     }
     else
     {
-        dataBuffer[page][X] |= mask;
+        dataBuffer[page][X] |= mask;        //NOLINT(hicpp-signed-bitwise,cppcoreguidelines-pro-bounds-constant-array-index)
     }
 
     // set lower limit of refreshing range
-    if(updateArray[page][0] > X)
+    if(updateArray[page][0] > X)            //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
     {
-        updateArray[page][0] = X;
+        updateArray[page][0] = X;           //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
     }
     // set upper limit of refreshing range
-    if((updateArray[page][1] < X) || (updateArray[page][1] >= sizeX))
+    if((updateArray[page][1] < X) || (updateArray[page][1] >= sizeX))       //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
     {
-        updateArray[page][1] = X;
+        updateArray[page][1] = X;           //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
     }
 }
 
@@ -134,14 +134,14 @@ void SH1106::test(uint32_t argument)
     setPoint(0, sizeY-1);
     setPoint(sizeX-1, 0);
     setPoint(sizeX-1, sizeY-1);
-    for(uint8_t x=0; x<argument; x++)
+    for(uint8_t x=0; x < argument; x++)     //NOLINT
     {
         //x^2 + y^2 = r^2
-        uint8_t y = (uint8_t)sqrtf(argument * argument - x * x);
-        setPoint(64+x, 32 - y);
-        setPoint(64-x, 32 - y);
-        setPoint(64+x, 32 + y);
-        setPoint(64-x, 32 + y);
+        auto y = static_cast<uint8_t>(sqrtf(static_cast<float>(argument * argument - x * x)));
+        setPoint(64+x, 32 - y);     //NOLINT
+        setPoint(64-x, 32 - y);     //NOLINT
+        setPoint(64+x, 32 + y);     //NOLINT
+        setPoint(64-x, 32 + y);     //NOLINT
     }
     update();
 }

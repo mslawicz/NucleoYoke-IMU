@@ -5,10 +5,11 @@
  *      Author: Marcin
  */
 
-#include <mbed.h>
 #include "mbed_stats.h"
 #include "Statistics.h"
 #include <iostream>
+#include <mbed.h>
+
 
 #if !defined(MBED_THREAD_STATS_ENABLED)
 #error "Stats not enabled"

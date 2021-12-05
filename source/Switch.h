@@ -17,12 +17,12 @@ Caution! Do not use the same levelPin number for several objects
 class Switch
 {
 public:
-    Switch(SwitchType switchType, PinName levelPin, EventQueue& eventQueue, float debounceTimeout = 0.01f, PinName directionPin = NC);
+    Switch(SwitchType switchType, PinName levelPin, EventQueue& eventQueue, float debounceTimeout = 0.01F, PinName directionPin = NC);      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
     void setCallback(Callback<void(uint8_t)> cb) { userCb = cb; }
 private:
-    void onLevelFallInterrupt(void);
-    void onLevelRiseInterrupt(void);
-    void onDebounceTimeoutCb(void);
+    void onLevelFallInterrupt();
+    void onLevelRiseInterrupt();
+    void onDebounceTimeoutCb();
     SwitchType switchType;
     InterruptIn level;
     EventQueue& eventQueue;
@@ -32,6 +32,7 @@ private:
     bool stableHigh{true};
     bool stableLow{false};
     Callback<void(uint8_t)> userCb{nullptr};    // callback function called with argument=0 (left turn) or 1 (right turn)
+    static constexpr uint32_t UsInSec = 1000000U; 
 };
 
 /*
@@ -41,7 +42,7 @@ class Hat
 {
 public:
     Hat(PinName northPin, PinName eastPin, PinName southPin, PinName westPin);
-    uint8_t getPosition(void);
+    uint8_t getPosition();
 private:
     BusIn switchBus;
 };
