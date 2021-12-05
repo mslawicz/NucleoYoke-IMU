@@ -24,14 +24,17 @@ class Alarm
 public:
     Alarm(Alarm const&) = delete;       // do not allow copy constructor of a singleton
     void operator=(Alarm const&) = delete;
+    Alarm(Alarm&&) = delete;
+    void operator=(Alarm&&) = delete;
     static Alarm& getInstance();
     void set(AlarmID alarmId);
-    void display(CommandVector& cv);
+    void display(CommandVector& cv) const;
     void clear(CommandVector& cv);
-    void displayOnScreen(void);
+    void displayOnScreen() const;
 private:
     Alarm();
-    void clearFromMenu(void);
+    ~Alarm() = default;
+    void clearFromMenu();
     uint32_t alarmRegister{0};
     DigitalOut alarmLed;
 };

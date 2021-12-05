@@ -7,7 +7,9 @@
 
 #include "Alarm.h"
 #include "Display.h"
+#include "Logger.h"
 #include "Menu.h"
+#include <iostream>
 
 Alarm::Alarm() :
     alarmLed(LED3, 0)
@@ -28,7 +30,7 @@ Alarm& Alarm::getInstance()
  */
 void Alarm::set(AlarmID alarmID)
 {
-    alarmRegister |= (1 << static_cast<int>(alarmID));
+    alarmRegister |= (1U << static_cast<uint32_t>(alarmID));
     alarmLed = 1;
     displayOnScreen();
 }
@@ -36,9 +38,9 @@ void Alarm::set(AlarmID alarmID)
 /*
  * display alarm register value
  */
-void Alarm::display(CommandVector&  /*cv*/)
+void Alarm::display(CommandVector&  /*cv*/) const
 {
-    printf("Alarms = 0x%08X\r\n", static_cast<unsigned int>(alarmRegister));
+    std::cout << "Alarms = 0x" << static_cast<unsigned int>(alarmRegister) << std::endl;
 }
 
 /*
@@ -48,23 +50,24 @@ void Alarm::clear(CommandVector&  /*cv*/)
 {
     alarmRegister = 0;
     alarmLed = 0;
-    printf("Alarms cleared\r\n");
+    LOG_INFO("Alarms cleared");
 }
 
 /*
  * clear alarms - to be called from display menu
  */
-void Alarm::clearFromMenu(void)
+void Alarm::clearFromMenu()
 {
     CommandVector cv{};
     clear(cv);
-    Menu::getInstance().displayMessage("alarms cleared", 5);
+    constexpr uint16_t Timeout = 5U;
+    Menu::getInstance().displayMessage("alarms cleared", Timeout);
 }
 
 /*
 * display alarms on screen
 */
-void Alarm::displayOnScreen(void)
+void Alarm::displayOnScreen() const
 {
     if(!Menu::getInstance().isDisplayEnabled())
     {   
@@ -78,13 +81,15 @@ void Alarm::displayOnScreen(void)
         "wR",   // read after write
         "I"     // no gyroscope interrupt
     };
-    Display::getInstance().setFont(FontTahoma11, false, 127);
+    constexpr uint8_t LimitX = 127U;
+    Display::getInstance().setFont(static_cast<const uint8_t*>(FontTahoma11), false, LimitX);
     std::string text = "alarms:";
-    if(alarmRegister)
+    if(alarmRegister != 0U)
     {
-        for(uint8_t index=0; index<32; index++)
+        constexpr uint32_t Bits32 = 32;
+        for(uint8_t index=0; index < Bits32; index++)
         {
-            if(alarmRegister & (1 << index))
+            if((alarmRegister & (1U << index)) != 0)
             {
                 text += " ";
                 text += texts[index];
@@ -95,6 +100,7 @@ void Alarm::displayOnScreen(void)
     {
         text += " -";
     }
-    Display::getInstance().print(0, 13, text);
+    constexpr uint8_t PosY = 13;
+    Display::getInstance().print(0, PosY, text);
     Display::getInstance().update();
 }
