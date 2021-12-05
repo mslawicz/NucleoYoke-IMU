@@ -2,8 +2,8 @@
 
 KvStore::KvStore()
 {
-    Console::getInstance().registerCommand("lp", "list stored parameters", callback(this, &KvStore::list));
-    Console::getInstance().registerCommand("cp", "clear all stored parameters", callback(this, &KvStore::clear));
+    Console::getInstance().registerCommand("lp", "list stored parameters", callback(&KvStore::list));
+    Console::getInstance().registerCommand("cp", "clear all stored parameters", callback(&KvStore::clear));
 }
 
 KvStore& KvStore::getInstance()

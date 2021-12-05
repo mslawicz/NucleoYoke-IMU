@@ -82,8 +82,8 @@ public:
         return value;
     }
 
-    void list(CommandVector& cv);
-    void clear(CommandVector& cv);
+    static void list(CommandVector& cv);
+    static void clear(CommandVector& cv);
 private:
     KvStore();
     ~KvStore() = default;
