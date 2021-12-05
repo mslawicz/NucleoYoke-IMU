@@ -6,22 +6,27 @@
  */
 
 #include "USBJoystick.h"
+#include "Convert.h"
+#include "Logger.h"
 #include "usb_phy_api.h"
+#include <iomanip>
 
 USBJoystick::USBJoystick(uint16_t vendorId, uint16_t productId, uint16_t productRelease, bool blocking) :
     USBHID(get_usb_phy(), 0, 0, vendorId, productId, productRelease)
 {
     if (blocking)
     {
-        printf("Connecting USB HID joystick device (VID=0x%04X, PID=0x%04X, VER=%u) in blocking mode\r\n", vendorId, productId, productRelease);
+        LOG_INFO(std::hex << setfill('0') << setw(4) << "Connecting USB HID joystick device (VID=0x" << vendorId << ", PID=0x" << productId
+                << std::dec << ", VER=" << productRelease << ") in blocking mode");
         USBDevice::connect();
         wait_ready();
     }
     else
     {
-        printf("Initializing USB HID joystick device (VID=0x%04X, PID=0x%04X, VER=%u) in non-blocking mode\r\n", vendorId, productId, productRelease);
+        LOG_INFO(std::hex << setfill('0') << setw(4) << "Initializing USB HID joystick device (VID=0x" << vendorId << ", PID=0x" << productId
+        << std::dec << ", VER=" << productRelease << ") in non-blocking mode");
         init();
-    }
+    }    
 }
 
 USBJoystick::~USBJoystick()
@@ -31,7 +36,7 @@ USBJoystick::~USBJoystick()
 
 const uint8_t* USBJoystick::report_desc()
 {
-    static const uint8_t report_descriptor[] =
+    static const uint8_t report_descriptor[] =      //NOLINT(hicpp-avoid-c-arrays,modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     {
         0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
         0x09, 0x04,                    // USAGE (Joystick)
@@ -83,14 +88,8 @@ const uint8_t* USBJoystick::report_desc()
     };
 
     reportLength = sizeof(report_descriptor);
-    return report_descriptor;
+    return static_cast<const uint8_t*>(report_descriptor);
 }
-
-#define DEFAULT_CONFIGURATION (1)
-#define TOTAL_DESCRIPTOR_LENGTH ((1 * CONFIGURATION_DESCRIPTOR_LENGTH) \
-                               + (1 * INTERFACE_DESCRIPTOR_LENGTH) \
-                               + (1 * HID_DESCRIPTOR_LENGTH) \
-                               + (2 * ENDPOINT_DESCRIPTOR_LENGTH))
 
 const uint8_t* USBJoystick::configuration_desc(uint8_t index)
 {
@@ -99,16 +98,25 @@ const uint8_t* USBJoystick::configuration_desc(uint8_t index)
         return nullptr;
     }
 
-    uint8_t configurationDescriptorTemp[] =
+    const uint8_t DefaultConfiguration = 1;
+    const uint16_t TotalDescriptorLength = CONFIGURATION_DESCRIPTOR_LENGTH + INTERFACE_DESCRIPTOR_LENGTH
+                                         + HID_DESCRIPTOR_LENGTH + 2 * ENDPOINT_DESCRIPTOR_LENGTH; 
+    constexpr uint8_t BmAttributes = (1U << 6U) | (1U << 7U);   
+    const uint16_t HidVersion = HID_VERSION_1_11;
+    uint16_t reportDescriptorLength = report_desc_length();
+    const uint16_t MaxHIDReportSize = MAX_HID_REPORT_SIZE;
+    const uint8_t PollInterval = 1;     // host polling interval [ms]
+
+    uint8_t configurationDescriptorTemp[] =     //NOLINT(hicpp-avoid-c-arrays,modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     {
         CONFIGURATION_DESCRIPTOR_LENGTH,    // bLength
         CONFIGURATION_DESCRIPTOR,           // bDescriptorType
-        LSB(TOTAL_DESCRIPTOR_LENGTH),       // wTotalLength (LSB)
-        MSB(TOTAL_DESCRIPTOR_LENGTH),       // wTotalLength (MSB)
+        LO8(TotalDescriptorLength),         // wTotalLength (LSB)
+        HI8(TotalDescriptorLength),         // wTotalLength (MSB)
         0x01,                               // bNumInterfaces
-        DEFAULT_CONFIGURATION,              // bConfigurationValue
+        DefaultConfiguration,               // bConfigurationValue
         0x00,                               // iConfiguration
-        C_RESERVED | C_SELF_POWERED,        // bmAttributes
+        BmAttributes,                       // bmAttributes
         C_POWER(0),                         // bMaxPower
         /************** Descriptor of joystick interface ****************/
         INTERFACE_DESCRIPTOR_LENGTH,        // bLength
@@ -123,34 +131,34 @@ const uint8_t* USBJoystick::configuration_desc(uint8_t index)
 
         HID_DESCRIPTOR_LENGTH,              // bLength
         HID_DESCRIPTOR,                     // bDescriptorType
-        LSB(HID_VERSION_1_11),              // bcdHID (LSB)
-        MSB(HID_VERSION_1_11),              // bcdHID (MSB)
+        LO8(HidVersion),                    // bcdHID (LO8)
+        HI8(HidVersion),                    // bcdHID (HI8)
         0x00,                               // bCountryCode
         0x01,                               // bNumDescriptors
         REPORT_DESCRIPTOR,                  // bDescriptorType
-        (uint8_t) (LSB(report_desc_length())), // wDescriptorLength (LSB)
-        (uint8_t) (MSB(report_desc_length())), // wDescriptorLength (MSB)
+        LO8(reportDescriptorLength),        // wDescriptorLength (LO8)
+        HI8(reportDescriptorLength),        // wDescriptorLength (HI8)
 
         ENDPOINT_DESCRIPTOR_LENGTH,         // bLength
         ENDPOINT_DESCRIPTOR,                // bDescriptorType
         _int_in,                            // bEndpointAddress
         E_INTERRUPT,                        // bmAttributes
-        LSB(MAX_HID_REPORT_SIZE),           // wMaxPacketSize (LSB)
-        MSB(MAX_HID_REPORT_SIZE),           // wMaxPacketSize (MSB)
+        LO8(MAX_HID_REPORT_SIZE),           // wMaxPacketSize (LSB)
+        HI8(MAX_HID_REPORT_SIZE),           // wMaxPacketSize (MSB)
         1,                                  // bInterval (milliseconds)
 
         ENDPOINT_DESCRIPTOR_LENGTH,         // bLength
         ENDPOINT_DESCRIPTOR,                // bDescriptorType
         _int_out,                           // bEndpointAddress
         E_INTERRUPT,                        // bmAttributes
-        LSB(MAX_HID_REPORT_SIZE),           // wMaxPacketSize (LSB)
-        MSB(MAX_HID_REPORT_SIZE),           // wMaxPacketSize (MSB)
-        1                                  // bInterval (milliseconds)
+        LO8(MaxHIDReportSize),              // wMaxPacketSize (LSB)
+        HI8(MaxHIDReportSize),              // wMaxPacketSize (MSB)
+        PollInterval                        // bInterval (milliseconds)
     };
 
     MBED_ASSERT(sizeof(configurationDescriptorTemp) == sizeof(configurationDescriptor));
-    memcpy(configurationDescriptor, configurationDescriptorTemp, sizeof(configurationDescriptor));
-    return configurationDescriptor;
+    memcpy(static_cast<void*>(configurationDescriptor), static_cast<void*>(configurationDescriptorTemp), sizeof(configurationDescriptor));
+    return static_cast<const uint8_t*>(configurationDescriptor);
 }
 
 /*
@@ -160,12 +168,12 @@ const uint8_t* USBJoystick::configuration_desc(uint8_t index)
 */
 const uint8_t* USBJoystick::string_iproduct_desc()
 {
-    static const uint8_t OverriddenStringIproductDescriptor[] = {
+    static const uint8_t OverriddenStringIproductDescriptor[] = {   //NOLINT(hicpp-avoid-c-arrays,modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
         0x18,                                                       //bLength
         STRING_DESCRIPTOR,                                          //bDescriptorType 0x03
         'N', 0, 'u', 0, 'c', 0, 'l', 0, 'e', 0, 'o', 0, ' ', 0, 'Y', 0, 'o', 0, 'k', 0, 'e', 0 //bString iProduct - HID device
     };
-    return OverriddenStringIproductDescriptor;
+    return static_cast<const uint8_t*>(OverriddenStringIproductDescriptor);
 }
 
 /*
@@ -175,27 +183,27 @@ bool USBJoystick::sendReport(JoystickData& joystickData)
 {
     HID_REPORT report;
     uint8_t index = 0;
-    report.data[index++] = LSB(joystickData.X);
-    report.data[index++] = MSB(joystickData.X);
-    report.data[index++] = LSB(joystickData.Y);
-    report.data[index++] = MSB(joystickData.Y);
-    report.data[index++] = LSB(joystickData.Z);
-    report.data[index++] = MSB(joystickData.Z);
-    report.data[index++] = LSB(joystickData.Rz);
-    report.data[index++] = MSB(joystickData.Rz);
-    report.data[index++] = LSB(joystickData.Rx);
-    report.data[index++] = MSB(joystickData.Rx);
-    report.data[index++] = LSB(joystickData.Ry);
-    report.data[index++] = MSB(joystickData.Ry);
-    report.data[index++] = LSB(joystickData.slider);
-    report.data[index++] = MSB(joystickData.slider);
-    report.data[index++] = LSB(joystickData.dial);
-    report.data[index++] = MSB(joystickData.dial);
-    report.data[index++] = joystickData.hat;
-    report.data[index++] = joystickData.buttons & 0xFF;
-    report.data[index++] = (joystickData.buttons >> 8) & 0xFF;
-    report.data[index++] = (joystickData.buttons >> 16) & 0xFF;
-    report.data[index++] = (joystickData.buttons >> 24) & 0xFF;
+    report.data[index++] = LO8(joystickData.X);         //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = HI8(joystickData.X);         //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = LO8(joystickData.Y);         //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = HI8(joystickData.Y);         //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = LO8(joystickData.Z);         //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = HI8(joystickData.Z);         //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = LO8(joystickData.Rz);        //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = HI8(joystickData.Rz);        //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = LO8(joystickData.Rx);        //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = HI8(joystickData.Rx);        //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = LO8(joystickData.Ry);        //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = HI8(joystickData.Ry);        //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = LO8(joystickData.slider);    //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = HI8(joystickData.slider);    //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = LO8(joystickData.dial);      //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = HI8(joystickData.dial);      //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = joystickData.hat;            //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+    report.data[index++] = joystickData.buttons & 0xFF;                     //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index,hicpp-signed-bitwise,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+    report.data[index++] = (joystickData.buttons >> 8) & 0xFF;              //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index,hicpp-signed-bitwise,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+    report.data[index++] = (joystickData.buttons >> 16) & 0xFF;             //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index,hicpp-signed-bitwise,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
+    report.data[index++] = (joystickData.buttons >> 24) & 0xFF;             //NOLINT(cppcoreguidelines-pro-bounds-constant-array-index,hicpp-signed-bitwise,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,readability-magic-numbers)
 
     report.length = index;
     return send(&report);
