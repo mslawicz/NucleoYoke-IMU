@@ -2,10 +2,10 @@
 
 FilterSMA::FilterSMA(size_t filterSize) :
     filterSize(filterSize),
-    dataBuffer(filterSize, 0.0f)
+    dataBuffer(filterSize, 0.0F)
 {
     MBED_ASSERT(filterSize);
-    filterFactor = 1.0f / filterSize;
+    filterFactor = 1.0F / static_cast<float>(filterSize);
 }
 
 /*
@@ -21,11 +21,11 @@ void FilterSMA::calculate(float input)
 void FilterAEMA::calculate(float input)
 {
     float delta = input - filterValue;
-    filteredDeviation = filteredDeviation * (1.0f - DeviationFilterStrength) + fabs(delta) * DeviationFilterStrength;
+    filteredDeviation = filteredDeviation * (1.0F - DeviationFilterStrength) + fabs(delta) * DeviationFilterStrength;
     float alpha = FilterStrength * fabs(delta) / filteredDeviation;
-    if(alpha > 1.0f)
+    if(alpha > 1.0F)
     {
-        alpha = 1.0f;
+        alpha = 1.0F;
     }
     filterValue += delta * alpha;
 }
@@ -38,8 +38,8 @@ void FilterEMA::calculate(float input)
 FilterMM::FilterMM(size_t size) :
     size(size)
 {
-    unsortedBuffer.assign(size, 0.0f);
-    sortedBuffer.assign(size, 0.0f);
+    unsortedBuffer.assign(size, 0.0F);
+    sortedBuffer.assign(size, 0.0F);
 }
 
 void FilterMM::calculate(float newInputValue)
@@ -75,10 +75,7 @@ void FilterMM::calculate(float newInputValue)
             {
                 break;
             }
-            else
-            {
-                searchIndex -= step;
-            }
+            searchIndex -= step;
         }
     }
     if (searchIndex >= sortedBuffer.size())
@@ -87,7 +84,7 @@ void FilterMM::calculate(float newInputValue)
     }
     else
     {
-        sortedBuffer.insert(sortedBuffer.begin() + searchIndex, newInputValue);
+        sortedBuffer.insert(sortedBuffer.begin() + searchIndex, newInputValue);     //NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
     }
     unsortedBuffer[headIndex] = newInputValue;
     headIndex = (headIndex + 1) % size;
