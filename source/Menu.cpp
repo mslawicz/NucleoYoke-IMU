@@ -1,10 +1,11 @@
 #include "Menu.h"
-#include "Display.h"
+
+#include <utility>
 
 Menu::Menu() :
     menuQueueDispatchThread(osPriority_t::osPriorityLow4, OS_STACK_SIZE, nullptr, "menu"),
     execPushbutton(SwitchType::Pushbutton, PF_3, eventQueue),
-    menuSelector(SwitchType::RotaryEncoder, PE_0, eventQueue, 0.01f, PF_11)
+    menuSelector(SwitchType::RotaryEncoder, PE_0, eventQueue, 0.01F, PF_11)     //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 {
     // Start the display queue's dispatch thread
     menuQueueDispatchThread.start(callback(&eventQueue, &EventQueue::dispatch_forever));
@@ -13,7 +14,7 @@ Menu::Menu() :
     menuSelector.setCallback(callback(this, &Menu::changeItem));
 }
 
-Menu& Menu::getInstance(void)
+Menu& Menu::getInstance()
 {
     static Menu instance;    // Guaranteed to be destroyed, instantiated on first use
     return instance;
@@ -22,7 +23,7 @@ Menu& Menu::getInstance(void)
 /*
 execute menu action on user button press
 */
-void Menu::execute(uint8_t argument)
+void Menu::execute(uint8_t  /*argument*/)
 {
     if(!menuItems.empty() &&
       (menuItems.size() > currentItem) &&
@@ -49,13 +50,13 @@ void Menu::changeItem(uint8_t direction)
 /*
 displays menu item text
 */
-void Menu::displayItemText(void)
+void Menu::displayItemText()
 {
     if(!menuItems.empty() && (menuItems.size() > currentItem))
     {
         std::string text = ">" + menuItems[currentItem].first;
-        Display::getInstance().setFont(FontTahoma14b, false, 127);
-        Display::getInstance().print(0, 49, text);
+        Display::getInstance().setFont(MenuFont, false, MaxX);
+        Display::getInstance().print(0, 49, text);      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         Display::getInstance().update();
     }
 }
@@ -66,12 +67,13 @@ use timeout in [s] to clear automatically clear the message
 */
 void Menu::displayMessage(std::string message, uint16_t timeout, bool inverted)
 {
-    Display::getInstance().setFont(FontTahoma14b, inverted, 127);
-    Display::getInstance().print(0, MessageLine, message);
+    Display::getInstance().setFont(MenuFont, inverted, MaxX);
+    Display::getInstance().print(0, MessageLine, std::move(message));
     Display::getInstance().update();
-    if(timeout)
+    if(0 != timeout)
     {
-        messageClearTimeout.attach(callback(this, &Menu::clearMessage), std::chrono::microseconds(timeout * 1000000));
+        constexpr uint32_t UsInSec = 1000000;
+        messageClearTimeout.attach(callback(this, &Menu::clearMessage), std::chrono::microseconds(timeout * UsInSec));
     }
 }
 
@@ -79,9 +81,9 @@ void Menu::displayMessage(std::string message, uint16_t timeout, bool inverted)
 displays the message in a separate line
 use timeout in [s] to clear automatically clear the message
 */
-void Menu::clearMessage(void)
+void Menu::clearMessage()
 {
-    Display::getInstance().setFont(FontTahoma14b, false, 127);
+    Display::getInstance().setFont(MenuFont, false, MaxX);
     Display::getInstance().print(0, MessageLine, " ");
     Display::getInstance().update();
 }
