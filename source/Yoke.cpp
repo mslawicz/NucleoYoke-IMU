@@ -1,10 +1,10 @@
 #include "Yoke.h"
-#include "Convert.h"
 #include "Alarm.h"
-#include "Storage.h"
+#include "Convert.h"
 #include "Display.h"
-#include "Menu.h"
 #include "Logger.h"
+#include "Menu.h"
+#include "Storage.h"
 #include <iomanip>
 
 //XXX global variables for test
@@ -413,13 +413,13 @@ void Yoke::axisCalibration()
 /*
 start / stop axis calibration
 */
-void Yoke::toggleAxisCalibration(void)
+void Yoke::toggleAxisCalibration()
 {
     if(isCalibrationOn)
     {
         isCalibrationOn = false;
-        printf("Axis calibration completed\n");
-        Menu::getInstance().displayMessage("cal. completed", 10);
+        std::cout << "Axis calibration completed" << std::endl;
+        Menu::getInstance().displayMessage("cal. completed", 10);       //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         Menu::getInstance().enableMenuChange();
 
         KvStore::getInstance().store<float>("/kv/throttleInputMin", throttleInputMin);
@@ -431,10 +431,10 @@ void Yoke::toggleAxisCalibration(void)
     else
     {
         isCalibrationOn = true;
-        printf("Axis calibration on; move throttle lever from min to max\n");
+        std::cout << "Axis calibration on; move throttle lever from min to max" << std::endl;
         Menu::getInstance().displayMessage("cal. started");
-        throttleInputMin = 0.49f;
-        throttleInputMax = 0.51f;
+        throttleInputMin = 0.49F;       //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        throttleInputMax = 0.51F;       //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         Menu::getInstance().disableMenuChange();
     }
 }
@@ -442,7 +442,7 @@ void Yoke::toggleAxisCalibration(void)
 /*
 start / stop pilots stopwatch on display
 */
-void Yoke::toggleStopwatch(void)
+void Yoke::toggleStopwatch()
 {
     if(isStopwatchDisplayed)
     {
@@ -468,7 +468,8 @@ void Yoke::toggleStopwatch(void)
         stopwatch.reset();
         stopwatch.start();
         displayStopwatch();
-        stopwatchTicker.attach(callback(this, &Yoke::displayStopwatch), std::chrono::microseconds(1000000));
+        constexpr uint32_t MicroInSec = 1000000U;
+        stopwatchTicker.attach(callback(this, &Yoke::displayStopwatch), std::chrono::microseconds(MicroInSec));
         Menu::getInstance().disableMenuChange();
         Menu::getInstance().disableDisplay();
     }
@@ -477,37 +478,39 @@ void Yoke::toggleStopwatch(void)
 /*
 displays stopwatch on display
 */
-void Yoke::displayStopwatch(void)
+void Yoke::displayStopwatch()
 {
-    const uint8_t refX = 96;
-    const uint8_t refY = 33;
-    const uint8_t radius = 31;
+    constexpr uint16_t SecInMin = 60U;
+    constexpr uint8_t refX = 96;
+    constexpr uint8_t refY = 33;
+    constexpr uint8_t radius = 31;
     uint16_t secondsElapsed = static_cast<uint16_t>(chrono::duration_cast<chrono::seconds>(stopwatch.elapsed_time()).count());
-    uint8_t seconds = secondsElapsed % 60;
-    uint16_t minutes = secondsElapsed / 60;
+    uint8_t seconds = secondsElapsed % SecInMin;
+    uint16_t minutes = secondsElapsed / SecInMin;
     if(seconds == 0)
     {
-        char stopwatchString[3]; 
+        char stopwatchString[3];        //NOLINT(hicpp-avoid-c-arrays,modernize-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
         Display::getInstance().clear();
-        Display::getInstance().setFont(FontArial42d);
-        sprintf(stopwatchString, "%2d", minutes % 100);
-        Display::getInstance().print(0, 16, std::string(stopwatchString));
+        Display::getInstance().setFont(static_cast<const uint8_t*>(FontArial42d));
+        sprintf(static_cast<char*>(stopwatchString), "%2d", minutes % 100);     //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers,cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        Display::getInstance().print(0, 16, std::string(static_cast<char*>(stopwatchString)));      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     }
-    float sinX = sin(PI * seconds / 30);
-    float cosX = cos(PI * seconds / 30);
-    uint8_t fromX = refX + sinX * radius;
-    uint8_t fromY = refY - cosX * radius;
-    uint8_t toRadius = radius - 5;
-    if(seconds % 5 == 0)
+    float sinX = sin(PI * static_cast<float>(seconds) / 30.0F); //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    float cosX = cos(PI * static_cast<float>(seconds) / 30.0F); //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    uint8_t fromX = refX + static_cast<uint8_t>(sinX * radius);
+    uint8_t fromY = refY - static_cast<uint8_t>(cosX * radius);
+    constexpr uint8_t ShortBar = 5U; 
+    uint8_t toRadius = radius - ShortBar;
+    if(seconds % ShortBar == 0)
     {
-        toRadius -= 5;
+        toRadius -= ShortBar;
     }
-    if(seconds % 15 == 0)
+    if(seconds % 15 == 0)       //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     {
-        toRadius -= 5;
+        toRadius -= ShortBar;
     }
-    uint8_t toX = refX + sinX * toRadius;
-    uint8_t toY = refY - cosX * toRadius;
+    uint8_t toX = refX + static_cast<uint8_t>(sinX * static_cast<float>(toRadius));
+    uint8_t toY = refY - static_cast<uint8_t>(cosX * static_cast<float>(toRadius));
     Display::getInstance().drawLine(fromX, toX, fromY, toY);
     Display::getInstance().update();
 }
@@ -515,7 +518,7 @@ void Yoke::displayStopwatch(void)
 /*
 display all regular fields
 */
-void Yoke::displayAll(void)
+void Yoke::displayAll()
 {
     Alarm::getInstance().displayOnScreen();
     displayMode();
