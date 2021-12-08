@@ -4,14 +4,13 @@
 #include "Storage.h"
 #include "Display.h"
 #include "Menu.h"
+#include "Logger.h"
 
 //XXX global variables for test
-float g_gyroX, g_gyroY, g_gyroZ;
-float g_accX, g_accY, g_accZ;
-float g_magX, g_magY, g_magZ;
-float g_sensorPitch, g_sensorRoll, g_sensorYaw;
-
-static const float PI = 3.14159265359f;
+float g_gyroX, g_gyroY, g_gyroZ;    //NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+float g_accX, g_accY, g_accZ;       //NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+float g_magX, g_magY, g_magZ;       //NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+float g_sensorPitch, g_sensorRoll, g_sensorYaw;     //NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 Yoke::Yoke(events::EventQueue& eventQueue) :
     eventQueue(eventQueue),
@@ -43,11 +42,12 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     yellowPotentiometer(PC_1),
     blueGrayPotentiometer(PA_5),
     hatSwitch(PG_13, PG_9, PG_12, PG_10),
-    joystickGainFilter(0.01f)
+    joystickGainFilter(0.01F)       //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 {
-    printf("Yoke object created\r\n");
+    LOG_INFO("Yoke object created");
 
-    i2cBus.frequency(400000);
+    constexpr int I2CBusFreq = 400000;
+    i2cBus.frequency(I2CBusFreq);
 
     // connect USB joystick
     usbJoystick.connect();
@@ -56,35 +56,36 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
     // Gyroscope ODR=119 Hz, full scale 500 dps
     // int/out selection default
     // low power disable, HPF enable, HPF=0.05 Hz
-    sensorGA.write((uint8_t)LSM9DS1reg::CTRL_REG1_G, std::vector<uint8_t>{0x68, 0x00, 0x47});
+    sensorGA.write(static_cast<uint8_t>(LSM9DS1reg::CTRL_REG1_G), std::vector<uint8_t>{0x68, 0x00, 0x47});      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     // Accelerometer ODR=119 Hz, full scale +=2g
-    sensorGA.write((uint8_t)LSM9DS1reg::CTRL_REG6_XL, std::vector<uint8_t>{0x60});
+    sensorGA.write(static_cast<uint8_t>(LSM9DS1reg::CTRL_REG6_XL), std::vector<uint8_t>{0x60});     //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     // INT1<-DRDY_G
-    sensorGA.write((uint8_t)LSM9DS1reg::INT1_CTRL, std::vector<uint8_t>{0x02});
+    sensorGA.write(static_cast<uint8_t>(LSM9DS1reg::INT1_CTRL), std::vector<uint8_t>{0x02});        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
     // configure magnetometer sensor
     // Magnetometer X&Y high-performance mode, ODR=80 Hz
     // full scale +-16 gauss
     // continues conversion mode
     // Z-axis high-performance mode
-    sensorM.write((uint8_t)LSM9DS1reg::CTRL_REG1_M, std::vector<uint8_t>{0x5C, 0x60, 0x00, 0x80});
+    sensorM.write(static_cast<uint8_t>(LSM9DS1reg::CTRL_REG1_M), std::vector<uint8_t>{0x5C, 0x60, 0x00, 0x80});     //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
     // restore yoke parameters
     yokeMode = KvStore::getInstance().restore<YokeMode>("/kv/yokeMode", YokeMode::FixedWing,
         static_cast<YokeMode>(0),
         static_cast<YokeMode>(static_cast<int>(YokeMode::Size) - 1));
 
-    throttleInputMin = KvStore::getInstance().restore<float>("/kv/throttleInputMin", 0.0f, 0.0f, 0.49f);
-    throttleInputMax = KvStore::getInstance().restore<float>("/kv/throttleInputMax", 1.0f, 0.51f, 1.0f);
-    sensorPitchReference = KvStore::getInstance().restore<float>("/kv/sensorPitchRef", 0.0f, -0.5f, 0.5f);
-    sensorRollReference = KvStore::getInstance().restore<float>("/kv/sensorRollRef", 0.0f, -0.5f, 0.5f);
-    sensorYawReference = KvStore::getInstance().restore<float>("/kv/sensorYawRef", 0.0f, -0.5f, 0.5f);
+    throttleInputMin = KvStore::getInstance().restore<float>("/kv/throttleInputMin", 0.0F, 0.0F, 0.49F);        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    throttleInputMax = KvStore::getInstance().restore<float>("/kv/throttleInputMax", 1.0F, 0.51F, 1.0F);        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    sensorPitchReference = KvStore::getInstance().restore<float>("/kv/sensorPitchRef", 0.0F, -0.5F, 0.5F);      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    sensorRollReference = KvStore::getInstance().restore<float>("/kv/sensorRollRef", 0.0F, -0.5F, 0.5F);        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    sensorYawReference = KvStore::getInstance().restore<float>("/kv/sensorYawRef", 0.0F, -0.5F, 0.5F);          //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
     // call handler on IMU interrupt rise signal
     imuInterruptSignal.rise(callback(this, &Yoke::imuInterruptHandler));
     // this timeout calls handler for the first time
     // next calls will be executed upon IMU INT1 interrupt signal
-    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 100ms);
+    constexpr std::chrono::milliseconds HandlerDelay = 100ms;
+    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), HandlerDelay);
 
     // start handler timer
     handlerTimer.start();
@@ -102,25 +103,26 @@ Yoke::Yoke(events::EventQueue& eventQueue) :
 /*
 * yoke handler is called on IMU interrupt signal
 */
-void Yoke::handler(void)
+void Yoke::handler()
 {
     // this timeout is set only for the case of lost IMU interrupt signal
     // the timeout should never happen, as the next interrupt should be called earlier
-    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), 20ms);
+    constexpr std::chrono::milliseconds NoIntTimeout = 20ms;
+    imuIntTimeout.attach(callback(this, &Yoke::imuInterruptHandler), NoIntTimeout);
 
-    // measure time elapsed since the previous call
+    // measure time elapsed since the previous call [s]
     float deltaT = std::chrono::duration<float>(handlerTimer.elapsed_time()).count();
     handlerTimer.reset();
     counter++;
 
     // set HAT switch mode
-    if((hatModeToggle.read() ^ hatModeShift.read()) == 0)
+    if((hatModeToggle.read() ^ hatModeShift.read()) == 0)       //NOLINT(hicpp-signed-bitwise)
     {
         // HAT mode shift pressed in HAT view mode or
         // HAT mode shift NOT pressed in HAT trim mode
         hatMode = HatSwitchMode::TrimMode;
     }
-    else if(viewModeToggle.read())      // hat view mode toggle down
+    else if(viewModeToggle.read() != 0)      // hat view mode toggle down
     {
         hatMode = HatSwitchMode::QuickViewMode;
     }
@@ -130,23 +132,23 @@ void Yoke::handler(void)
     }
 
     // set brake mode from RESET pushbutton
-    bool brakeActive = !resetSwitch.read();
+    bool brakeActive = (resetSwitch.read() == 0);
 
     std::vector<uint8_t> sensorData;
     if(imuInterruptSignal.read() == 1)
     {
         // interrupt signal is active
         // read IMU sensor data
-        sensorData = sensorGA.read((uint8_t)LSM9DS1reg::OUT_X_L_G, 12);
+        sensorData = sensorGA.read(static_cast<uint8_t>(LSM9DS1reg::OUT_X_L_G), 12);    //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         gyroscopeData.X = *reinterpret_cast<int16_t*>(&sensorData[4]);
         gyroscopeData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
         gyroscopeData.Z = *reinterpret_cast<int16_t*>(&sensorData[0]);
-        accelerometerData.X = *reinterpret_cast<int16_t*>(&sensorData[10]);
-        accelerometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[8]);
-        accelerometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[6]);
+        accelerometerData.X = *reinterpret_cast<int16_t*>(&sensorData[10]);     //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        accelerometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[8]);      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+        accelerometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[6]);      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
         // read magnetometer data
-        sensorData = sensorM.read((uint8_t)LSM9DS1reg::OUT_X_L_M, 6);
+        sensorData = sensorM.read(static_cast<uint8_t>(LSM9DS1reg::OUT_X_L_M), 6);      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         magnetometerData.X = *reinterpret_cast<int16_t*>(&sensorData[0]);
         magnetometerData.Y = *reinterpret_cast<int16_t*>(&sensorData[2]);
         magnetometerData.Z = *reinterpret_cast<int16_t*>(&sensorData[4]);
@@ -162,51 +164,52 @@ void Yoke::handler(void)
     // Y = pitch axis = pointing East
     // Z = yaw axis = pointing down
     // angular rate in rad/s
-    angularRate.X = -AngularRateResolution * gyroscopeData.Y;
-    angularRate.Y = -AngularRateResolution * gyroscopeData.Z;
-    angularRate.Z = AngularRateResolution * gyroscopeData.X;
+    angularRate.X = -AngularRateResolution * static_cast<float>(gyroscopeData.Y);
+    angularRate.Y = -AngularRateResolution * static_cast<float>(gyroscopeData.Z);
+    angularRate.Z = AngularRateResolution * static_cast<float>(gyroscopeData.X);
     // acceleration in g
-    acceleration.X = AccelerationResolution * accelerometerData.Z;
-    acceleration.Y = -AccelerationResolution * accelerometerData.Y;
-    acceleration.Z = -AccelerationResolution * accelerometerData.X;
+    acceleration.X = AccelerationResolution * static_cast<float>(accelerometerData.Z);
+    acceleration.Y = -AccelerationResolution * static_cast<float>(accelerometerData.Y);
+    acceleration.Z = -AccelerationResolution * static_cast<float>(accelerometerData.X);
     // magnetic field in gauss
-    magneticField.X = MagneticFieldResolution * magnetometerData.X;
-    magneticField.Y = MagneticFieldResolution * magnetometerData.Y;
-    magneticField.Z = MagneticFieldResolution * magnetometerData.Z;
+    magneticField.X = MagneticFieldResolution * static_cast<float>(magnetometerData.X);
+    magneticField.Y = MagneticFieldResolution * static_cast<float>(magnetometerData.Y);
+    magneticField.Z = MagneticFieldResolution * static_cast<float>(magnetometerData.Z);
 
     float accelerationXZ = sqrt(acceleration.X * acceleration.X + acceleration.Z * acceleration.Z);
     float accelerationYZ = sqrt(acceleration.Y * acceleration.Y + acceleration.Z * acceleration.Z);
 
-    // calculate pitch and roll from accelerometer itself
+    // calculate pitch and roll from accelerometer itself [rad]
     float accelerometerPitch = atan2(acceleration.Y, accelerationXZ);
     float accelerometerRoll = atan2(acceleration.X, accelerationYZ);
 
-    // calculate yaw from magnetometer
-    float magnetometerYaw = -0.1f * PI * (atan2(magneticField.Z, magneticField.X) + (magneticField.Z >= 0.0f ? -PI : PI));
+    // calculate yaw from magnetometer  [rad]
+    constexpr float MagnetometerYawGain = -0.1F;
+    float magnetometerYaw = MagnetometerYawGain * PI * (atan2(magneticField.Z, magneticField.X) + (magneticField.Z >= 0.0F ? -PI : PI));
 
     // store sensor values for calculation of deviation
     float previousSensorPitch = sensorPitch;
     float previousSensorRoll = sensorRoll;
     float previousSensorYaw = sensorYaw;
 
-    // calculate sensor pitch, roll anfd yaw using complementary filter
-    const float SensorFilterFactor = 0.02f;
-    sensorPitch = (1.0f - SensorFilterFactor) * (sensorPitch + angularRate.Y * deltaT) + SensorFilterFactor * accelerometerPitch;
-    sensorRoll = (1.0f - SensorFilterFactor) * (sensorRoll + angularRate.X * deltaT) + SensorFilterFactor * accelerometerRoll;
-    sensorYaw = (1.0f - SensorFilterFactor) * (sensorYaw + angularRate.Z * deltaT) + SensorFilterFactor * magnetometerYaw;
+    // calculate sensor pitch, roll and yaw using complementary filter [rad]
+    const float SensorFilterFactor = 0.02F;
+    sensorPitch = (1.0F - SensorFilterFactor) * (sensorPitch + angularRate.Y * deltaT) + SensorFilterFactor * accelerometerPitch;
+    sensorRoll = (1.0F - SensorFilterFactor) * (sensorRoll + angularRate.X * deltaT) + SensorFilterFactor * accelerometerRoll;
+    sensorYaw = (1.0F - SensorFilterFactor) * (sensorYaw + angularRate.Z * deltaT) + SensorFilterFactor * magnetometerYaw;
 
     // calculate sensor pitch, roll and yaw variability
-    const float variabilityFilterFactor = 0.01f;
-    float reciprocalDeltaT = (deltaT > 0.0f) ? (1.0f / deltaT) : 1.0f;
-    sensorPitchVariability = (1.0f - variabilityFilterFactor) * sensorPitchVariability + variabilityFilterFactor * fabs(sensorPitch - previousSensorPitch) * reciprocalDeltaT;
-    sensorRollVariability = (1.0f - variabilityFilterFactor) * sensorRollVariability + variabilityFilterFactor * fabs(sensorRoll - previousSensorRoll) * reciprocalDeltaT;
-    sensorYawVariability = (1.0f - variabilityFilterFactor) * sensorYawVariability + variabilityFilterFactor * fabs(sensorYaw - previousSensorYaw) * reciprocalDeltaT;
+    const float VariabilityFilterFactor = 0.01F;
+    float reciprocalDeltaT = (deltaT > 0.0F) ? (1.0F / deltaT) : 1.0F;
+    sensorPitchVariability = (1.0F - VariabilityFilterFactor) * sensorPitchVariability + VariabilityFilterFactor * fabs(sensorPitch - previousSensorPitch) * reciprocalDeltaT;
+    sensorRollVariability = (1.0F - VariabilityFilterFactor) * sensorRollVariability + VariabilityFilterFactor * fabs(sensorRoll - previousSensorRoll) * reciprocalDeltaT;
+    sensorYawVariability = (1.0F - VariabilityFilterFactor) * sensorYawVariability + VariabilityFilterFactor * fabs(sensorYaw - previousSensorYaw) * reciprocalDeltaT;
 
     // store sensor pitch, roll and yaw reference values
-    const float sensorVariabilityThreshold = 0.0025f;
-    if((sensorPitchVariability < sensorVariabilityThreshold) &&
-       (sensorRollVariability < sensorVariabilityThreshold) &&
-       (sensorYawVariability < sensorVariabilityThreshold))
+    constexpr float SensorVariabilityThreshold = 0.0025F;
+    if((sensorPitchVariability < SensorVariabilityThreshold) &&
+       (sensorRollVariability < SensorVariabilityThreshold) &&
+       (sensorYawVariability < SensorVariabilityThreshold))
     {
         sensorPitchReference = sensorPitch;
         sensorRollReference = sensorRoll;
@@ -218,7 +221,7 @@ void Yoke::handler(void)
         calibrationLed = 0;
     }
 
-    // calculate sensor calibrated values
+    // calculate sensor calibrated values [rad]
     float calibratedSensorPitch = sensorPitch - sensorPitchReference;
     float calibratedSensorRoll = sensorRoll - sensorRollReference;
     float calibratedSensorYaw = sensorYaw - sensorYawReference;
@@ -231,7 +234,7 @@ void Yoke::handler(void)
     g_sensorRoll = sensorRoll;
     g_sensorYaw = sensorYaw;
 
-    // calculate joystick pitch and roll depending on the joystick yaw
+    // calculate joystick pitch and roll depending on the joystick yaw [rad]
     float sin2yaw = sin(sensorYaw) * fabs(sin(sensorYaw));
     float cos2yaw = cos(sensorYaw) * fabs(cos(sensorYaw));
 
@@ -240,43 +243,46 @@ void Yoke::handler(void)
     float joystickYaw = calibratedSensorYaw;
 
     // calculate joystick axes gain
-    joystickGainFilter.calculate(blueGrayPotentiometer.read() + 0.5f);  // range 0.5 .. 1.5
+    joystickGainFilter.calculate(blueGrayPotentiometer.read() + 0.5F);  // range 0.5 .. 1.5     NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
-    float leftBrake;
-    float rightBrake;
+    float leftBrake{0.0F};
+    float rightBrake{0.0F};
 
     // scale joystick axes to USB joystick report range
     if(brakeActive)
     {
         // both brakes from joystick deflected forward
-        leftBrake = rightBrake = 2.0f * ( joystickPitch < 0 ? -joystickPitch : 0.0f);
+        leftBrake = rightBrake = 2.0F * ( joystickPitch < 0 ? -joystickPitch : 0.0F);       //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
         // left and right brakes from joystick deflected sideways
-        leftBrake += (joystickRoll < 0 ? -joystickRoll : 0.0f);
-        rightBrake += (joystickRoll > 0 ? joystickRoll : 0.0f);
+        leftBrake += (joystickRoll < 0 ? -joystickRoll : 0.0F);
+        rightBrake += (joystickRoll > 0 ? joystickRoll : 0.0F);
     }
     else
     {
         // update pitch axis when not braking only
-        joystickData.Y = scale<float, int16_t>(-0.9f, 0.9f, joystickPitch * joystickGainFilter.getValue(), -32767, 32767);
+        constexpr float MaxAngleY = 0.9F;   // [rad]
+        joystickData.Y = scale<float, int16_t>(-MaxAngleY, MaxAngleY, joystickPitch * joystickGainFilter.getValue(), -Max15bit, Max15bit);
         // release brakes
-        leftBrake = 0.0f;
-        rightBrake = 0.0f;
+        leftBrake = 0.0F;
+        rightBrake = 0.0F;
     }
-    joystickData.X = scale<float, int16_t>(-1.45f, 1.45f, joystickRoll * joystickGainFilter.getValue(), -32767, 32767);
-    joystickData.Rz = scale<float, int16_t>(-0.78f, 0.78f, joystickYaw * joystickGainFilter.getValue(), -32767, 32767);
+    constexpr float MaxAngleX = 1.45F;   // [rad]
+    joystickData.X = scale<float, int16_t>(-MaxAngleX, MaxAngleX, joystickRoll * joystickGainFilter.getValue(), -Max15bit, Max15bit);
+    constexpr float MaxAngleZ = 0.78F;   // [rad]
+    joystickData.Rz = scale<float, int16_t>(-MaxAngleZ, MaxAngleZ, joystickYaw * joystickGainFilter.getValue(), -Max15bit, Max15bit);
 
     throttleFilter.calculate(throttlePotentiometer.read());
     throttleInput = throttleFilter.getValue();
-    const float ThrottleDeadZone = 0.03f;
-    joystickData.slider = scale<float, int16_t>(throttleInputMin + ThrottleDeadZone, throttleInputMax - ThrottleDeadZone, throttleInput, 0, 32767);
+    const float ThrottleDeadZone = 0.03F;
+    joystickData.slider = scale<float, int16_t>(throttleInputMin + ThrottleDeadZone, throttleInputMax - ThrottleDeadZone, throttleInput, 0, Max15bit);
 
     propellerFilter.calculate(propellerPotentiometer.read());
-    joystickData.dial = scale<float, int16_t>(0.0f, 1.0f, propellerFilter.getValue(), 0, 32767);
+    joystickData.dial = scale<float, int16_t>(0.0F, 1.0F, propellerFilter.getValue(), 0, Max15bit);
 
     mixtureFilter.calculate(mixturePotentiometer.read());
-    joystickData.Z = scale<float, int16_t>(0.0f, 1.0f, mixtureFilter.getValue(), -32767, 32767);
-    joystickData.Rx = scale<float, int16_t>(0.0f, 1.0f, leftBrake, 0, 32767);
-    joystickData.Ry = scale<float, int16_t>(0.0f, 1.0f, rightBrake, 0, 32767);
+    joystickData.Z = scale<float, int16_t>(0.0F, 1.0F, mixtureFilter.getValue(), -Max15bit, Max15bit);
+    joystickData.Rx = scale<float, int16_t>(0.0F, 1.0F, leftBrake, 0, Max15bit);
+    joystickData.Ry = scale<float, int16_t>(0.0F, 1.0F, rightBrake, 0, Max15bit);
 
     // set joystick buttons
     setJoystickButtons();
@@ -287,7 +293,8 @@ void Yoke::handler(void)
     axisCalibration();
 
     // LED heartbeat
-    systemLed = ((counter & 0x68) == 0x68);
+    constexpr uint32_t HeartbeatMask = 0x68U;
+    systemLed = (counter & HeartbeatMask) == HeartbeatMask ? 1U : 0;
 }
 
 /*

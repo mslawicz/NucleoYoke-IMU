@@ -2,10 +2,10 @@
 #define YOKE_H_
 
 #include "USBJoystick.h"
-#include "I2CDevice.h"
 #include "Console.h"
-#include "Switch.h"
 #include "Filter.h"
+#include "I2CDevice.h"
+#include "Switch.h"
 #include <mbed.h>
 
 #define USB_VID     0x0483 //STElectronics
@@ -21,7 +21,8 @@
 #define LSM9DS1_M_ADD   0x3C
 #define LSM9DS1_INT1    PD_1
 
-template<typename T> struct Vector3D
+template<typename T> struct Vector3D    //NOLINT(altera-struct-pack-align)
+
 {
     T X;
     T Y;
@@ -63,18 +64,18 @@ enum struct YokeMode
 class Yoke
 {
 public:
-    Yoke(events::EventQueue& eventQueue);
+    explicit Yoke(events::EventQueue& eventQueue);
     void displayStatus(CommandVector& cv);
-    void displayAll(void);
+    void displayAll();
 private:
-    void imuInterruptHandler(void) { eventQueue.call(callback(this, &Yoke::handler)); }
-    void handler(void);
-    void setJoystickButtons(void);
-    void axisCalibration(void);
-    void toggleAxisCalibration(void);
-    void toggleStopwatch(void);
-    void displayMode(void);
-    void displayStopwatch(void);
+    void imuInterruptHandler() { eventQueue.call(callback(this, &Yoke::handler)); }
+    void handler();
+    void setJoystickButtons();
+    void axisCalibration();
+    void toggleAxisCalibration();
+    void toggleStopwatch();
+    void displayMode();
+    void displayStopwatch();
     events::EventQueue& eventQueue;     // event queue of the main thread
     DigitalOut systemLed;               // yoke heartbeat LED
     uint32_t counter{0};                // counter of handler execution
@@ -85,17 +86,19 @@ private:
     I2CDevice sensorM;                  // magnetometer sensor
     Timeout imuIntTimeout;              // timeout of the IMU sensor interrupts
     Timer handlerTimer;                 // measures handler call period
-    Vector3D<int16_t> gyroscopeData;    // raw data from gyroscope
-    Vector3D<int16_t> accelerometerData;    // raw data from accelerometer
-    Vector3D<int16_t> magnetometerData; // raw data from magnetometer
-    Vector3D<float> angularRate;        // measured IMU sensor angular rate in rad/s
-    Vector3D<float>  acceleration;      // measured IMU sensor acceleration in g
-    Vector3D<float>  magneticField;     // measured magnetometer sensor magnetic field in gauss
-    const float AngularRateResolution = 500.0f * 3.14159265f / 180.0f / 32768.0f;   // 1-bit resolution of angular rate in rad/s
-    const float AccelerationResolution = 2.0f / 32768.0f;   // 1-bit resolution of acceleration in g
-    const float MagneticFieldResolution = 16.0f / 32768.0f;   // 1-bit resolution of magnetic field in gauss
-    float sensorPitch{0.0f}, sensorRoll{0.0f}, sensorYaw{0.0f};             // orientation of the IMU sensor
-    float sensorPitchVariability{0.0f}, sensorRollVariability{0.0f}, sensorYawVariability{0.0f};
+    Vector3D<int16_t> gyroscopeData{0};    // raw data from gyroscope
+    Vector3D<int16_t> accelerometerData{0};    // raw data from accelerometer
+    Vector3D<int16_t> magnetometerData{0}; // raw data from magnetometer
+    Vector3D<float> angularRate{0.0F};        // measured IMU sensor angular rate in rad/s
+    Vector3D<float>  acceleration{0.0F};      // measured IMU sensor acceleration in g
+    Vector3D<float>  magneticField{0.0F};     // measured magnetometer sensor magnetic field in gauss
+    static constexpr float PI = 3.14159265359F;
+    static constexpr int16_t Max15bit = 0x7FFF;     // maximum 15-bit number (32767)
+    const float AngularRateResolution = 500.0F * PI / 180.0F / 32768.0F;   // 1-bit resolution of angular rate in rad/s
+    const float AccelerationResolution = 2.0F / 32768.0F;   // 1-bit resolution of acceleration in g
+    const float MagneticFieldResolution = 16.0F / 32768.0F;   // 1-bit resolution of magnetic field in gauss
+    float sensorPitch{0.0F}, sensorRoll{0.0F}, sensorYaw{0.0F};             // orientation of the IMU sensor
+    float sensorPitchVariability{0.0F}, sensorRollVariability{0.0F}, sensorYawVariability{0.0F};
     float sensorPitchReference, sensorRollReference, sensorYawReference;
     DigitalOut calibrationLed;
     JoystickData joystickData{0};
@@ -124,7 +127,7 @@ private:
     FilterEMA joystickGainFilter;
     YokeMode yokeMode;
     bool isCalibrationOn{false};
-    float throttleInput;
+    float throttleInput{0.0F};
     float throttleInputMin;
     float throttleInputMax;
     bool isStopwatchDisplayed{false};
