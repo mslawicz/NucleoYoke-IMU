@@ -5,6 +5,7 @@
 #include "Display.h"
 #include "Menu.h"
 #include "Logger.h"
+#include <iomanip>
 
 //XXX global variables for test
 float g_gyroX, g_gyroY, g_gyroZ;    //NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -302,36 +303,36 @@ void Yoke::handler()
  */
 void Yoke::displayStatus(CommandVector&  /*cv*/)
 {
-    printf("yoke mode = %s\r\n", modeTexts[static_cast<int>(yokeMode)].c_str());
-    printf("IMU sensor pitch/roll/yaw = %f %f %f\r\n", sensorPitch, sensorRoll, sensorYaw);
-    printf("reference pitch/roll/yaw = %f %f %f\r\n", sensorPitchReference, sensorRollReference, sensorYawReference);
-    printf("joystick X = %d\r\n", joystickData.X);
-    printf("joystick Y = %d\r\n", joystickData.Y);
-    printf("joystick Z = %d\r\n", joystickData.Z);
-    printf("joystick Rx = %d\r\n", joystickData.Rx);
-    printf("joystick Ry = %d\r\n", joystickData.Ry);
-    printf("joystick Rz = %d\r\n", joystickData.Rz);
-    printf("joystick slider = %d\r\n", joystickData.slider);
-    printf("joystick dial = %d\r\n", joystickData.dial);
-    printf("joystick hat = 0x%02X\r\n", joystickData.hat);
-    printf("joystick buttons = 0x%08X\r\n", joystickData.buttons);
-    printf("throttle min / value / max = %f %f %f\r\n", throttleInputMin, throttleInput, throttleInputMax);
+    std::cout << "yoke mode = " << modeTexts[static_cast<int>(yokeMode)] << std::endl;
+    std::cout << "IMU sensor pitch/roll/yaw = " << sensorPitch << ", " << sensorRoll << ", " << sensorYaw << std::endl;
+    std::cout << "reference pitch/roll/yaw = " << sensorPitchReference << ", " << sensorRollReference << ", " << sensorYawReference << std::endl;
+    std::cout << "joystick X = " << joystickData.X << std::endl;
+    std::cout << "joystick Y = " << joystickData.Y << std::endl;
+    std::cout << "joystick Z = " << joystickData.Z << std::endl;
+    std::cout << "joystick Rx = " << joystickData.Rx << std::endl;
+    std::cout << "joystick Ry = " << joystickData.Ry << std::endl;
+    std::cout << "joystick Rz = " << joystickData.Rz << std::endl;
+    std::cout << "joystick slider = " << joystickData.slider << std::endl;
+    std::cout << "joystick dial = " << joystickData.dial << std::endl;
+    std::cout << "joystick hat = 0x" << std::hex << std::setw(2) << std::setfill('0') << joystickData.hat << std::endl;
+    std::cout << "joystick buttons = 0x" << std::hex << std::setw(8) << std::setfill('0') << joystickData.buttons << std::endl;     //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    std::cout << "throttle min/value/max = " << throttleInputMin << ", " << throttleInput << ", " << throttleInputMax << std::endl;
 }
 
 /*
 set joystick buttons
 */
-void Yoke::setJoystickButtons(void)
+void Yoke::setJoystickButtons()
 {
     auto setButton = [&](uint8_t input, uint8_t position)
     {
-        if(input)
+        if(input != 0)
         {
-            joystickData.buttons &= ~(1 << position);
+            joystickData.buttons &= ~(1 << position);       //NOLINT(hicpp-signed-bitwise)
         }
         else
         {
-            joystickData.buttons |= 1 << position;
+            joystickData.buttons |= 1 << position;          //NOLINT(hicpp-signed-bitwise)
         }
     };
 
@@ -342,7 +343,7 @@ void Yoke::setJoystickButtons(void)
     setButton(gearUpSwitch.read(), 2);
     setButton(gearDownSwitch.read(), 3);
     setButton(redPushbutton.read(), 4);
-    setButton(greenPushbutton.read(), 5);
+    setButton(greenPushbutton.read(), 5);       //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
     // set buttons from HAT switch
     uint8_t hatPosition = hatSwitch.getPosition();
@@ -351,43 +352,40 @@ void Yoke::setJoystickButtons(void)
     {
         case HatSwitchMode::FreeViewMode:
             joystickData.hat = hatSwitch.getPosition();
-            setButton(hatCenterSwitch.read(), 10);
+            setButton(hatCenterSwitch.read(), 10);          //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
             break;
         case HatSwitchMode::QuickViewMode:
             joystickData.hat = 0;
             if(hatPosition != 0)
             {
-                setButton(0, 15 + hatPosition); // set one button in the range 16-23
+                setButton(0, 15 + hatPosition); // set one button in the range 16-23    NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
             }
-            setButton(hatCenterSwitch.read(), 24);
+            setButton(hatCenterSwitch.read(), 24);      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
             break;
         case HatSwitchMode::TrimMode:
             joystickData.hat = 0;
-            setButton(hatPosition != 1, 6); // elevator trim down
-            setButton(hatPosition != 5, 7); // elevator trim up
-            setButton(hatPosition != 3, 8); // rudder trim right
-            setButton(hatPosition != 7, 9); // rudder trim left
+            setButton(static_cast<uint8_t>(hatPosition != 1), 6); // elevator trim down     NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+            setButton(static_cast<uint8_t>(hatPosition != 5), 7); // elevator trim up       NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+            setButton(static_cast<uint8_t>(hatPosition != 3), 8); // rudder trim right      NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+            setButton(static_cast<uint8_t>(hatPosition != 7), 9); // rudder trim left       NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
             break;
         default:
             break;
     }
 
-    setButton(setSwitch.read(), 11);
-    setButton(resetSwitch.read(), 12);
-    // if(joystickData.slider < 3277)    // allow toggling reverser in the lowest 10% of throttle range only
-    // {
-    //     setButton(reverserSwitch.read(), 13);
-    // }
-    setButton(reverserSwitch.read(), 13);
-    setButton(speedBrakeSwitch.read(), 14);
+    setButton(setSwitch.read(), 11);        //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    setButton(resetSwitch.read(), 12);      //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    setButton(reverserSwitch.read(), 13);   //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    setButton(speedBrakeSwitch.read(), 14); //NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 }
 
 /*
 * display yoke mode on screen
 */
-void Yoke::displayMode(void)
+void Yoke::displayMode()
 {
-    Display::getInstance().setFont(FontTahoma11, false, 127);
+    constexpr uint8_t LimitX = 127U;
+    Display::getInstance().setFont(static_cast<const uint8_t*>(FontTahoma11), false, LimitX);
     std::string text = "mode: " + modeTexts[static_cast<int>(yokeMode)]; 
     Display::getInstance().print(0, 2, text);
     Display::getInstance().update();
@@ -396,7 +394,7 @@ void Yoke::displayMode(void)
 /*
 analog axis calibration on user request
 */
-void Yoke::axisCalibration(void)
+void Yoke::axisCalibration()
 {
     if(isCalibrationOn)
     {
